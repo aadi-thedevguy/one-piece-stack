@@ -13,7 +13,7 @@ import {
     targetQueryParam,
     typeQueryParam,
     type VerificationTypes,
-} from '~/routes/_auth+/verify'
+} from '~/lib/validations'
 
 export function getRedirectToUrl({
     request,

@@ -1,7 +1,7 @@
 import { invariant } from '@epic-web/invariant'
 import { redirect } from '@remix-run/node'
 import { verifySessionStorage } from '~/lib/auth/verification.server'
-import { onboardingEmailSessionKey } from '~/routes/_auth+/onboarding'
+import { onboardingEmailSessionKey } from '~/constants/keys'
 import { type VerifyFunctionArgs } from '~/types'
 
 export async function handleVerification({ submission }: VerifyFunctionArgs) {

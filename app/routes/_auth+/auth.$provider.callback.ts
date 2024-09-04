@@ -21,8 +21,7 @@ import {
 } from '~/lib/toast.server'
 import { verifySessionStorage } from '~/lib/auth/verification.server'
 import { handleNewSession } from '~/lib/auth/login.server'
-import { onboardingEmailSessionKey } from './onboarding'
-import { prefilledProfileKey, providerIdKey } from '~/constants/keys'
+import { prefilledProfileKey, providerIdKey, onboardingEmailSessionKey } from '~/constants/keys'
 
 const destroyRedirectTo = { 'set-cookie': destroyRedirectToHeader }
 

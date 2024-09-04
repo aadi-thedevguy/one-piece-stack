@@ -31,11 +31,10 @@ import {
 	signupWithConnection,
 	requireAnonymous,
 } from '~/lib/auth/auth.server'
-import { prefilledProfileKey, providerIdKey, sessionKey } from '~/constants/keys'
+import { prefilledProfileKey, providerIdKey, sessionKey, onboardingEmailSessionKey } from '~/constants/keys'
 import { redirectWithToast } from '~/lib/toast.server'
 import { auth as authenticator, connectionSessionStorage } from '~/lib/auth/google-auth.server'
 import { ProviderNameSchema } from '~/lib/validations'
-import { onboardingEmailSessionKey } from './onboarding'
 import { SignupFormSchema } from '~/lib/validations/user-validation'
 
 async function requireData({

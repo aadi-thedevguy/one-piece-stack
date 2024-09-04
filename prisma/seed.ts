@@ -6,7 +6,7 @@ async function seed() {
     console.log('🌱 Seeding...')
     console.time(`🌱 Database has been seeded`)
 
-    console.time('🧹 Cleaned up the database...')
+    console.time('🧹 Cleaning up the database...')
     await Promise.all([
         prisma.user.deleteMany(),
         prisma.note.deleteMany(),
@@ -14,7 +14,6 @@ async function seed() {
         prisma.verification.deleteMany(),
         prisma.session.deleteMany(),
         prisma.password.deleteMany(),
-        prisma.noteImage.deleteMany(),
         prisma.userImage.deleteMany(),
 
     ])

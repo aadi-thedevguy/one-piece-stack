@@ -6,12 +6,12 @@
 -   Built with/for [Remix](https://remix.run)
 -   Written in [TypeScript](https://typescriptlang.org)
 -   Database - [MongoDB](https://mongodb.com)
--   ORM - [Prisma](https://mongoosejs.com)
--   Email/Password Authentication with Email Verification, OAuth with Google or Twitter - [remix-auth](https://github.com/sergiodxa/remix-auth/) 
+-   ORM - [Prisma](https://prisma.io)
+-   Email/Password Authentication with Email OTP, OAuth with Google/Twitter - [remix-auth](https://github.com/sergiodxa/remix-auth/) 
 -   Transactional emails - [Nodemailer](https://nodemailer.com/)
 -   Component Library - [ShadCN UI](https://ui.shadcn.com/)
 -   Styling - [TailwindCSS](https://tailwindcss.com)
--   Code formatting and linting
+-   Code formatting and linting with Eslint and Prettier
 -   Health check API route
 
 ## Upcoming

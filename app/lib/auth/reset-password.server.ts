@@ -2,7 +2,7 @@ import { invariant } from '@epic-web/invariant'
 import { json, redirect } from '@remix-run/node'
 import { prisma } from '~/lib/db.server'
 import { verifySessionStorage } from '~/lib/auth/verification.server'
-import { resetPasswordUsernameSessionKey } from '../../routes/_auth+/reset-password'
+import { resetPasswordUsernameSessionKey } from '~/constants/keys'
 import { type VerifyFunctionArgs } from '~/types'
 
 export async function handleVerification({ submission }: VerifyFunctionArgs) {
