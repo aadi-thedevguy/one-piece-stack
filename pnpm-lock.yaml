@@ -36,8 +36,8 @@ importers:
         specifier: ^8.4.1
         version: 8.4.1
       '@nasa-gcn/remix-seo':
-        specifier: github:nasa-gcn/remix-seo
-        version: https://codeload.github.com/nasa-gcn/remix-seo/tar.gz/37c226497a8ff261f6fa2fff95c0eec511b5f237(@remix-run/react@2.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@remix-run/server-runtime@2.11.2(typescript@5.5.4))
+        specifier: ^2.0.1
+        version: 2.0.1(@remix-run/react@2.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@remix-run/server-runtime@2.11.2(typescript@5.5.4))
       '@prisma/client':
         specifier: ^5.19.0
         version: 5.19.0(prisma@5.19.0)
@@ -1099,9 +1099,8 @@ packages:
   '@mdx-js/mdx@2.3.0':
     resolution: {integrity: sha512-jLuwRlz8DQfQNiUCJR50Y09CGPq3fLtmtUQfVrj79E0JWu3dvsVcxVIcfhR5h0iXu+/z++zDrYeiJqifRynJkA==}
 
-  '@nasa-gcn/remix-seo@https://codeload.github.com/nasa-gcn/remix-seo/tar.gz/37c226497a8ff261f6fa2fff95c0eec511b5f237':
-    resolution: {tarball: https://codeload.github.com/nasa-gcn/remix-seo/tar.gz/37c226497a8ff261f6fa2fff95c0eec511b5f237}
-    version: 2.0.1
+  '@nasa-gcn/remix-seo@2.0.1':
+    resolution: {integrity: sha512-g9biDdYfsdFBnOU7lM+7vPGEXSEMRnWmfVLDQ98pT0PnTT/O3pFuA+s3DA0Mj9IwnAq9IcLs2Wee/aL6fvEA+A==}
     peerDependencies:
       '@remix-run/react': ^1.0.0 || ^2.0.0
       '@remix-run/server-runtime': ^1.0.0 || ^2.0.0
@@ -6661,7 +6660,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nasa-gcn/remix-seo@https://codeload.github.com/nasa-gcn/remix-seo/tar.gz/37c226497a8ff261f6fa2fff95c0eec511b5f237(@remix-run/react@2.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@remix-run/server-runtime@2.11.2(typescript@5.5.4))':
+  '@nasa-gcn/remix-seo@2.0.1(@remix-run/react@2.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@remix-run/server-runtime@2.11.2(typescript@5.5.4))':
     dependencies:
       '@remix-run/react': 2.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4)
       '@remix-run/server-runtime': 2.11.2(typescript@5.5.4)
