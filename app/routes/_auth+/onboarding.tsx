@@ -27,6 +27,8 @@ import { verifySessionStorage } from '~/lib/auth/verification.server'
 import { prisma } from '~/lib/db.server'
 import { authSessionStorage } from '~/lib/auth/auth-session.server'
 import { redirectWithToast } from '~/lib/toast.server'
+import { validateCSRF } from '~/lib/csrf.server'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 async function requireOnboardingEmail(request: Request) {
 	await requireAnonymous(request)
@@ -48,6 +50,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
 	const email = await requireOnboardingEmail(request)
 	const formData = await request.formData()
+	await validateCSRF(formData, request.headers)
 	checkHoneypot(formData)
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
@@ -143,6 +146,7 @@ export default function OnboardingRoute() {
 					className="mx-auto min-w-full max-w-sm sm:min-w-[368px]"
 					{...getFormProps(form)}
 				>
+					<AuthenticityTokenInput />
 					<HoneypotInputs />
 					<Field
 						labelProps={{ htmlFor: fields.username.id, children: 'Username' }}

@@ -2,19 +2,25 @@ import { z } from 'zod'
 
 const schema = z.object({
 	NODE_ENV: z.enum(['production', 'development', 'test'] as const),
-	// DATABASE_PATH: z.string(),
 	DATABASE_URL: z.string(),
 	SESSION_SECRET: z.string(),
-	INTERNAL_COMMAND_TOKEN: z.string(),
 	HONEYPOT_SECRET: z.string(),
-	// CACHE_DATABASE_PATH: z.string(),
-	// If you plan on using Sentry, uncomment this line
-	// SENTRY_DSN: z.string(),
-	// If you plan to use Resend, uncomment this line
-	// RESEND_API_KEY: z.string(),
-	// If you plan to use GitHub auth, remove the default:
-	TWITTER_CLIENT_ID: z.string().default('MOCK_TWITTER_CLIENT_ID'),
-	TWITTER_CLIENT_SECRET: z.string().default('MOCK_TWITTER_CLIENT_SECRET'),
+	REDIS_URL: z.string(),
+	SENTRY_DSN: z.string(),
+	EMAIL_FROM_ADDRESS: z.string(),
+	ADMIN_EMAIL: z.string(),
+	EMAIL_PASSWORD: z.string(),
+	SMTP_SERVER: z.string(),
+	MY_AWS_S3_BUCKET: z.string(),
+	MY_AWS_DEFAULT_REGION: z.string(),
+	MY_AWS_ACCESS_KEY_ID: z.string(),
+	MY_AWS_SECRET_ACCESS_KEY: z.string(),
+	// TWITTER_CLIENT_ID: z.string().default('MOCK_TWITTER_CLIENT_ID'),
+	// TWITTER_CLIENT_SECRET: z.string().default('MOCK_TWITTER_CLIENT_SECRET'),
+	GOOGLE_CLIENT_ID: z.string().default('MOCK_GOOGLE_CLIENT_ID'),
+	GOOGLE_CLIENT_SECRET: z.string().default('MOCK_GOOGLE_CLIENT_SECRET'),
+	GITHUB_CLIENT_ID: z.string().default('MOCK_GITHUB_CLIENT_ID'),
+	GITHUB_CLIENT_SECRET: z.string().default('MOCK_GITHUB_CLIENT_SECRET'),
 	ALLOW_INDEXING: z.enum(['true', 'false']).optional(),
 })
 

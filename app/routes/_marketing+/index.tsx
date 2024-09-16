@@ -1,9 +1,8 @@
 import { json } from '@remix-run/node'
 import Hero from '~/components/landing/hero'
 import CTA from '~/components/landing/call-to-action'
-import { CTA_DATA, FEATURES, PLANS_DATA } from '~/constants'
+import { CTA_DATA, FEATURES } from '~/constants/index'
 import { SpiralArrowIcon } from '~/constants/icons'
-import Plans from '~/components/landing/plans'
 
 export async function loader() {
 	const res = await fetch(
@@ -65,7 +64,6 @@ export default function Index() {
 					<SpiralArrowIcon />
 				</div>
 				<CTA value={CTA_DATA} />
-				<Plans value={PLANS_DATA} />
 				<Features />
 			</div>
 		</>

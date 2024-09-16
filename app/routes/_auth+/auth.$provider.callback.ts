@@ -3,7 +3,7 @@ import {
     getSessionExpirationDate,
     getUserId,
 } from '~/lib/auth/auth.server'
-import { auth as authenticator } from "~/lib/auth/google-auth.server"
+import { auth as authenticator } from "~/lib/auth/connections.server"
 import { providerLabels } from '~/lib/auth/connections'
 import { ProviderNameSchema } from '~/lib/validations'
 import { prisma } from '~/lib/db.server'

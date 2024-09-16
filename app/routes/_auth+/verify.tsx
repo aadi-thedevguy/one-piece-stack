@@ -11,6 +11,8 @@ import { checkHoneypot } from '~/lib/honeypot.server'
 import { useIsPending } from '~/lib/utils'
 import { validateRequest } from '~/lib/auth/verify.server'
 import { codeQueryParam, redirectToQueryParam, targetQueryParam, typeQueryParam, VerificationTypes, VerificationTypeSchema, VerifySchema } from '~/lib/validations'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
+import { validateCSRF } from '~/lib/csrf.server'
 
 export const handle: SEOHandle = {
 	getSitemapEntries: () => null,
@@ -18,6 +20,7 @@ export const handle: SEOHandle = {
 
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
+	await validateCSRF(formData, request.headers)
 	checkHoneypot(formData)
 	return validateRequest(request, formData)
 }
@@ -74,6 +77,7 @@ export default function VerifyRoute() {
 				</div>
 				<div className="flex w-full gap-2">
 					<Form method="POST" {...getFormProps(form)} className="flex-1">
+						<AuthenticityTokenInput />
 						<HoneypotInputs />
 						<div className="flex items-center justify-center">
 							<OTPField

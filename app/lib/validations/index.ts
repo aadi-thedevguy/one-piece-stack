@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { v4 as cuid } from 'uuid'
 
-export const providerNames = ['google'] as const
+export const providerNames = ['google', 'github'] as const
 const types = ['onboarding', 'reset-password', 'change-email'] as const
 export const codeQueryParam = 'code'
 export const targetQueryParam = 'target'

@@ -77,9 +77,37 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            color: theme("colors.foreground"),
+            "ul > li": {
+              position: "relative",
+            },
+            "ul > li::before": {
+              content: "'👉'",
+              listStyleType: "none",
+              position: "absolute",
+              left: "-1.5rem",
+              // backgroundColor: theme("colors.gray.500"),
+            },
+            blockquote: {
+              borderLeftColor: theme("colors.border"),
+              color: theme("colors.foreground"),
+            },
+            em: {
+              color: theme("colors.foreground"),
+            },
+            strong: {
+              color: theme("colors.foreground"),
+            },
+
+          },
+        },
+      }),
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config
 
-export default config
+export default config 

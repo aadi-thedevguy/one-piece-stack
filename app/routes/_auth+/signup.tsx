@@ -27,6 +27,8 @@ import { sendEmail } from '~/lib/email.server'
 import { prepareVerification } from '~/lib/auth/verify.server'
 import { invariant } from '@epic-web/invariant'
 import { SignupEmail } from '~/components/mails/SignupEmail'
+import { validateCSRF } from '~/lib/csrf.server'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 export const handle: SEOHandle = {
 	getSitemapEntries: () => null,
@@ -39,6 +41,7 @@ const SignupSchema = z.object({
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
 
+	await validateCSRF(formData, request.headers)
 	checkHoneypot(formData)
 
 	const submission = await parseWithZod(formData, {
@@ -125,6 +128,7 @@ export default function SignupRoute() {
 			</div>
 			<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
 				<Form method="POST" {...getFormProps(form)}>
+					<AuthenticityTokenInput />
 					<HoneypotInputs />
 					<Field
 						labelProps={{

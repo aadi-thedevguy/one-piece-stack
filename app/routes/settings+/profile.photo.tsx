@@ -28,8 +28,10 @@ import { prisma } from '~/lib/db.server'
 // 	useDoubleCheck,
 // 	useIsPending,
 // } from '~/lib/utils'
-import { type BreadcrumbHandle } from './profile'
+import { type BreadcrumbHandle } from '~/lib/validations'
+// import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 import { AvatarIcon } from '@radix-ui/react-icons'
+import { validateCSRF } from '~/lib/csrf.server'
 // import { Pencil, TrashIcon } from 'lucide-react'
 
 export const handle: BreadcrumbHandle & SEOHandle = {
@@ -79,11 +81,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
 	const userId = await requireUserId(request)
+
 	const formData = await unstable_parseMultipartFormData(
 		request,
 		unstable_createMemoryUploadHandler({ maxPartSize: MAX_SIZE }),
 	)
-
+	await validateCSRF(formData, request.headers)
 	const submission = await parseWithZod(formData, {
 		schema: PhotoFormSchema.transform(async (data) => {
 			if (data.intent === 'delete') return { intent: 'delete' }
@@ -160,6 +163,7 @@ export default function PhotoRoute() {
 				onReset={() => setNewImageSrc(null)}
 				{...getFormProps(form)}
 			>
+				<AuthenticityTokenInput />
 				<img
 					src={
 						newImageSrc ?? (data.user ? getUserImgSrc(data.user.image?.id) : '')

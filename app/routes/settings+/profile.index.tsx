@@ -21,6 +21,8 @@ import { authSessionStorage } from '~/lib/auth/auth-session.server'
 import { redirectWithToast } from '~/lib/toast.server'
 import { Camera, EyeOffIcon, TrashIcon } from 'lucide-react'
 import { AvatarIcon } from '@radix-ui/react-icons'
+import { validateCSRF } from '~/lib/csrf.server'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 export const handle: SEOHandle = {
 	getSitemapEntries: () => null,
@@ -74,6 +76,7 @@ const deleteDataActionIntent = 'delete-data'
 export async function action({ request }: ActionFunctionArgs) {
 	const userId = await requireUserId(request)
 	const formData = await request.formData()
+	await validateCSRF(formData, request.headers)
 	const intent = formData.get('intent')
 	switch (intent) {
 		case profileUpdateActionIntent: {
@@ -199,6 +202,7 @@ function UpdateProfile() {
 
 	return (
 		<fetcher.Form method="POST" {...getFormProps(form)}>
+			<AuthenticityTokenInput />
 			<div className="grid grid-cols-6 gap-x-10">
 				<Field
 					className="col-span-3"
@@ -263,6 +267,7 @@ function SignOutOfSessions() {
 		<>
 			{otherSessionsCount ? (
 				<fetcher.Form method="POST">
+					<AuthenticityTokenInput />
 					<StatusButton
 						{...dc.getButtonProps({
 							type: 'submit',
@@ -312,6 +317,7 @@ function DeleteData() {
 	return (
 		<>
 			<fetcher.Form method="POST">
+				<AuthenticityTokenInput />
 				<StatusButton
 					{...dc.getButtonProps({
 						type: 'submit',

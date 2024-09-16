@@ -33,7 +33,7 @@ import {
 } from '~/lib/auth/auth.server'
 import { prefilledProfileKey, providerIdKey, sessionKey, onboardingEmailSessionKey } from '~/constants/keys'
 import { redirectWithToast } from '~/lib/toast.server'
-import { auth as authenticator, connectionSessionStorage } from '~/lib/auth/google-auth.server'
+import { auth as authenticator, connectionSessionStorage } from '~/lib/auth/connections.server'
 import { ProviderNameSchema } from '~/lib/validations'
 import { SignupFormSchema } from '~/lib/validations/user-validation'
 

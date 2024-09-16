@@ -4,6 +4,8 @@ import express from "express";
 import morgan from "morgan";
 import closeWithGrace from 'close-with-grace'
 import rateLimit from 'express-rate-limit'
+import Redis from "ioredis"
+import { RedisStore } from 'rate-limit-redis'
 
 const viteDevServer =
   process.env.NODE_ENV === "production"
@@ -69,8 +71,12 @@ app.get(['/img/*', '/favicons/*'], (_req, res) => {
 morgan.token('url', (req) => decodeURIComponent(req.url ?? ''))
 app.use(morgan("tiny"));
 
+// redis store
+const client = new Redis(process.env.REDIS_URL)
+
 const maxMultiple =
     process.env.MODE !== "production" ? 10_000 : 1
+    
 const rateLimitDefault = {
     windowMs: 60 * 1000,
     max: 1000 * maxMultiple,
@@ -84,18 +90,45 @@ const rateLimitDefault = {
     keyGenerator: (req) => {
         return req.get('fly-client-ip') ?? `${req.ip}`
     },
+    // Redis store configuration
+    store : new RedisStore({
+      prefix : 'default:',
+      sendCommand: (...args) => client.call(...args),
+    }),
 }
 
+
 const strongestRateLimit = rateLimit({
-    ...rateLimitDefault,
-    windowMs: 60 * 1000,
-    max: 10 * maxMultiple,
+  windowMs: 60 * 1000,
+  max: 10 * maxMultiple,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { trustProxy: false },
+  keyGenerator: (req) => {
+      return req.get('fly-client-ip') ?? `${req.ip}`
+  },
+  // Redis store configuration
+  store : new RedisStore({
+    prefix : 'strongest:',
+    sendCommand: (...args) => client.call(...args),
+  }),
+   
 })
 
 const strongRateLimit = rateLimit({
-    ...rateLimitDefault,
     windowMs: 60 * 1000,
     max: 100 * maxMultiple,
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: { trustProxy: false },
+    keyGenerator: (req) => {
+        return req.get('fly-client-ip') ?? `${req.ip}`
+    },
+    // Redis store configuration
+    store : new RedisStore({
+      prefix : 'strong:',
+      sendCommand: (...args) => client.call(...args),
+    }),
 })
 
 const generalRateLimit = rateLimit(rateLimitDefault)

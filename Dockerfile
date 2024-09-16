@@ -1,41 +1,44 @@
-# syntax = docker/dockerfile:1
-
 # Adjust NODE_VERSION as desired
-# ARG NODE_VERSION=18.17.0
-# FROM node:${NODE_VERSION}-slim as base
-FROM node:latest-slim as base
+ARG NODE_VERSION=21.7.3
+# ARG NODE_VERSION=20.13.1
 
-# LABEL fly_launch_runtime="Remix/Prisma"
+FROM node:${NODE_VERSION}-bookworm-slim AS base
 
-# Remix/Prisma app lives here
+# if you want to use fly.io, uncomment the line below
+# LABEL fly_launch_runtime="Remix"
+
+# Remix app lives here
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+# Set production environment variables
+# ENV NODE_ENV="production"
 
 # Install pnpm
-ARG PNPM_VERSION=8.6.2
-RUN npm install -g pnpm@$PNPM_VERSION
+# ARG PNPM_VERSION=9.1.1
+RUN npm install -g pnpm
 
+# Install OpenSSL
+RUN apt-get update -y && apt-get install -y openssl
 
 # Throw-away build stage to reduce size of final image
-FROM base as build
+FROM base AS build
 
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install -y build-essential openssl pkg-config python-is-python3
-
-# Install node modules
+# Install node modules including dev dependencies
 COPY --link package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod=false
-RUN pnpm seed
 
-# # Generate Prisma Client
-# COPY --link prisma .
-# RUN npx prisma generate
+# Add Prisma and Generate Prisma client
+ADD prisma .
+RUN pnpm dlx prisma generate
 
 # Copy application code
-COPY --link . .
+ADD . .
+# COPY --link . .
+
+# Mount the secret and set it as an environment variable and run the build
+# RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+#   export SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) && \
+#   pnpm run build
 
 # Build application
 RUN pnpm run build
@@ -43,14 +46,8 @@ RUN pnpm run build
 # Remove development dependencies
 RUN pnpm prune --prod
 
-
 # Final stage for app image
 FROM base
-
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built application
 COPY --from=build /app /app

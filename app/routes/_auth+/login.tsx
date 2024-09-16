@@ -24,6 +24,8 @@ import {
 } from "~/lib/validations"
 import { LoginFormSchema } from '~/lib/validations/user-validation'
 import { handleNewSession } from '~/lib/auth/login.server'
+import { validateCSRF } from '~/lib/csrf.server'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 export const handle: SEOHandle = {
 	getSitemapEntries: () => null,
@@ -37,6 +39,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
 	await requireAnonymous(request)
 	const formData = await request.formData()
+	await validateCSRF(formData, request.headers)
 	checkHoneypot(formData)
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
@@ -104,6 +107,7 @@ export default function LoginPage() {
 				<div>
 					<div className="mx-auto w-full max-w-md px-8">
 						<Form method="POST" {...getFormProps(form)}>
+							<AuthenticityTokenInput />
 							<HoneypotInputs />
 							<Field
 								labelProps={{ children: 'Username' }}

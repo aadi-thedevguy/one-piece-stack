@@ -15,7 +15,7 @@ import { useIsPending } from '~/lib/utils'
 import { requireUserId, getPasswordHash } from '~/lib/auth/auth.server'
 import { prisma } from '~/lib/db.server'
 import { PasswordAndConfirmPasswordSchema } from '~/lib/validations/user-validation'
-import { type BreadcrumbHandle } from './profile'
+import { type BreadcrumbHandle } from '~/lib/validations'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 
 export const handle: BreadcrumbHandle & SEOHandle = {

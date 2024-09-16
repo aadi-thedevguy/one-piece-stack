@@ -1,41 +1,65 @@
 # One Piece Stack
+Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can focus on your product and customers
 (inspired by Epic Stack)
 
 ## What's in the box (well, stack)
 
--   Built with/for [Remix](https://remix.run)
--   Written in [TypeScript](https://typescriptlang.org)
--   Database - [MongoDB](https://mongodb.com)
--   ORM - [Prisma](https://prisma.io)
--   Email/Password Authentication with Email OTP, OAuth with Google/Twitter - [remix-auth](https://github.com/sergiodxa/remix-auth/) 
--   Transactional emails - [Nodemailer](https://nodemailer.com/)
--   Component Library - [ShadCN UI](https://ui.shadcn.com/)
--   Styling - [TailwindCSS](https://tailwindcss.com)
--   Code formatting and linting with Eslint and Prettier
--   Health check API route
+[x]   Built with/for [Remix](https://remix.run)
+[x]   Written in [TypeScript](https://typescriptlang.org)
+[x]   Primary Database of Choice - [MongoDB](https://mongodb.com)
+[x]   Secondary Database(optional) - [Redis](https://redis.io)
+[x]   ORM - [Prisma](https://prisma.io)
+[x]   Send Transactional emails with [Nodemailer](https://nodemailer.com/) 
+[x]   Styling with [TailwindCSS](https://tailwindcss.com)
+[x]   Component Library - [ShadCN UI](https://ui.shadcn.com/)
+[x]  Deploys anywhere with [Docker](https://docker.com)
+[]   Upload Files to [S3](https://aws.amazon.com/s3/)
+[]   Error Tracking with [Sentry](https://sentry.io)
+[]   Analytics - [Posthog](https://posthog.com)
+[]   Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
+[x]  Code formatting and linting with Eslint and Prettier
 
-## Upcoming
--   CSRF Protection
--   Deploys anywhere with [Docker](https://docker.com)
--   Analytics - [Posthog](https://posthog.com)
--   Error Tracking - [Sentry](https://sentry.io)
--   Upload Files to [Cloudflare R2 OR S3](https://www.cloudflare.com/products/r2/)
--   Copy Writing Components for Landing Page
--   Billing and Subscriptions using LemonSqueezy
--   Easily Customizable Privacy Policy, Terms of Service, Cookie Policy and Contact Us Pages.
+
+## Features
+[x]  Custom-Built Email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers 
+[x]   Health check API route
+[x]   Dark Mode Support
+[x]   CSRF Protection and Honeypot
+[x]   Caching and Rate-Limiting
+
+
+## Upcoming Tech in the Stack
+-   Customizable Copy Writing Components for Landing Page along with navbar and footer with contact links.
+-   Easily Customizable Privacy Policy, Terms of Service, Cookie Policy
+-   Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/) 
 
 ## Development
 
 Clone this Repo
 
 ```sh
-git clone https://github.com/aadi-thedevguy/remix-saas
+git clone https://github.com/aadi-thedevguy/one-piece-stack
 ```
 
 Install dependencies:
 
 ```sh
 pnpm i
+```
+
+Replace .env.example with .env and fill in the values and fill in the keys.
+
+Start Local Database:
+
+```sh
+docker-compose up -d
+```
+
+Seed Database and Generate Prisma Client Types:
+
+```sh
+pnpm run gen-types
+pnpm prisma db seed
 ```
 
 Start dev server:

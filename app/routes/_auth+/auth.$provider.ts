@@ -1,5 +1,5 @@
 import { redirect, type ActionFunctionArgs } from '@remix-run/node'
-import { auth as authenticator } from '~/lib/auth/google-auth.server'
+import { auth as authenticator } from '~/lib/auth/connections.server'
 import { ProviderNameSchema } from '~/lib/validations'
 import { getReferrerRoute } from '~/lib/utils'
 import { getRedirectCookieHeader } from '~/lib/redirect-cookie.server'

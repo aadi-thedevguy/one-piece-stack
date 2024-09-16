@@ -20,6 +20,8 @@ import { ForgotPasswordSchema } from '~/lib/validations/user-validation'
 import { prepareVerification } from '~/lib/auth/verify.server'
 import { invariant } from '@epic-web/invariant'
 import { ForgotPasswordEmail } from '~/components/mails/ForgotPassword'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
+import { validateCSRF } from '~/lib/csrf.server'
 
 export const handle: SEOHandle = {
 	getSitemapEntries: () => null,
@@ -27,6 +29,7 @@ export const handle: SEOHandle = {
 
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
+	await validateCSRF(formData, request.headers)
 	checkHoneypot(formData)
 	const submission = await parseWithZod(formData, {
 		schema: ForgotPasswordSchema.superRefine(async (data, ctx) => {
@@ -118,6 +121,7 @@ export default function ForgotPasswordRoute() {
 				</div>
 				<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
 					<forgotPassword.Form method="POST" {...getFormProps(form)}>
+						<AuthenticityTokenInput />
 						<HoneypotInputs />
 						<div>
 							<Field

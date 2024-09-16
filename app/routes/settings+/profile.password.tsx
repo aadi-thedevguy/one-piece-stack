@@ -19,6 +19,8 @@ import { redirectWithToast } from '~/lib/toast.server'
 import { type BreadcrumbHandle } from '~/lib/validations'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { ChangePasswordForm } from '~/lib/validations/user-validation'
+import { validateCSRF } from '~/lib/csrf.server'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 export const handle: BreadcrumbHandle & SEOHandle = {
 	breadcrumb: <div className='flex items-center gap-2'>
@@ -48,6 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	const userId = await requireUserId(request)
 	await requirePassword(userId)
 	const formData = await request.formData()
+	await validateCSRF(formData, request.headers)
 	const submission = await parseWithZod(formData, {
 		async: true,
 		schema: ChangePasswordForm.superRefine(
@@ -117,6 +120,7 @@ export default function ChangePasswordRoute() {
 
 	return (
 		<Form method="POST" {...getFormProps(form)} className="mx-auto max-w-md">
+			<AuthenticityTokenInput />
 			<Field
 				labelProps={{ children: 'Current Password' }}
 				inputProps={{

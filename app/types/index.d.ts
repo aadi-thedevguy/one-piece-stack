@@ -3,6 +3,40 @@
 import { Submission } from "@conform-to/react"
 import { z } from "zod"
 import { VerifySchema } from "~/routes/_auth+/verify"
+import { Interval, Currency, PricingPlan, PlanId } from "~/constants/index"
+import { PlanLimit, Price } from "@prisma/client"
+
+/**
+ * A helper type that defines our price by interval.
+ */
+export type PriceInterval<
+	I extends Interval = Interval,
+	C extends Currency = Currency,
+> = {
+		[interval in I]: {
+			[currency in C]: Price['amount']
+		}
+	}
+
+/**
+ * A helper type that defines our pricing plans structure by Interval.
+ */
+export type PricingPlan<T extends PlanId = PlanId> = {
+	[key in T]: {
+		planID: string
+		name: string
+		isPopular: boolean
+		description: string
+		features: string[]
+		limits: Pick<PlanLimit, 'maxItems'>
+		prices: PriceInterval
+	}
+}
+
+type BillingPortalProducts = {
+	product: PlanId
+	prices: string[]
+}
 
 // Define a user type for cleaner typing
 export type ProviderUser = {

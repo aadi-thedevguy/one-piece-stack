@@ -1,11 +1,57 @@
 version: '3.7'
+
 services:
+
+  # server:
+  #   build: 
+  #     context: .
+  #     target: development
+  #   restart: always
+  #   depends_on:
+  #     - mongodb
+  #   ports:
+  #     - 3000:3000
+  #   env_file:
+  #     - .env
+
+  #   # establish docker compose watch mode for the api service
+  #   develop:
+  #     # specify the files to watch for changes
+  #     watch:
+  #       # it'll watch for changes in package.json and package-lock.json and rebuild the container and image if there are any changes
+  #       - path: ./package.json
+  #         action: rebuild
+  #       - path: ./package-lock.json
+  #         action: rebuild
+
+  #       # it'll watch for changes in the backend directory and sync the changes with the container real time
+  #       - path: ./app
+  #         target: /app
+  #         action: sync
+
   mongodb:
     # This image automatically creates a replica set required for transactions
     image: prismagraphql/mongo-single-replica:4.4.3-bionic
     environment:
-      MONGO_INITDB_ROOT_USERNAME: epicAdmin
-      MONGO_INITDB_ROOT_PASSWORD: kodylovesyou
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
       INIT_WAIT_SEC: 3
     ports:
       - 27017:27017
+    volumes:
+      - mongodb-data:/data/db
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis-volume-data:/data
+
+
+volumes:
+  redis-volume-data:
+  mongodb-data:
