@@ -4,31 +4,31 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 ## What's in the box (well, stack)
 
-[x]   Built with/for [Remix](https://remix.run)
-[x]   Written in [TypeScript](https://typescriptlang.org)
-[x]   Primary Database of Choice - [MongoDB](https://mongodb.com)
-[x]   Secondary Database(optional) - [Redis](https://redis.io)
-[x]   ORM - [Prisma](https://prisma.io)
-[x]   Send Transactional emails with [Nodemailer](https://nodemailer.com/) 
-[x]   Styling with [TailwindCSS](https://tailwindcss.com)
-[x]   Component Library - [ShadCN UI](https://ui.shadcn.com/)
-[x]  Deploys anywhere with [Docker](https://docker.com)
-[]   Upload Files to [S3](https://aws.amazon.com/s3/)
-[]   Error Tracking with [Sentry](https://sentry.io)
-[]   Analytics - [Posthog](https://posthog.com)
-[]   Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
-[x]  Code formatting and linting with Eslint and Prettier
+-   Built with/for [Remix](https://remix.run)
+-    Written in [TypeScript](https://typescriptlang.org)
+-   Primary Database of Choice - [MongoDB](https://mongodb.com)
+-   Secondary Database(optional) - [Redis](https://redis.io)
+-   ORM - [Prisma](https://prisma.io)
+-   Send Transactional emails with [Nodemailer](https://nodemailer.com/) 
+-   Styling with [TailwindCSS](https://tailwindcss.com)
+-   Component Library - [ShadCN UI](https://ui.shadcn.com/)
+-  Deploys anywhere with [Docker](https://docker.com)
+-  Code formatting and linting with Eslint and Prettier
 
 
 ## Features
-[x]  Custom-Built Email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers 
-[x]   Health check API route
-[x]   Dark Mode Support
-[x]   CSRF Protection and Honeypot
-[x]   Caching and Rate-Limiting
+-  Custom-built email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers
+-    Health check API route
+-   Dark Mode Support
+-   CSRF Protection and Honeypot
+-   Caching and Rate-Limiting
 
 
 ## Upcoming Tech in the Stack
+-   Upload Files to [S3](https://aws.amazon.com/s3/)
+-   Error Tracking with [Sentry](https://sentry.io)
+-   Analytics - [Posthog](https://posthog.com)
+-   Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
 -   Customizable Copy Writing Components for Landing Page along with navbar and footer with contact links.
 -   Easily Customizable Privacy Policy, Terms of Service, Cookie Policy
 -   Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/) 
@@ -101,40 +101,40 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
 
 ## Guidelines for Copy Writing
 
--   **CTA** :Every Call to action should be a card like component consisting of:
+-   **CTA**: Every Call to action should be a card-like component consisting of:
 
     1. A strong Subject line to grab the user's attention
     1. Subtitle to explain the benefits of using the product
     1. Button text which sparks powerful emotion, like "join 1000s of people", "save money" etc.
-    1. A socaially relevant "lovedBy" number which shows how many people love the product, it can be github stars, testimonials, twitter replies etc.
+    1. A socially relevant "lovedBy" number which shows how many people love the product, it can be GitHub stars, testimonials, Twitter replies etc.
     1. A link to the product's dashboard page
 
 -   **Why this:** Why would the customer want to use this product? -
 
     1. It should explain that the problem is real and people can pay for the solution
-    2. It should compare what the current available solutions aren't solving for and what your product does better than the competition
-    3. The component can be two lists of problems and solutions Or a single line bulleted list featuring the best of the product
+    2. It should compare what the currently available solutions aren't solving for and what your product does better than the competition
+    3. The component can be two lists of problems and solutions Or a single-line bulleted list featuring the best of the product
 
--   **Demo steps:** Give interactive Definition list type components so that when a user clicks on a step, it expands and shows the next step while side by side it shows the UI of the app navigation structure so he knows if he click on "generate invoice", he will see the UI of the invoice generation page
+-   **Demo steps:** Give interactive Definition list type components so that when a user clicks on a step, it expands and shows the next step while side by side it shows the UI of the app navigation structure so he knows if he clicks on "generate invoice", he will see the UI of the invoice generation page
 
 -   **Value Prop:** What is the value proposition of the product?
 
-    1. A Visual Interactive image type component which shows the problem and solution in linked cards
-    1. Give screenshots of people's tweets, reddit posts, other forums, or blog articles on how a certail problem is expensive and a solution is needed.
+    1. A Visual Interactive image-type component which shows the problem and solution in linked cards
+    1. Give screenshots of people's tweets, Reddit posts, other forums, or blog articles on how a certain problem is expensive and a solution is needed.
 
 -   **FAQ:** must be a details component consisting of a question and an answer.
 
 -   **Testimonials:** What are the customers saying about the product?
 
-    1. must be a card compoent consisting of a user's name,image, a quote, and a link to the user's profile. Should ideally be very creative looking format like a blockquote style.
+    1. There must be a card component consisting of a user's name, image, a quote, and a link to the user's profile. It should ideally be a very creative-looking format like a blockquote style.
 
 -   **Pricing:**
-    1. Should be two to three cards, one should be popular and highlighted, all should list the features provided and features missing out on, so the user would want to update the plan
-    1. all prices should be written beside a striked out price so it feels like the user is getting a discount.
+    1. There Should be two to three cards, one should be popular and highlighted, and all should list the features provided and features missing out, so the user would want to update the plan
+    1. all prices should be written beside a struck-out price so it feels like the user is getting a discount.
     1. Price accordingly if the product is a _Vitamin_ or _Painkiller_
 
 ## Some other copyrighting advice
 
-1. **NO Free Plans:** Only give free credits or 7 day trials
-1. **NO Fancy animations maybe Dark mode:** if not necessary, don't ship, minimal is best
+1. **NO Free Plans:** Only give free credits or 7-day trials
+1. **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best
 1. **MUST HAVE:** International payment reception, Privacy Policy, Terms of Service, and Contact Us Pages.
