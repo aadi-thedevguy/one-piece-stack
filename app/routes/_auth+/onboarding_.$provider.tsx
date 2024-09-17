@@ -15,6 +15,7 @@ import {
 import {
 	type Params,
 	Form,
+	Link,
 	useActionData,
 	useLoaderData,
 	useSearchParams,
@@ -167,6 +168,7 @@ export default function OnboardingProviderRoute() {
 	const isPending = useIsPending()
 	const [searchParams] = useSearchParams()
 	const redirectTo = searchParams.get('redirectTo')
+	console.log("loader data", data.submission)
 
 	const [form, fields] = useForm({
 		id: 'onboarding-provider-form',
@@ -228,7 +230,8 @@ export default function OnboardingProviderRoute() {
 						labelProps={{
 							htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
 							children:
-								'Do you agree to our Terms of Service and Privacy Policy?',
+								<>Do you agree to our <Link to="/tos" className='text-accent-foreground hover:underline'>Terms of Service</Link> and <Link to="/privacy" className='hover:underline text-accent-foreground'>Privacy Policy</Link>?</>,
+
 						}}
 						buttonProps={getInputProps(
 							fields.agreeToTermsOfServiceAndPrivacyPolicy,

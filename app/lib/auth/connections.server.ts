@@ -72,7 +72,7 @@ auth.use(
 			clientID: GITHUB_CLIENT_ID,
 			clientSecret: GITHUB_CLIENT_SECRET,
 			// callbackURL: '/auth/github/callback',
-			callbackURL: 'http://localhost:3000/auth/github/callback',
+			callbackURL: process.env.SERVER_URL + '/auth/github/callback',
 		},
 		async ({ profile }) => {
 			const email = profile.emails[0]?.value.trim().toLowerCase()

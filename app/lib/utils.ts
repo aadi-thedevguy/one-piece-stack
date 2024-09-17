@@ -5,8 +5,8 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 export function getUserImgSrc(imageId?: string | null) {
-	return "https://api.dicebear.com/9.x/lorelei/svg"
-	// return imageId ? `/resources/user-images/${imageId}` : 'https://api.dicebear.com/9.x/lorelei/svg'
+	// return "https://api.dicebear.com/9.x/lorelei/svg"
+	return imageId ? `/resources/user-images/${imageId}` : 'https://api.dicebear.com/9.x/lorelei/svg'
 }
 
 export function getErrorMessage(error: unknown) {

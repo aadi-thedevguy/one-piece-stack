@@ -9,6 +9,7 @@ import {
 } from '@remix-run/node'
 import {
 	Form,
+	Link,
 	useActionData,
 	useLoaderData,
 	useSearchParams,
@@ -190,7 +191,7 @@ export default function OnboardingRoute() {
 						labelProps={{
 							htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
 							children:
-								'Do you agree to our Terms of Service and Privacy Policy?',
+								<>Do you agree to our <Link to="/tos" className='text-accent-foreground hover:underline'>Terms of Service</Link> and <Link to="/privacy" className='hover:underline text-accent-foreground'>Privacy Policy</Link>?</>,
 						}}
 						buttonProps={getInputProps(
 							fields.agreeToTermsOfServiceAndPrivacyPolicy,

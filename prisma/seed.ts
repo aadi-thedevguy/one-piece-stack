@@ -1,6 +1,13 @@
 import { prisma } from '~/lib/db.server'
 import { createStripePlans } from '../app/models/seed-plans'
+import { faker } from '@faker-js/faker'
+import bcrypt from 'bcryptjs'
 
+function createPassword(password: string = faker.internet.password()) {
+    return {
+        hash: bcrypt.hashSync(password, 10),
+    }
+}
 
 async function seed() {
     console.log('🌱 Seeding...')
@@ -35,8 +42,8 @@ async function seed() {
     await prisma.permission.createMany({ data: permissionsToCreate })
     console.timeEnd('🔑 Created permissions...')
 
-    console.time('👑 Creating roles...')
-    await prisma.role.create({
+    console.time('👑 Creating roles...');
+    const adminRole = await prisma.role.create({
         data: {
             name: 'admin',
             permissions: {
@@ -46,8 +53,10 @@ async function seed() {
                 }),
             },
         },
-    })
-    await prisma.role.create({
+    });
+    console.log('Admin role created:', adminRole.name);
+
+    const userRole = await prisma.role.create({
         data: {
             name: 'user',
             permissions: {
@@ -57,11 +66,30 @@ async function seed() {
                 }),
             },
         },
-    })
-    console.timeEnd('👑 Created roles...')
+    });
+    console.log('User role created:', userRole.name);
+    console.timeEnd('👑 Created roles...');
+
+    console.time(`🐨 Creating admin user...`);
+    await prisma.user.create({
+        select: { id: true },
+        data: {
+            email: 'thedevguy99@gmail.com',
+            username: 'thedevguy',
+            name: 'Aditya',
+            image: {
+                create: {
+                    url: 'https://thedevguy.in/images/icon.png',
+                    contentType: 'image/png',
+                }
+            },
+            password: { create: createPassword('password') },
+            roles: { connect: [{ id: adminRole.id }, { id: userRole.id }] },
+        },
+    });
+    console.timeEnd(`🐨 Created admin user`);
 
     await createStripePlans()
-
 
     console.timeEnd(`🌱 Database has been seeded`)
 }

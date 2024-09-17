@@ -19,7 +19,7 @@ import { sessionKey } from '~/constants/keys'
 import { prisma } from '~/lib/db.server'
 import { authSessionStorage } from '~/lib/auth/auth-session.server'
 import { redirectWithToast } from '~/lib/toast.server'
-import { Camera, EyeOffIcon, TrashIcon } from 'lucide-react'
+import { Camera, EyeOffIcon, Link2Icon, TrashIcon } from 'lucide-react'
 import { AvatarIcon } from '@radix-ui/react-icons'
 import { validateCSRF } from '~/lib/csrf.server'
 import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
@@ -127,14 +127,16 @@ export default function EditUserProfile() {
 			<div className="col-span-6 my-6 h-1 border-b-[1.5px] border-foreground" />
 			<div className="col-span-full flex flex-col gap-6">
 
-				<div>
-					<Link to={data.hasPassword ? 'password' : 'password/create'} className='flex items-center gap-2'>
-						<EyeOffIcon className='h-4 w-4' />
-						<span>
-							{data.hasPassword ? 'Change Password' : 'Create a Password'}
-						</span>
-					</Link>
-				</div>
+				<Link to={data.hasPassword ? 'password' : 'password/create'} className='flex items-center gap-2'>
+					<EyeOffIcon className='h-4 w-4' />
+					<span>
+						{data.hasPassword ? 'Change Password' : 'Create a Password'}
+					</span>
+				</Link>
+				<Link to="connections" className='flex items-center gap-2'>
+					<Link2Icon className='h-4 w-4' />
+					<span>Manage connections</span>
+				</Link>
 				<SignOutOfSessions />
 				<DeleteData />
 			</div>

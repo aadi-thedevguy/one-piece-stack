@@ -1,9 +1,9 @@
 import { Connection, type Password, type User } from '@prisma/client'
-import { redirect } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import bcrypt from 'bcryptjs'
 import { safeRedirect } from 'remix-utils/safe-redirect'
 import { prisma } from '../db.server'
-import { combineHeaders, downloadFile } from '../utils'
+import { combineHeaders } from '../utils'
 import { authSessionStorage } from './auth-session.server'
 import { SESSION_EXPIRATION_TIME, sessionKey } from '~/constants/keys'
 
@@ -148,6 +148,21 @@ export async function signupWithConnection({
 	providerName: Connection['providerName']
 	imageUrl?: string
 }) {
+	// Ensure the 'user' role exists
+	const userRole = await prisma.role.findUnique({
+		where: { name: 'user' },
+	});
+
+	if (!userRole) {
+		throw json(
+			{
+				error: 'Unauthorized',
+				message: `Unauthorized: Role 'user' not found`,
+			},
+			{ status: 401 },
+		)
+	}
+
 	const session = await prisma.session.create({
 		data: {
 			expirationDate: getSessionExpirationDate(),
@@ -156,11 +171,19 @@ export async function signupWithConnection({
 					email: email.toLowerCase(),
 					username: username.toLowerCase(),
 					name,
-					roles: { connect: { name: 'user' } },
+					roles: { connect: { id: userRole.id } },
 					connections: { create: { providerId, providerName } },
 					image: imageUrl
-						? { create: await downloadFile(imageUrl) }
+						? {
+							create: {
+								url: imageUrl,
+								contentType: 'image/png',
+							},
+						}
 						: undefined,
+					// image: imageUrl
+					// 	? { create: await downloadFile(imageUrl) }
+					// 	: undefined,
 				},
 			},
 		},

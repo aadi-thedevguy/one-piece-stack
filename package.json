@@ -10,6 +10,7 @@
     "start": "cross-env NODE_ENV=production node ./server.js",
     "typecheck": "tsc",
     "seed": "tsx ./prisma/seed.ts",
+    "generate": "prisma generate",
     "format": "prettier --write ."
   },
   "dependencies": {
