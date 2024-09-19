@@ -17,20 +17,18 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 
 ## Features
--  Custom-built email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers
--    Health check API route
+-   Custom-built email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers
+-   Customizable Copy Writing Components and Pages like Privacy Policy, Terms of Service, Cookie Policy, Testimonials, Product Demo, Pricing, FAQ etc.
+-   Health check API route
 -   Dark Mode Support
 -   CSRF Protection and Honeypot
 -   Caching and Rate-Limiting
-
 
 ## Upcoming Tech in the Stack
 -   Upload Files to [S3](https://aws.amazon.com/s3/)
 -   Error Tracking with [Sentry](https://sentry.io)
 -   Analytics - [Posthog](https://posthog.com)
 -   Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
--   Customizable Copy Writing Components for Landing Page along with navbar and footer with contact links.
--   Easily Customizable Privacy Policy, Terms of Service, Cookie Policy
 -   Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/) 
 
 ## Development
@@ -88,17 +86,6 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
 
 <hr />
 
-## Copy Writing Components
-
-[x] Call to Action
-[] Why this
-[] Demo steps
-[] Value Prop
-[] FAQ
-[] Testimonials
-[] Review Circles
-[] Pricing
-
 ## Guidelines for Copy Writing
 
 -   **CTA**: Every Call to action should be a card-like component consisting of:
@@ -122,19 +109,6 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
     1. A Visual Interactive image-type component which shows the problem and solution in linked cards
     1. Give screenshots of people's tweets, Reddit posts, other forums, or blog articles on how a certain problem is expensive and a solution is needed.
 
--   **FAQ:** must be a details component consisting of a question and an answer.
+-   **Pricing:** NO Free Planss. Only give free credits or 7-day trials. Price accordingly if the product is a _Vitamin_ or _Painkiller_
 
--   **Testimonials:** What are the customers saying about the product?
-
-    1. There must be a card component consisting of a user's name, image, a quote, and a link to the user's profile. It should ideally be a very creative-looking format like a blockquote style.
-
--   **Pricing:**
-    1. There Should be two to three cards, one should be popular and highlighted, and all should list the features provided and features missing out, so the user would want to update the plan
-    1. all prices should be written beside a struck-out price so it feels like the user is getting a discount.
-    1. Price accordingly if the product is a _Vitamin_ or _Painkiller_
-
-## Some other copyrighting advice
-
-1. **NO Free Plans:** Only give free credits or 7-day trials
-1. **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best
-1. **MUST HAVE:** International payment reception, Privacy Policy, Terms of Service, and Contact Us Pages.
+-   **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best

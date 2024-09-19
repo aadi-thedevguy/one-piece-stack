@@ -60,11 +60,14 @@ export default function Plans() {
 
 					<div className="flex flex-col gap-4 items-center justify-center">
 						<Label htmlFor="plan-toggle">{planInterval === Interval.MONTH ? 'Monthly' : 'Yearly'}</Label>
-						<Switch id="plan-toggle" className='bg-background accent-inherit' checked={planInterval === Interval.YEAR} onChange={() =>
-							setPlanInterval(prev =>
-								prev === Interval.MONTH ? Interval.YEAR : Interval.MONTH,
-							)
-						} />
+						<Switch id="plan-toggle"
+							checked={planInterval === Interval.YEAR}
+							onChange={() =>
+								setPlanInterval(prev =>
+									prev === Interval.MONTH ? Interval.YEAR : Interval.MONTH,
+								)
+							}
+						/>
 					</div>
 
 				</div>
@@ -74,17 +77,18 @@ export default function Plans() {
 							<div
 								key={plan.planID}
 								className={cn(
-									'flex flex-col p-6 mx-auto max-w-lg text-center  rounded-xl border border-border shadow xl:p-8',
+									'flex flex-col p-6 mx-auto max-w-lg text-center relative rounded-xl border border-border shadow xl:p-8',
 									{
-										'border-yellow-200': plan.isPopular,
+										'border-yellow-500 dark:border-yellow-300': plan.isPopular,
 									}
 								)}
 							>
-								{/* {isPopular && (
-								<div className='rounded-lg absolute left-0 -top-4 text-sm font-semibold py-2 px-4 text-primary bg-yellow-200 uppercase'>
-									POPULAR
-								</div>
-							)} */}
+
+								{plan.isPopular && (
+									<div className="absolute -right-3.5 top-5 -rotate-90 rounded-bl-full rounded-tl-full px-3 py-2 bg-yellow-500 dark:bg-yellow-300 font-medium uppercase text-xs">
+										popular
+									</div>
+								)}
 								<h3 className='mb-4 text-2xl font-semibold'>{plan.name}</h3>
 								<p className='font-light text-gray-500 sm:text-lg'>{plan.description}</p>
 

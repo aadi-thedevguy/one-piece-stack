@@ -1,8 +1,11 @@
 import { json } from '@remix-run/node'
 import Hero from '~/components/landing/hero'
 import CTA from '~/components/landing/call-to-action'
-import { CTA_DATA, FEATURES } from '~/constants/index'
 import { SpiralArrowIcon } from '~/constants/icons'
+import FAQ from '~/components/landing/faq'
+import Features from '~/components/landing/features'
+import Testimonials from '~/components/landing/testimonial'
+import DemoSteps from '~/components/landing/demo-steps'
 
 export async function loader() {
 	const res = await fetch(
@@ -10,43 +13,6 @@ export async function loader() {
 	)
 	const data = await res.json()
 	return json({ stars: data.stargazers_count })
-}
-
-function Features() {
-	return (
-		<div className='py-24 sm:py-32'>
-			<div className='mx-auto max-w-7xl px-6 lg:px-8'>
-				<div className='mx-auto max-w-2xl lg:text-center'>
-					<h2 className='text-secondary-foreground text-base font-semibold leading-7'>
-						Build apps faster
-					</h2>
-					<p className='mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-tight'>
-						Everything you need to build Remix-powered web apps
-					</p>
-				</div>
-				<div className='mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-5xl'>
-					<dl className='grid max-w-xl grid-cols-2 gap-y-10 gap-x-8 lg:max-w-none lg:grid-cols-2 lg:gap-y-16'>
-						{FEATURES.map((feature) => (
-							<div key={feature.name} className='relative pl-16'>
-								<dt className='text-base font-semibold leading-7 text-gray-900 dark:text-gray-100'>
-									<div className='bg-primary absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-lg'>
-										<feature.icon
-											className='h-5 w-5 text-primary-foreground'
-											aria-hidden='true'
-										/>
-									</div>
-									{feature.name}
-								</dt>
-								<dd className='mt-2 text-base leading-7 text-gray-600 dark:text-gray-300'>
-									{feature.description}
-								</dd>
-							</div>
-						))}
-					</dl>
-				</div>
-			</div>
-		</div>
-	)
 }
 
 export default function Index() {
@@ -63,8 +29,11 @@ export default function Index() {
 					</p>
 					<SpiralArrowIcon />
 				</div>
-				<CTA value={CTA_DATA} />
 				<Features />
+				<DemoSteps />
+				<FAQ />
+				<Testimonials />
+				<CTA />
 			</div>
 		</>
 	)

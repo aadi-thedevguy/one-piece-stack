@@ -7,7 +7,8 @@
 
 import { Link, useLocation } from '@remix-run/react'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
-import { HomeIcon } from 'lucide-react'
+import { ArrowRightIcon } from 'lucide-react'
+import { buttonVariants } from '~/components/ui/button'
 
 export async function loader() {
 	throw new Response('Not found', { status: 404 })
@@ -25,20 +26,31 @@ export function ErrorBoundary() {
 		<GeneralErrorBoundary
 			statusHandlers={{
 				404: () => (
-					<div className="flex flex-col gap-6">
-						<div className="flex flex-col gap-3">
-							<h1>We can&apos;t find this page:</h1>
-							<pre className="whitespace-pre-wrap break-all text-body-lg">
-								{location.pathname}
-							</pre>
+					<section className="overflow-hidden pb-25 pt-45 lg:pb-32.5 lg:pt-50 xl:pb-37.5 xl:pt-55">
+						<div className=" mx-auto max-w-[518px] text-center">
+							<img
+								src="/images/shape/404.svg"
+								alt="404"
+								className="mx-auto mb-8"
+								width={400}
+								height={400}
+							/>
+
+							<h2 className="mb-5 text-2xl font-semibold md:text-4xl">
+								This Page {location.pathname} Does Not Exist
+							</h2>
+							<p className="mb-8">
+								The page you were looking for appears to have been moved, deleted or
+								does not exist.
+							</p>
+
+							<Link to="/" className={buttonVariants({ variant: "secondary" })}>
+								Return to Home
+								<ArrowRightIcon className="w-5 h-5 ml-1" />
+							</Link>
+
 						</div>
-						<Link to="/" className="text-body-md underline flex gap-2 items-center">
-							<span>
-								Back to
-							</span>
-							<HomeIcon size={16} />
-						</Link>
-					</div>
+					</section>
 				),
 			}}
 		/>
