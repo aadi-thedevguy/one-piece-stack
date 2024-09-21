@@ -1,4 +1,3 @@
-import { json } from '@remix-run/node'
 import Hero from '~/components/landing/hero'
 import CTA from '~/components/landing/call-to-action'
 import { SpiralArrowIcon } from '~/constants/icons'
@@ -6,14 +5,6 @@ import FAQ from '~/components/landing/faq'
 import Features from '~/components/landing/features'
 import Testimonials from '~/components/landing/testimonial'
 import DemoSteps from '~/components/landing/demo-steps'
-
-export async function loader() {
-	const res = await fetch(
-		'https://api.github.com/repos/i4o-oss/synthwave-stack'
-	)
-	const data = await res.json()
-	return json({ stars: data.stargazers_count })
-}
 
 export default function Index() {
 	return (

@@ -96,7 +96,7 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
     1. A socially relevant "lovedBy" number which shows how many people love the product, it can be GitHub stars, testimonials, Twitter replies etc.
     1. A link to the product's dashboard page
 
--   **Why this:** Why would the customer want to use this product? -
+-   **Why this:** Why would the customer want to use this product?
 
     1. It should explain that the problem is real and people can pay for the solution
     2. It should compare what the currently available solutions aren't solving for and what your product does better than the competition

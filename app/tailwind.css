@@ -63,7 +63,30 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+html {
+
+  /* Scrollbar track */
+  ::-webkit-scrollbar-track {
+    background-color: hsl(var(--muted));
+    border-radius: 10px;
+  }
+
+  /* Scrollbar thumb */
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--primary));
+    border-radius: 10px;
+    border: 3px solid hsl(var(--muted));
+  }
+
+  /* Scrollbar width and height */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
 }

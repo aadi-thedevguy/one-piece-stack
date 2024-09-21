@@ -7,12 +7,12 @@ const FOOTER_SOCIALS = [
 	{
 		ariaLabel: 'Github Repository',
 		icon: <GitHubLogoIcon className='h-6 w-6' />,
-		href: 'https://github.com/i4o-oss/synthwave-stack',
+		href: 'https://github.com/aadi-thedevguy/one-piece-stack',
 	},
 	{
 		ariaLabel: 'Twitter Profile',
 		icon: <TwitterLogoIcon className='h-6 w-6' />,
-		href: 'https://twitter.com/i4o_dev',
+		href: 'https://twitter.com/Aadi__khare',
 	},
 ]
 
