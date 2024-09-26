@@ -141,7 +141,7 @@ export const loader: LoaderFunction = async ({ request }) => {
           id: true,
           name: true,
           username: true,
-          image: { select: { id: true } },
+          image: { select: { url: true } },
           roles: {
             select: {
               name: true,

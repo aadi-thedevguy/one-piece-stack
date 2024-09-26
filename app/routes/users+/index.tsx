@@ -4,7 +4,7 @@ import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { ErrorList } from '~/components/layout/forms'
 import { SearchBar } from '~/components/layout/search-bar'
 import { prisma } from '~/lib/db.server'
-import { cn, getUserImgSrc, useDelayedIsPending } from '~/lib/utils'
+import { cn, useDelayedIsPending } from '~/lib/utils'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const searchTerm = new URL(request.url).searchParams.get('search')
@@ -49,7 +49,7 @@ export default function UsersRoute() {
 		<div className="container mb-48 mt-36 flex flex-col items-center justify-center gap-6">
 			<h1 className="text-h1">Epic Notes Users</h1>
 			<div className="w-full max-w-[700px]">
-				<SearchBar status={data.status} autoFocus autoSubmit />
+				<SearchBar status={data.status} autoSubmit />
 			</div>
 			<main>
 				{data.status === 'idle' ? (
@@ -68,7 +68,7 @@ export default function UsersRoute() {
 									>
 										<img
 											alt={user.name ?? user.username}
-											src={getUserImgSrc(user.image?.id)}
+											src={user.image?.url}
 											className="h-16 w-16 rounded-full"
 										/>
 										{user.name ? (

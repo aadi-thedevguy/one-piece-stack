@@ -5,7 +5,6 @@ import { LogOutIcon, User2Icon } from 'lucide-react'
 import { Form, Link, useSubmit } from '@remix-run/react'
 import { FormEvent, useRef } from 'react'
 import { Button } from '../ui/button'
-import { getUserImgSrc } from '~/lib/utils'
 
 export function UserDropdown() {
     const user = useUser()
@@ -24,7 +23,7 @@ export function UserDropdown() {
                         <img
                             className="h-8 w-8 rounded-full object-cover"
                             alt={user.name ?? user.username}
-                            src={getUserImgSrc(user.image?.id)}
+                            src={user.image?.url}
                         />
                         <span className="text-body-sm font-bold">
                             {user.name ?? user.username}

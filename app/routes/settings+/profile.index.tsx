@@ -12,7 +12,7 @@ import { z } from 'zod'
 import { ErrorList, Field } from '~/components/layout/forms'
 import { StatusButton } from '~/components/layout/status-button'
 import { Button } from '~/components/ui/button'
-import { getUserImgSrc, useDoubleCheck } from '~/lib/utils'
+import { useDoubleCheck } from '~/lib/utils'
 import { ProfileFormSchema } from '~/lib/validations/user-validation'
 import { requireUserId } from '~/lib/auth/auth.server'
 import { sessionKey } from '~/constants/keys'
@@ -38,7 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			username: true,
 			email: true,
 			image: {
-				select: { id: true },
+				select: { url: true },
 			},
 			_count: {
 				select: {
@@ -102,7 +102,7 @@ export default function EditUserProfile() {
 			<div className="flex justify-center">
 				<div className="relative h-52 w-52">
 					<img
-						src={getUserImgSrc(data.user.image?.id)}
+						src={data.user.image?.url}
 						alt={data.user.username}
 						className="h-full w-full rounded-full object-cover"
 					/>

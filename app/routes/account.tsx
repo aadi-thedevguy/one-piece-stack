@@ -5,7 +5,6 @@ import { getSubscriptionByUserId } from '~/models/subscription'
 import { PlanId, PRICING_PLANS } from '~/constants/index'
 import { requireUserId } from '~/lib/auth/auth.server'
 import { prisma } from '~/lib/db.server'
-import { getUserImgSrc } from '~/lib/utils'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const userId = await requireUserId(request)
@@ -17,7 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			name: true,
 			customerId: true,
 			email: true,
-			image: { select: { id: true } },
+			image: { select: { url: true } },
 			username: true,
 		},
 		where: { id: userId },
@@ -54,7 +53,7 @@ export default function Account() {
 				<div className="my-8 flex h-full w-full flex-col items-center md:my-0">
 					{/* Avatar. */}
 					<img
-						src={getUserImgSrc(user.image?.id)}
+						src={user.image?.url}
 						alt={userDisplayName}
 						className="h-52 w-52 rounded-full object-cover"
 					/>

@@ -5,7 +5,6 @@ import { LogOut } from 'lucide-react'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { Button } from '~/components/ui/button'
 import { prisma } from '~/lib/db.server'
-import { getUserImgSrc } from '~/lib/utils'
 import { useOptionalUser } from '~/services/user'
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -15,7 +14,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			name: true,
 			username: true,
 			createdAt: true,
-			image: { select: { id: true } },
+			image: { select: { url: true } },
 		},
 		where: {
 			username: params.username,
@@ -42,7 +41,7 @@ export default function ProfileRoute() {
 					<div className="absolute -top-40">
 						<div className="relative">
 							<img
-								src={getUserImgSrc(data.user.image?.id)}
+								src={data.user.image?.url}
 								alt={userDisplayName}
 								className="h-52 w-52 rounded-full object-cover"
 							/>
@@ -50,8 +49,7 @@ export default function ProfileRoute() {
 					</div>
 				</div>
 
-
-				<div className="flex flex-col items-center">
+				<div className="flex flex-col items-center mt-16">
 					<div className="flex flex-wrap items-center justify-center gap-4">
 						<h1 className="text-center text-h2">{userDisplayName}</h1>
 					</div>
