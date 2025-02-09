@@ -11,7 +11,7 @@ export function EmailChangeEmail({
         <E.Html lang="en" dir="ltr">
             <E.Container>
                 <h1>
-                    <E.Text>Epic Notes Email Change</E.Text>
+                    <E.Text>One Piece Stack Email Change</E.Text>
                 </h1>
                 <p>
                     <E.Text>

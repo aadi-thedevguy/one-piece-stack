@@ -1,10 +1,11 @@
-import { type LoaderFunctionArgs, json, redirect } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { type LoaderFunctionArgs, data, redirect } from 'react-router';
+import { useLoaderData } from 'react-router';
 import { CustomerPortalButton } from '~/components/customer-portal-button'
 import { getSubscriptionByUserId } from '~/models/subscription'
 import { PlanId, PRICING_PLANS } from '~/constants/index'
 import { requireUserId } from '~/lib/auth/auth.server'
 import { prisma } from '~/lib/db.server'
+import { placeholderAvatar } from '~/constants/keys';
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const userId = await requireUserId(request)
@@ -30,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	// Redirect with the intent to setup a free user subscription.
 	if (!subscription) return redirect('/resources/stripe/create-subscription')
 
-	return json({ user, subscription })
+	return data({ user, subscription })
 }
 
 export default function Account() {
@@ -53,7 +54,7 @@ export default function Account() {
 				<div className="my-8 flex h-full w-full flex-col items-center md:my-0">
 					{/* Avatar. */}
 					<img
-						src={user.image?.url}
+						src={user.image?.url || placeholderAvatar}
 						alt={userDisplayName}
 						className="h-52 w-52 rounded-full object-cover"
 					/>

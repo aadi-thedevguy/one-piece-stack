@@ -1,12 +1,12 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import { data } from "react-router";
 import { PRIVACY_POLICY } from "~/constants/index";
 import { parse } from "marked";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "react-router";
 import { Button } from "~/components/ui/button";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
 	const content = parse(PRIVACY_POLICY)
-	return json({
+	return data({
 		content
 	})
 }

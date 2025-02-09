@@ -2,37 +2,27 @@ import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { invariantResponse } from '@epic-web/invariant'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import {
-	json,
-	redirect,
-	unstable_createMemoryUploadHandler,
-	unstable_parseMultipartFormData,
-	type LoaderFunctionArgs,
-	type ActionFunctionArgs,
-} from '@remix-run/node'
-import {
-	Form,
-	useActionData,
-	useLoaderData,
-	useNavigation,
-} from '@remix-run/react'
 import { useState } from 'react'
+import { data, redirect, Form, useNavigation } from 'react-router'
 import { z } from 'zod'
-import { ErrorList } from '~/components/layout/forms'
-import { StatusButton } from '~/components/layout/status-button'
-import { Button } from '~/components/ui/button'
-import { requireUserId } from '~/lib/auth/auth.server'
-import { prisma } from '~/lib/db.server'
+import { ErrorList } from '~/components/layout/forms.js'
+import { Button } from '~/components/ui/button.js'
+import { StatusButton } from '~/components/layout/status-button.js'
+import { requireUserId } from '~/lib/auth/auth.server.js'
+import { prisma } from '~/lib/db.server.js'
 import {
-	getUserImgSrc,
 	useDoubleCheck,
-	useIsPending,
+	useIsPending
 } from '~/lib/utils'
-import { type BreadcrumbHandle } from '~/lib/validations'
+import { type BreadcrumbHandle } from '~/lib/validations/index.js'
+import { validateCSRF } from '~/lib/csrf.server'
 import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 import { AvatarIcon } from '@radix-ui/react-icons'
-import { validateCSRF } from '~/lib/csrf.server'
 import { Pencil, TrashIcon } from 'lucide-react'
+import type { Route } from './+types/profile.photo'
+import {deleteFile, uploadFile} from "~/lib/upload.server";
+import { placeholderAvatar } from '~/constants/keys'
+import { redirectWithToast } from '~/lib/toast.server'
 
 export const handle: BreadcrumbHandle & SEOHandle = {
 	breadcrumb: <div className='flex items-center gap-2'>
@@ -46,6 +36,7 @@ const MAX_SIZE = 1024 * 1024 * 3 // 3MB
 
 const DeleteImageSchema = z.object({
 	intent: z.literal('delete'),
+	filename: z.string(),
 })
 
 const NewImageSchema = z.object({
@@ -64,7 +55,7 @@ const PhotoFormSchema = z.discriminatedUnion('intent', [
 	NewImageSchema,
 ])
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
 	const userId = await requireUserId(request)
 	const user = await prisma.user.findUnique({
 		where: { id: userId },
@@ -72,85 +63,84 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			id: true,
 			name: true,
 			username: true,
-			image: { select: { id: true } },
+			image: { select: { id: true, url: true, filename: true } },
 		},
 	})
 	invariantResponse(user, 'User not found', { status: 404 })
-	return json({ user })
+	return { user }
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-	const userId = await requireUserId(request)
+export async function action({ request }: Route.ActionArgs) {
+    const userId = await requireUserId(request);
 
-	const formData = await unstable_parseMultipartFormData(
-		request,
-		unstable_createMemoryUploadHandler({ maxPartSize: MAX_SIZE }),
-	)
-	// const formData = await unstable_parseMultipartFormData(
-	// 	request,
-	// 	uploadHandler
-	// )
-	// const file = formData.get('image')?.toString() || ''
-	await validateCSRF(formData, request.headers)
-	const submission = await parseWithZod(formData, {
-		schema: PhotoFormSchema.transform(async (data) => {
-			if (data.intent === 'delete') return { intent: 'delete' }
-			if (data.photoFile.size <= 0) return z.NEVER
-			return {
-				intent: data.intent,
-				image: {
-					contentType: data.photoFile.type,
-					blob: Buffer.from(await data.photoFile.arrayBuffer()),
-				},
-			}
-		}),
-		async: true,
-	})
+    const formData = await request.formData();
+    await validateCSRF(formData, request.headers);
 
-	if (submission.status !== 'success') {
-		return json(
-			{ result: submission.reply() },
-			{ status: submission.status === 'error' ? 400 : 200 },
-		)
-	}
+    const submission = await parseWithZod(formData, {
+        schema: PhotoFormSchema.transform(async (data) => {
+            if (data.intent === 'delete') return { intent: 'delete', filename: data.filename };
+            if (data.photoFile.size <= 0) return z.NEVER;
+            return {
+                intent: data.intent,
+                image: data.photoFile
+            };
+        }),
+        async: true,
+    });
 
-	const { image, intent } = submission.value
+    if (submission.status !== 'success') {
+        return data(
+            { result: submission.reply() },
+            { status: submission.status === 'error' ? 400 : 200 },
+        );
+    }
 
-	if (intent === 'delete') {
-		await prisma.userImage.deleteMany({ where: { userId } })
-		return redirect('/settings/profile')
-	}
+    const { image, intent, filename } = submission.value;
 
-	await prisma.$transaction(async ($prisma) => {
-		await $prisma.userImage.deleteMany({ where: { userId } })
-		await $prisma.user.update({
-			where: { id: userId },
-			data: { image: { create: image } },
-		})
-	})
+    if (intent === 'delete') {
+		const deleted = await deleteFile(filename);
+		if (deleted) await prisma.userImage.deleteMany({ where: { userId } })
+        return redirect('/settings/profile');
+    }
 
-	return redirect('/settings/profile')
+		const {url, error} = await uploadFile(image)
+
+		if (error) {
+			throw await redirectWithToast('/settings/profile/photo', {
+				type: 'error',
+				title: 'Upload Failed',
+				description: error,
+			})
+		}
+		await prisma.$transaction([
+			prisma.userImage.deleteMany({ where: { userId } }),
+			prisma.user.update({
+				where: { id: userId },
+				data: { image: { create: { url, contentType: image?.type ?? 'image/jpg', filename: image?.name || '' } } },
+			})
+		])
+	
+
+    return redirect('/settings/profile');
 }
 
-export default function PhotoRoute() {
-	const data = useLoaderData<typeof loader>()
-
+export default function PhotoRoute({
+	loaderData,
+	actionData,
+} : Route.ComponentProps) {
 	const doubleCheckDeleteImage = useDoubleCheck()
 
-	const actionData = useActionData<typeof action>()
 	const navigation = useNavigation()
 
-	const [
-		form,
-		fields] = useForm({
-			id: 'profile-photo',
-			constraint: getZodConstraint(PhotoFormSchema),
-			lastResult: actionData?.result,
-			onValidate({ formData }) {
-				return parseWithZod(formData, { schema: PhotoFormSchema })
-			},
-			shouldRevalidate: 'onBlur',
-		})
+	const [form, fields] = useForm({
+		id: 'profile-photo',
+		constraint: getZodConstraint(PhotoFormSchema),
+		lastResult: actionData?.result,
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: PhotoFormSchema })
+		},
+		shouldRevalidate: 'onBlur',
+	})
 
 	const isPending = useIsPending()
 	const pendingIntent = isPending ? navigation.formData?.get('intent') : null
@@ -159,66 +149,74 @@ export default function PhotoRoute() {
 	const [newImageSrc, setNewImageSrc] = useState<string | null>(null)
 
 	return (
-		<Form
-			method="POST"
-			encType="multipart/form-data"
-			className="flex flex-col items-center justify-center gap-10"
-			onReset={() => setNewImageSrc(null)}
-			{...getFormProps(form)}
-		>
+		<div>
+			<Form
+				method="POST"
+				encType="multipart/form-data"
+				className="flex flex-col items-center justify-center gap-10"
+				onReset={() => setNewImageSrc(null)}
+				{...getFormProps(form)}
+			>
 			<AuthenticityTokenInput />
-			<img
-				src={
-					newImageSrc ?? (data.user ? getUserImgSrc(data.user.image?.id) : '')
-				}
-				className="h-52 w-52 rounded-full object-cover"
-				alt={data.user?.name ?? data.user?.username}
-			/>
-			<ErrorList errors={fields.photoFile.errors} id={fields.photoFile.id} />
-			<div className="flex gap-4">
-				<input
-					{...getInputProps(fields.photoFile, { type: 'file' })}
-					accept="image/*"
-					className="peer sr-only"
-					required
-					tabIndex={newImageSrc ? -1 : 0}
-					onChange={(e) => {
-						const file = e.currentTarget.files?.[0]
-						if (file) {
-							const reader = new FileReader()
-							reader.onload = (event) => {
-								setNewImageSrc(event.target?.result?.toString() ?? null)
-							}
-							reader.readAsDataURL(file)
-						}
-					}}
-				/>
-				{/* TODO: Fix below error */}
-				{/* <Button
-					asChild
-					className="cursor-pointer peer-valid:hidden peer-focus-within:ring-2 peer-focus-visible:ring-2"
-				>
-					<Pencil className='h-4 w-4' />
-					<label htmlFor={fields.photoFile.id}>
-						Change
-					</label>
-				</Button> */}
-				<StatusButton
-					name="intent"
-					value="submit"
-					type="submit"
-					className="peer-invalid:hidden"
-					status={
-						pendingIntent === 'submit'
-							? 'pending'
-							: lastSubmissionIntent === 'submit'
-								? (form.status ?? 'idle')
-								: 'idle'
+			<input type="hidden" name="filename" value={loaderData.user?.image?.filename || ''} />
+				<img
+					src={
+						newImageSrc ??
+						(loaderData.user.image?.url || placeholderAvatar)
 					}
-				>
-					Save Photo
-				</StatusButton>
-				<Button
+					className="h-52 w-52 rounded-full object-cover"
+					alt={loaderData.user?.name ?? loaderData.user?.username}
+				/>
+				<ErrorList errors={fields.photoFile.errors} id={fields.photoFile.id} />
+				<div className="flex gap-4">
+					{/*
+						We're doing some kinda odd things to make it so this works well
+						without JavaScript. Basically, we're using CSS to ensure the right
+						buttons show up based on the input's "valid" state (whether or not
+						an image has been selected). Progressive enhancement FTW!
+					*/}
+					<input
+						{...getInputProps(fields.photoFile, { type: 'file' })}
+						accept="image/*"
+						className="peer sr-only"
+						required
+						tabIndex={newImageSrc ? -1 : 0}
+						onChange={(e) => {
+							const file = e.currentTarget.files?.[0]
+							if (file) {
+								const reader = new FileReader()
+								reader.onload = (event) => {
+									setNewImageSrc(event.target?.result?.toString() ?? null)
+								}
+								reader.readAsDataURL(file)
+							}
+						}}
+					/>
+					<Button
+						asChild
+						className="cursor-pointer peer-valid:hidden peer-focus-within:ring-2 peer-focus-visible:ring-2"
+					>
+						<label className='flex items-center gap-1' htmlFor={fields.photoFile.id}>
+                        <Pencil className='h-4 w-4' />
+                        <span>Change</span>
+						</label>
+					</Button>
+					<StatusButton
+						name="intent"
+						value="submit"
+						type="submit"
+						className="peer-invalid:hidden"
+						status={
+							pendingIntent === 'submit'
+								? 'pending'
+								: lastSubmissionIntent === 'submit'
+									? (form.status ?? 'idle')
+									: 'idle'
+						}
+					>
+						Save Photo
+					</StatusButton>
+                    <Button
 					variant="destructive"
 					className="peer-invalid:hidden"
 					{...form.reset.getButtonProps()}
@@ -226,32 +224,32 @@ export default function PhotoRoute() {
 					<TrashIcon className='h-4 w-4' />
 					<span>Reset</span>
 				</Button>
-				{data.user.image?.id ? (
-					<StatusButton
-						className="inline-flex peer-valid:hidden"
-						// variant="destructive"
-						{...doubleCheckDeleteImage.getButtonProps({
-							type: 'submit',
-							name: 'intent',
-							value: 'delete',
-						})}
-						status={
-							pendingIntent === 'delete'
-								? 'pending'
-								: lastSubmissionIntent === 'delete'
-									? (form.status ?? 'idle')
-									: 'idle'
-						}
-					>
-						<TrashIcon className='h-4 w-4' />
+					{loaderData.user.image?.id ? (
+						<StatusButton
+							className="peer-valid:hidden"
+							variant="destructive"
+							{...doubleCheckDeleteImage.getButtonProps({
+								type: 'submit',
+								name: 'intent',
+								value: 'delete',
+							})}
+							status={
+								pendingIntent === 'delete'
+									? 'pending'
+									: lastSubmissionIntent === 'delete'
+										? (form.status ?? 'idle')
+										: 'idle'
+							}
+						>
+							{/* <TrashIcon className='h-4 w-4' /> */}
 						<span>{doubleCheckDeleteImage.doubleCheck
 							? 'Are you sure?'
 							: 'Delete'}</span>
-
-					</StatusButton>
-				) : null}
-			</div>
-			<ErrorList errors={form.errors} />
-		</Form>
+						</StatusButton>
+					) : null}
+				</div>
+				<ErrorList errors={form.errors} />
+			</Form>
+		</div>
 	)
 }

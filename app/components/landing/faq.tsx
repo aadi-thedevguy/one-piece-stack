@@ -22,7 +22,7 @@ const FAQ_DATA = [
 
 function FAQ() {
 	return (
-		<div className="flex flex-wrap justify-between mb-24 px-4 py-20">
+		<div className="flex flex-wrap justify-between mb-24 px-4 py-20 bg-background">
 			<div
 				className="w-full md:w-2/5 lg:w-1/2 px-2"
 			>

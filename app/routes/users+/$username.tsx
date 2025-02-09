@@ -1,11 +1,12 @@
 import { invariantResponse } from '@epic-web/invariant'
-import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { Form, Link, useLoaderData, type MetaFunction } from '@remix-run/react'
+import { data, type LoaderFunctionArgs } from 'react-router';
+import { Form, Link, useLoaderData, type MetaFunction } from 'react-router';
 import { LogOut } from 'lucide-react'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { Button } from '~/components/ui/button'
 import { prisma } from '~/lib/db.server'
 import { useOptionalUser } from '~/services/user'
+import { placeholderAvatar } from '~/constants/keys';
 
 export async function loader({ params }: LoaderFunctionArgs) {
 	const user = await prisma.user.findFirst({
@@ -23,7 +24,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 	invariantResponse(user, 'User not found', { status: 404 })
 
-	return json({ user, userJoinedDisplay: user.createdAt.toLocaleDateString() })
+	return data({ user, userJoinedDisplay: user.createdAt.toLocaleDateString() })
 }
 
 export default function ProfileRoute() {
@@ -41,7 +42,7 @@ export default function ProfileRoute() {
 					<div className="absolute -top-40">
 						<div className="relative">
 							<img
-								src={data.user.image?.url}
+								src={data.user.image?.url || placeholderAvatar}
 								alt={userDisplayName}
 								className="h-52 w-52 rounded-full object-cover"
 							/>
@@ -91,10 +92,10 @@ export default function ProfileRoute() {
 export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
 	const displayName = data?.user.name ?? params.username
 	return [
-		{ title: `${displayName} | Epic Notes` },
+		{ title: `${displayName} | One Piece Stack` },
 		{
 			name: 'description',
-			content: `Profile of ${displayName} on Epic Notes`,
+			content: `Profile of ${displayName} on One Piece Stack`,
 		},
 	]
 }

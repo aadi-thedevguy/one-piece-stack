@@ -1,21 +1,21 @@
-import { Form } from '@remix-run/react'
-// import { TwitterLogoIcon } from "@radix-ui/react-icons"
+import { Form } from 'react-router';
 import { useIsPending } from '../utils'
 import { GoogleIcon } from '~/constants/icons'
 import { StatusButton } from '~/components/layout/status-button'
-import { ProviderName } from '../validations'
-import { GitHubLogoIcon } from '@radix-ui/react-icons'
+import {type ProviderName } from '../validations'
+// import { TwitterLogoIcon } from "@radix-ui/react-icons"
+// import { GitHubLogoIcon } from '@radix-ui/react-icons'
 
 export const providerLabels: Record<ProviderName, string> = {
 	// ['twitter']: 'Twitter',
-	['github']: 'GitHub',
+	// ['github']: 'GitHub',
 	['google']: 'Google',
 } as const
 
 export const providerIcons: Record<ProviderName, React.ReactNode> = {
-	// ['twitter']: <TwitterLogoIcon className='w-6 h-6' />,
 	['google']: <GoogleIcon className='w-6 h-6' />,
-	['github']: <GitHubLogoIcon className='w-6 h-6' />,
+	// ['twitter']: <TwitterLogoIcon className='w-6 h-6' />,
+	// ['github']: <GitHubLogoIcon className='w-6 h-6' />,
 } as const
 
 export function ProviderConnectionForm({

@@ -1,6 +1,6 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/node'
+import { createCookieSessionStorage, redirect } from 'react-router';
 import { combineHeaders } from './utils'
-import { ToastSchema, ToastInput } from '~/lib/validations'
+import { ToastSchema, type ToastInput } from '~/lib/validations'
 import { toastKey } from '~/constants/keys'
 
 export const toastSessionStorage = createCookieSessionStorage({

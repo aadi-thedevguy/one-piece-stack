@@ -1,5 +1,5 @@
-import { Connection, type Password, type User } from '@prisma/client'
-import { json, redirect } from '@remix-run/node'
+import { type Connection, type Password, type User } from '@prisma/client'
+import { data, redirect } from 'react-router';
 import bcrypt from 'bcryptjs'
 import { safeRedirect } from 'remix-utils/safe-redirect'
 import { prisma } from '../db.server'
@@ -108,7 +108,22 @@ export async function signup({
 	name: User['name']
 	password: string
 }) {
+
 	const hashedPassword = await getPasswordHash(password)
+
+	const userRole = await prisma.role.findUnique({
+		where: { name: 'user' },
+	});
+
+	if (!userRole) {
+		throw data(
+			{
+				error: 'Unauthorized',
+				message: `Unauthorized: Role 'user' not found`,
+			},
+			{ status: 401 },
+		)
+	}
 
 	const session = await prisma.session.create({
 		data: {
@@ -118,7 +133,7 @@ export async function signup({
 					email: email.toLowerCase(),
 					username: username.toLowerCase(),
 					name,
-					roles: { connect: { name: 'user' } },
+					roles: { connect: { id: userRole.id } },
 					password: {
 						create: {
 							hash: hashedPassword,
@@ -154,7 +169,7 @@ export async function signupWithConnection({
 	});
 
 	if (!userRole) {
-		throw json(
+		throw data(
 			{
 				error: 'Unauthorized',
 				message: `Unauthorized: Role 'user' not found`,

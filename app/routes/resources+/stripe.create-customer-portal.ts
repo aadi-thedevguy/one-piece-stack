@@ -1,9 +1,4 @@
-import {
-	type ActionFunctionArgs,
-	type LoaderFunctionArgs,
-	redirect,
-	json,
-} from '@remix-run/node'
+import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect, data } from 'react-router';
 import { createStripeCustomerPortalSession } from '~/services/payment/stripe.server'
 import { requireUserId } from '~/lib/auth/auth.server'
 import { prisma } from '~/lib/db.server'
@@ -33,5 +28,5 @@ export async function action({ request }: ActionFunctionArgs) {
 		return redirect(customerPortalUrl)
 	}
 
-	return json({}, { status: 400 })
+	return data({}, { status: 400 })
 }

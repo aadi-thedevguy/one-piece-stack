@@ -1,8 +1,8 @@
 import { GoogleStrategy } from 'remix-auth-google'
 import { GitHubStrategy } from "remix-auth-github";
 import { Authenticator } from 'remix-auth'
-import { ProviderUser } from '~/types'
-import { createCookieSessionStorage } from '@remix-run/node'
+import { type ProviderUser } from '~/types';
+import { createCookieSessionStorage } from 'react-router';
 import { redirectWithToast } from '../toast.server'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string

@@ -1,9 +1,8 @@
-import { Role } from '@prisma/client'
-import { type SerializeFrom } from '@remix-run/node'
-import { useRouteLoaderData } from '@remix-run/react'
+import { type Role } from '@prisma/client'
+import { useRouteLoaderData } from 'react-router';
 import { type loader as rootLoader } from '~/root'
 
-function isUser(user: unknown): user is SerializeFrom<typeof rootLoader>['user'] {
+function isUser(user: unknown): user is Awaited<ReturnType<typeof rootLoader>>['data']['user'] {
 	return (
 		typeof user === 'object' &&
 		user !== null &&

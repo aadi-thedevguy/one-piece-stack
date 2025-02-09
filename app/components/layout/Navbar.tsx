@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router';
 import { Skull } from 'lucide-react'
 
 export default function Navbar({ children }: { children: React.ReactNode }) {

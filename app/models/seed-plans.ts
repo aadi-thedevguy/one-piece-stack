@@ -1,7 +1,7 @@
-import { getAllPlans } from '~/models/plan'
-import { createStripePrice, configureStripeCustomerPortal, createStripeProduct } from '~/services/payment/stripe.server'
-import { PRICING_PLANS } from '~/constants/index'
-import { prisma } from '~/lib/db.server'
+import { getAllPlans } from '../models/plan'
+import { createStripePrice, configureStripeCustomerPortal, createStripeProduct } from '../services/payment/stripe.server'
+import { PRICING_PLANS } from '../constants/index'
+import { prisma } from '../lib/db.server'
 
 export async function createStripePlans() {
     const plans = await getAllPlans()

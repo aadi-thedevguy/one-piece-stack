@@ -11,7 +11,7 @@ export function ForgotPasswordEmail({
         <E.Html lang="en" dir="ltr">
             <E.Container>
                 <h1>
-                    <E.Text>Epic Notes Password Reset</E.Text>
+                    <E.Text>One Piece Stack Password Reset</E.Text>
                 </h1>
                 <p>
                     <E.Text>

@@ -1,4 +1,4 @@
-import { User, type Subscription } from '@prisma/client'
+import { type User, type Subscription } from '@prisma/client'
 import { prisma } from '~/lib/db.server'
 
 export async function createSubscription(

@@ -1,8 +1,8 @@
-import { Plan, Price, User, type Subscription } from '@prisma/client'
+import type { Plan, User, Price, Subscription } from '@prisma/client'
 import { type Stripe } from 'stripe'
 import { stripe } from './config.server'
-import { Interval } from '~/constants'
-import { BillingPortalProducts } from '~/types'
+import { type Interval } from '~/constants'
+import { type BillingPortalProducts } from '~/types'
 import { getDomainUrl } from '~/lib/utils'
 
 export async function configureStripeCustomerPortal(
@@ -30,7 +30,8 @@ export async function configureStripeCustomerPortal(
                 enabled: true,
                 default_allowed_updates: ['price'],
                 proration_behavior: 'always_invoice',
-                products: products.filter(({ product }) => product !== 'free'),
+                // TODO:
+                products: products.filter(({ product }) => product !== 'starter'),
             },
         },
     })

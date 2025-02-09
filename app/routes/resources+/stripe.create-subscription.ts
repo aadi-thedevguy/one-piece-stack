@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { type LoaderFunctionArgs, redirect } from 'react-router';
 import { getPlanById } from '~/models/plan'
 import { createSubscription, getSubscriptionByUserId } from '~/models/subscription'
 

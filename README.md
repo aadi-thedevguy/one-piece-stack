@@ -4,12 +4,13 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 ## What's in the box (well, stack)
 
--   Built with/for [Remix](https://remix.run)
+-   Built with [React Rouer](https://reactrouter.com/)
 -    Written in [TypeScript](https://typescriptlang.org)
 -   Primary Database of Choice - [MongoDB](https://mongodb.com)
 -   Secondary Database(optional) - [Redis](https://redis.io)
 -   ORM - [Prisma](https://prisma.io)
 -   Send Transactional emails with [Nodemailer](https://nodemailer.com/) 
+-   Asset Uploads and Optimization with [Cloudinary](https://cloudinary.com/)
 -   Styling with [TailwindCSS](https://tailwindcss.com)
 -   Component Library - [ShadCN UI](https://ui.shadcn.com/)
 -  Deploys anywhere with [Docker](https://docker.com)
@@ -25,7 +26,6 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 -   Caching and Rate-Limiting
 
 ## Upcoming Tech in the Stack
--   Upload Files to [S3](https://aws.amazon.com/s3/)
 -   Error Tracking with [Sentry](https://sentry.io)
 -   Analytics - [Posthog](https://posthog.com)
 -   Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
@@ -45,7 +45,7 @@ Install dependencies:
 pnpm i
 ```
 
-Replace .env.example with .env and fill in the values and fill in the keys.
+Replace .env.example with .env and fill in the values.
 
 Start Local Database:
 
@@ -66,11 +66,29 @@ Start dev server:
 pnpm dev
 ```
 
+To build and run using Docker:
+
+```bash
+# For npm
+docker build -t my-app .
+
+# For pnpm
+docker build -f Dockerfile -t my-app .
+
+# Run the container
+docker run -p 3000:3000 my-app
+```
+
 ## Deployment
 
-This Remix Stack handles automatically deploying your app to production and staging environments on Railway.
+The containerized application of the One Piece Stack can be deployed to any platform that supports Docker, including:
 
-All you have to do is to create a project on Railway and choose your repo. Railway handles setting up CI/CD.
+- AWS ECS
+- Google Cloud Run
+- Azure Container Apps
+- Digital Ocean App Platform
+- Fly.io
+- Railway
 
 ### Type Checking
 

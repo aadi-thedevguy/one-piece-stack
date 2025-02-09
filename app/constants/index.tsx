@@ -1,4 +1,4 @@
-import { PricingPlan } from '~/types'
+import { type PricingPlan } from '~/types/index'
 
 export const PRIVACY_POLICY =
 	`

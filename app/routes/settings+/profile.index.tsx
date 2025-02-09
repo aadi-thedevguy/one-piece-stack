@@ -2,12 +2,8 @@ import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { invariantResponse } from '@epic-web/invariant'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import {
-	json,
-	type LoaderFunctionArgs,
-	type ActionFunctionArgs,
-} from '@remix-run/node'
-import { Link, useFetcher, useLoaderData } from '@remix-run/react'
+import { data, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import { Link, useFetcher, useLoaderData } from 'react-router';
 import { z } from 'zod'
 import { ErrorList, Field } from '~/components/layout/forms'
 import { StatusButton } from '~/components/layout/status-button'
@@ -15,7 +11,7 @@ import { Button } from '~/components/ui/button'
 import { useDoubleCheck } from '~/lib/utils'
 import { ProfileFormSchema } from '~/lib/validations/user-validation'
 import { requireUserId } from '~/lib/auth/auth.server'
-import { sessionKey } from '~/constants/keys'
+import { placeholderAvatar, sessionKey } from '~/constants/keys'
 import { prisma } from '~/lib/db.server'
 import { authSessionStorage } from '~/lib/auth/auth-session.server'
 import { redirectWithToast } from '~/lib/toast.server'
@@ -57,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		where: { userId },
 	})
 
-	return json({
+	return data({
 		user,
 		hasPassword: Boolean(password),
 		isTwoFactorEnabled: false,
@@ -102,7 +98,7 @@ export default function EditUserProfile() {
 			<div className="flex justify-center">
 				<div className="relative h-52 w-52">
 					<img
-						src={data.user.image?.url}
+						src={data.user.image?.url || placeholderAvatar}
 						alt={data.user.username}
 						className="h-full w-full rounded-full object-cover"
 					/>
@@ -162,24 +158,23 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
 		}),
 	})
 	if (submission.status !== 'success') {
-		return json(
+		return data(
 			{ result: submission.reply() },
 			{ status: submission.status === 'error' ? 400 : 200 },
 		)
 	}
-
-	const data = submission.value
+	const { username, name } = submission.value
 
 	await prisma.user.update({
 		select: { username: true },
 		where: { id: userId },
 		data: {
-			name: data.name,
-			username: data.username,
+			name,
+			username
 		},
 	})
 
-	return json({
+	return data({
 		result: submission.reply(),
 	})
 }
@@ -256,7 +251,7 @@ async function signOutOfSessionsAction({ request, userId }: ProfileActionArgs) {
 			id: { not: sessionId },
 		},
 	})
-	return json({ status: 'success' } as const)
+	return data({ status: 'success' } as const)
 }
 
 function SignOutOfSessions() {

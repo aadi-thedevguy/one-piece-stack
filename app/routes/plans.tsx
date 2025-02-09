@@ -1,5 +1,5 @@
-import { type LoaderFunctionArgs, json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { type LoaderFunctionArgs, data } from 'react-router';
+import { useLoaderData } from 'react-router';
 import { useState } from 'react'
 import { CheckoutButton } from '~/components/checkout-button'
 import { getSubscriptionByUserId } from '~/models/subscription'
@@ -34,7 +34,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	// Get client's currency.
 	const defaultCurrency = getDefaultCurrency(request)
 
-	return json({
+	return data({
 		user,
 		subscription,
 		defaultCurrency,

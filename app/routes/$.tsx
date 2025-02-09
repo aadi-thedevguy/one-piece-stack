@@ -5,7 +5,7 @@
 // ensure the user gets the right status code and we can display a nicer error
 // message for them than the Remix and/or browser default.
 
-import { Link, useLocation } from '@remix-run/react'
+import { Link, useLocation } from 'react-router';
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { ArrowRightIcon } from 'lucide-react'
 import { buttonVariants } from '~/components/ui/button'

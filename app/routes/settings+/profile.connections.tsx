@@ -1,13 +1,9 @@
 import { invariantResponse } from '@epic-web/invariant'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
 import {
-    json,
-    type LoaderFunctionArgs,
-    type ActionFunctionArgs,
-    type SerializeFrom,
-    type HeadersFunction,
-} from '@remix-run/node'
-import { useFetcher, useLoaderData } from '@remix-run/react'
+    data
+} from 'react-router';
+import { useFetcher, useLoaderData } from 'react-router';
 import { useState } from 'react'
 import { StatusButton } from '~/components/layout/status-button'
 import {
@@ -17,14 +13,14 @@ import {
     TooltipTrigger,
 } from '~/components/ui/tooltip'
 import { requireUserId } from '~/lib/auth/auth.server'
-// import { resolveConnectionData } from ''
-import { ProviderNameSchema, providerNames, ProviderName } from '~/lib/validations'
+import { ProviderNameSchema, providerNames, type ProviderName } from '~/lib/validations'
 import { prisma } from '~/lib/db.server'
 import { createToastHeaders } from '~/lib/toast.server'
 import { type BreadcrumbHandle } from '~/lib/validations/index.js'
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons'
 import { Link2Icon, X } from 'lucide-react'
 import { ProviderConnectionForm, providerIcons } from '~/lib/auth/connections'
+import type { Info, Route } from './+types/profile.connections';
 
 export const handle: BreadcrumbHandle & SEOHandle = {
     breadcrumb: <div className='flex items-center gap-2'>
@@ -48,7 +44,7 @@ async function userCanDeleteConnections(userId: string) {
     return Boolean(user?._count.connections && user?._count.connections > 1)
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request } : Route.LoaderArgs) {
     const userId = await requireUserId(request)
     const rawConnections = await prisma.connection.findMany({
         select: {
@@ -88,7 +84,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         })
     }
 
-    return json(
+    return data(
         {
             connections,
             canDeleteConnections: await userCanDeleteConnections(userId),
@@ -96,14 +92,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     )
 }
 
-export const headers: HeadersFunction = ({ loaderHeaders }) => {
-    const headers = {
-        'Server-Timing': loaderHeaders.get('Server-Timing') ?? '',
-    }
-    return headers
-}
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request } : Route.ActionArgs) {
     const userId = await requireUserId(request)
     const formData = await request.formData()
     invariantResponse(
@@ -126,7 +116,7 @@ export async function action({ request }: ActionFunctionArgs) {
         title: 'Deleted',
         description: 'Your connection has been deleted.',
     })
-    return json({ status: 'success' } as const, { headers: toastHeaders })
+    return data({ status: 'success' } as const, { headers: toastHeaders })
 }
 
 export default function Connections() {
@@ -168,7 +158,7 @@ function Connection({
     connection,
     canDelete,
 }: {
-    connection: SerializeFrom<typeof loader>['connections'][number]
+	connection: Info['loaderData']['connections'][number]
     canDelete: boolean
 }) {
     const deleteFetcher = useFetcher<typeof action>()

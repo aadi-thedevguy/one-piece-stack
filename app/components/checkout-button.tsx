@@ -1,5 +1,5 @@
 import { type Plan } from '@prisma/client'
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import { type Interval, PlanId } from '~/constants/index'
 import { Button } from './ui/button'
 

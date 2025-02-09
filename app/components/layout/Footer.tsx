@@ -1,5 +1,5 @@
 import { GitHubLogoIcon, TwitterLogoIcon } from '@radix-ui/react-icons'
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router';
 import { buttonVariants } from '../ui/button'
 import { cn } from '~/lib/utils'
 

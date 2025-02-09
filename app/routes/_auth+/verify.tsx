@@ -1,8 +1,8 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import { type ActionFunctionArgs } from '@remix-run/node'
-import { Form, useActionData, useSearchParams } from '@remix-run/react'
+import { type ActionFunctionArgs } from 'react-router';
+import { Form, useActionData, useSearchParams } from 'react-router';
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { ErrorList, OTPField } from '~/components/layout/forms'
@@ -10,7 +10,7 @@ import { StatusButton } from '~/components/layout/status-button'
 import { checkHoneypot } from '~/lib/honeypot.server'
 import { useIsPending } from '~/lib/utils'
 import { validateRequest } from '~/lib/auth/verify.server'
-import { codeQueryParam, redirectToQueryParam, targetQueryParam, typeQueryParam, VerificationTypes, VerificationTypeSchema, VerifySchema } from '~/lib/validations'
+import { codeQueryParam, redirectToQueryParam, targetQueryParam, typeQueryParam, type VerificationTypes, VerificationTypeSchema, VerifySchema } from '~/lib/validations'
 import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 import { validateCSRF } from '~/lib/csrf.server'
 

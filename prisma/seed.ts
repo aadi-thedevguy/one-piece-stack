@@ -16,6 +16,8 @@ async function seed() {
     console.time('🧹 Cleaning up the database...')
     await Promise.all([
         prisma.user.deleteMany(),
+        prisma.role.deleteMany(),
+        prisma.permission.deleteMany(),
         prisma.note.deleteMany(),
         prisma.connection.deleteMany(),
         prisma.verification.deleteMany(),
@@ -27,20 +29,20 @@ async function seed() {
     console.timeEnd('🧹 Cleaned up the database...')
 
     console.time('🔑 Creating permissions...')
-    const entities = ['user', 'note']
-    const actions = ['create', 'read', 'update', 'delete']
-    const accesses = ['own', 'any'] as const
+    // const entities = ['user', 'note']
+    // const actions = ['create', 'read', 'update', 'delete']
+    // const accesses = ['own', 'any'] as const
 
-    const permissionsToCreate = []
-    for (const entity of entities) {
-        for (const action of actions) {
-            for (const access of accesses) {
-                permissionsToCreate.push({ entity, action, access })
-            }
-        }
-    }
-    await prisma.permission.createMany({ data: permissionsToCreate })
-    console.timeEnd('🔑 Created permissions...')
+    // const permissionsToCreate = []
+    // for (const entity of entities) {
+    //     for (const action of actions) {
+    //         for (const access of accesses) {
+    //             permissionsToCreate.push({ entity, action, access })
+    //         }
+    //     }
+    // }
+    // await prisma.permission.createMany({ data: permissionsToCreate })
+    // console.timeEnd('🔑 Created permissions...')
 
     console.time('👑 Creating roles...');
     const adminRole = await prisma.role.create({
@@ -58,13 +60,7 @@ async function seed() {
 
     const userRole = await prisma.role.create({
         data: {
-            name: 'user',
-            permissions: {
-                connect: await prisma.permission.findMany({
-                    select: { id: true },
-                    where: { access: 'own' },
-                }),
-            },
+            name: 'user'
         },
     });
     console.log('User role created:', userRole.name);
@@ -81,6 +77,7 @@ async function seed() {
                 create: {
                     url: 'https://thedevguy.in/images/icon.png',
                     contentType: 'image/png',
+                    filename: 'thedevguy.png'
                 }
             },
             password: { create: createPassword('password') },

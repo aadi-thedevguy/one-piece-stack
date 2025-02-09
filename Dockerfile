@@ -7,7 +7,7 @@ FROM node:${NODE_VERSION}-bookworm-slim AS base
 # if you want to use fly.io, uncomment the line below
 # LABEL fly_launch_runtime="Remix"
 
-# Remix app lives here
+# Remix app lives here 
 WORKDIR /app
 
 # Set production environment variables

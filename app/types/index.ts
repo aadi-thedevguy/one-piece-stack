@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 
-import { Submission } from "@conform-to/react"
+import { type Submission } from "@conform-to/react"
 import { z } from "zod"
-import { VerifySchema } from "~/routes/_auth+/verify"
-import { Interval, Currency, PricingPlan, PlanId } from "~/constants/index"
-import { PlanLimit, Price } from "@prisma/client"
+import { VerifySchema } from "~/lib/validations"
+import { Interval, Currency, PlanId } from "~/constants/index"
+import { type PlanLimit, type Price } from "@prisma/client"
 
 /**
  * A helper type that defines our price by interval.

@@ -2,13 +2,13 @@ import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
 import {
-	json,
-	redirect,
-	type ActionFunctionArgs,
-	type LoaderFunctionArgs,
-	type MetaFunction,
-} from '@remix-run/node'
-import { Form, useActionData, useLoaderData } from '@remix-run/react'
+    data,
+    redirect,
+    type ActionFunctionArgs,
+    type LoaderFunctionArgs,
+    type MetaFunction,
+} from 'react-router';
+import { Form, useActionData, useLoaderData } from 'react-router';
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { ErrorList, Field } from '~/components/layout/forms'
 import { StatusButton } from '~/components/layout/status-button'
@@ -40,7 +40,7 @@ async function requireResetPasswordUsername(request: Request) {
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const resetPasswordUsername = await requireResetPasswordUsername(request)
-	return json({ resetPasswordUsername })
+	return data({ resetPasswordUsername })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -50,7 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
 		schema: ResetPasswordSchema,
 	})
 	if (submission.status !== 'success') {
-		return json(
+		return data(
 			{ result: submission.reply() },
 			{ status: submission.status === 'error' ? 400 : 200 },
 		)
@@ -67,7 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export const meta: MetaFunction = () => {
-	return [{ title: 'Reset Password | Epic Notes' }]
+	return [{ title: 'Reset Password | One Piece Stack' }]
 }
 
 export default function ResetPasswordPage() {

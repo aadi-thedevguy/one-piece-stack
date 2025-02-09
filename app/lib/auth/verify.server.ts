@@ -1,5 +1,5 @@
 import { parseWithZod } from '@conform-to/zod'
-import { json } from '@remix-run/node'
+import { data } from 'react-router';
 import { generateTOTP, verifyTOTP } from '@epic-web/totp'
 import { z } from 'zod'
 import { prisma } from '~/lib/db.server'
@@ -123,7 +123,7 @@ export async function validateRequest(
     })
 
     if (submission.status !== 'success') {
-        return json(
+        return data(
             { result: submission.reply() },
             { status: submission.status === 'error' ? 400 : 200 },
         )

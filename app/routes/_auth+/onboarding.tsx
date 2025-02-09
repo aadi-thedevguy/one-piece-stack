@@ -1,19 +1,13 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import {
-	json,
-	redirect,
-	type LoaderFunctionArgs,
-	type ActionFunctionArgs,
-	type MetaFunction,
-} from '@remix-run/node'
-import {
-	Form,
-	Link,
-	useActionData,
-	useLoaderData,
-	useSearchParams,
-} from '@remix-run/react'
+    data,
+    redirect,
+    type LoaderFunctionArgs,
+    type ActionFunctionArgs,
+    type MetaFunction,
+} from 'react-router';
+import { Form, Link, useActionData, useLoaderData, useSearchParams } from 'react-router';
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { safeRedirect } from 'remix-utils/safe-redirect'
 import { z } from 'zod'
@@ -45,7 +39,7 @@ async function requireOnboardingEmail(request: Request) {
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const email = await requireOnboardingEmail(request)
-	return json({ email })
+	return data({ email })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -70,7 +64,6 @@ export async function action({ request }: ActionFunctionArgs) {
 				}
 			}).transform(async (data) => {
 				if (intent !== null) return { ...data, session: null }
-
 				const session = await signup({ ...data, email })
 				return { ...data, session }
 			}),
@@ -78,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	})
 
 	if (submission.status !== 'success' || !submission.value.session) {
-		return json(
+		return data(
 			{ result: submission.reply() },
 			{ status: submission.status === 'error' ? 400 : 200 },
 		)
@@ -111,7 +104,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export const meta: MetaFunction = () => {
-	return [{ title: 'Setup Epic Notes Account' }]
+	return [{ title: 'Setup Your Account' }]
 }
 
 export default function OnboardingRoute() {

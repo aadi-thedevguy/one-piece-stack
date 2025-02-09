@@ -1,13 +1,8 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import {
-	json,
-	type ActionFunctionArgs,
-	type LoaderFunctionArgs,
-	type MetaFunction,
-} from '@remix-run/node'
-import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
+import { data, type ActionFunctionArgs, type LoaderFunctionArgs, type MetaFunction } from 'react-router';
+import { Form, Link, useActionData, useSearchParams } from 'react-router';
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
@@ -33,7 +28,7 @@ export const handle: SEOHandle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	await requireAnonymous(request)
-	return json({})
+	return data({})
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -61,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	})
 
 	if (submission.status !== 'success' || !submission.value.session) {
-		return json(
+		return data(
 			{ result: submission.reply({ hideFields: ['password'] }) },
 			{ status: submission.status === 'error' ? 400 : 200 },
 		)
@@ -168,7 +163,8 @@ export default function LoginPage() {
 								</StatusButton>
 							</div>
 						</Form>
-						<ul className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
+						<ul className="mt-5 flex flex-col gap-5 border-t-2 border-border py-3">
+
 							{providerNames.map((providerName) => (
 								<li key={providerName}>
 									<ProviderConnectionForm
@@ -199,7 +195,7 @@ export default function LoginPage() {
 }
 
 export const meta: MetaFunction = () => {
-	return [{ title: 'Login to Epic Notes' }]
+	return [{ title: 'Login to Your Account' }]
 }
 
 export function ErrorBoundary() {

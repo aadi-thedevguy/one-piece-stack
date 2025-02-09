@@ -1,13 +1,8 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import {
-	json,
-	redirect,
-	type ActionFunctionArgs,
-	type MetaFunction,
-} from '@remix-run/node'
-import { Link, useFetcher } from '@remix-run/react'
+import { data, redirect, type ActionFunctionArgs, type MetaFunction } from 'react-router';
+import { Link, useFetcher } from 'react-router';
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
@@ -54,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
 		async: true,
 	})
 	if (submission.status !== 'success') {
-		return json(
+		return data(
 			{ result: submission.reply() },
 			{ status: submission.status === 'error' ? 400 : 200 },
 		)
@@ -75,7 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const response = await sendEmail({
 		to: [user.email],
-		subject: `Epic Notes Password Reset`,
+		subject: `One Piece Stack Password Reset`,
 		react: (
 			<ForgotPasswordEmail onboardingUrl={verifyUrl.toString()} otp={otp} />
 		),
@@ -85,7 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	if (response.status === 'success') {
 		return redirect(redirectTo.toString())
 	} else if (response.error) {
-		return json(
+		return data(
 			{ result: submission.reply({ formErrors: [response.error.message] }) },
 			{ status: 500 },
 		)
@@ -94,7 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 
 export const meta: MetaFunction = () => {
-	return [{ title: 'Password Recovery for Epic Notes' }]
+	return [{ title: 'Password Recovery for One Piece Stack' }]
 }
 
 export default function ForgotPasswordRoute() {

@@ -2,9 +2,10 @@ import { useUser } from '~/services/user'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal } from '~/components/ui/dropdown-menu'
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { LogOutIcon, User2Icon } from 'lucide-react'
-import { Form, Link, useSubmit } from '@remix-run/react'
-import { FormEvent, useRef } from 'react'
+import { Form, Link, useSubmit } from 'react-router';
+import { type FormEvent, useRef } from 'react'
 import { Button } from '../ui/button'
+import { placeholderAvatar } from '~/constants/keys';
 
 export function UserDropdown() {
     const user = useUser()
@@ -23,7 +24,7 @@ export function UserDropdown() {
                         <img
                             className="h-8 w-8 rounded-full object-cover"
                             alt={user.name ?? user.username}
-                            src={user.image?.url}
+                            src={user.image?.url || placeholderAvatar}
                         />
                         <span className="text-body-sm font-bold">
                             {user.name ?? user.username}

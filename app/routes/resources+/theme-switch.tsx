@@ -1,8 +1,8 @@
 import { useForm, getFormProps } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { invariantResponse } from '@epic-web/invariant'
-import { json, type ActionFunctionArgs } from '@remix-run/node'
-import { redirect, useFetcher, useFetchers } from '@remix-run/react'
+import { data, type ActionFunctionArgs } from 'react-router';
+import { redirect, useFetcher, useFetchers } from 'react-router';
 import { LaptopIcon, MoonIcon, SunIcon } from 'lucide-react'
 import { ServerOnly } from 'remix-utils/server-only'
 import { useHints } from '~/lib/client/client-hints'
@@ -27,7 +27,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	if (redirectTo) {
 		return redirect(redirectTo, responseInit)
 	} else {
-		return json({ result: submission.reply() }, responseInit)
+		return data({ result: submission.reply() }, responseInit)
 	}
 }
 
@@ -53,10 +53,10 @@ export function ThemeSwitch({
 			// <Icon name="sun">
 			// 	<span className="sr-only">Light</span>
 			// </Icon>
-			<div>
-				<span className="sr-only">Light</span>
-				<SunIcon className="w-6 h-6" />
-			</div>
+			(<div>
+                <span className="sr-only">Light</span>
+                <SunIcon className="w-6 h-6" />
+            </div>)
 		),
 		dark: (
 			<div>

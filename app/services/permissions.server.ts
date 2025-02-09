@@ -1,4 +1,4 @@
-import { json } from '@remix-run/node'
+import { data } from 'react-router';
 import { requireUserId } from '../lib/auth/auth.server'
 import { prisma } from '../lib/db.server'
 import { type PermissionString, parsePermissionString } from './user'
@@ -28,7 +28,7 @@ export async function requireUserWithPermission(
 		},
 	})
 	if (!user) {
-		throw json(
+		throw data(
 			{
 				error: 'Unauthorized',
 				requiredPermission: permissionData,
@@ -47,7 +47,7 @@ export async function requireUserWithRole(request: Request, name: string) {
 		where: { id: userId, roles: { some: { name } } },
 	})
 	if (!user) {
-		throw json(
+		throw data(
 			{
 				error: 'Unauthorized',
 				requiredRole: name,

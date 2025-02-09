@@ -1,4 +1,4 @@
-import { type ActionFunctionArgs, json } from '@remix-run/node'
+import { type ActionFunctionArgs, data } from 'react-router';
 import { type Stripe } from 'stripe'
 
 import { deleteSubscriptionById, getSubscriptionById, updateSubscriptionByUserId, } from '~/models/subscription'
@@ -27,7 +27,7 @@ async function getStripeEvent(request: Request) {
 		return event
 	} catch (err: unknown) {
 		console.log(err)
-		return json({}, { status: 400 })
+		return data({}, { status: 400 })
 	}
 }
 
@@ -59,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
 					cancelAtPeriodEnd: subscription.cancel_at_period_end,
 				})
 
-				return json({}, { status: 200 })
+				return data({}, { status: 200 })
 			}
 
 			// Occurs whenever a subscription changes (e.g. plan switch).
@@ -99,7 +99,7 @@ export async function action({ request }: ActionFunctionArgs) {
 					cancelAtPeriodEnd: subscription.cancel_at_period_end,
 				})
 
-				return json({}, { status: 200 })
+				return data({}, { status: 200 })
 			}
 
 			// Occurs whenever a customer’s subscription ends.
@@ -114,15 +114,15 @@ export async function action({ request }: ActionFunctionArgs) {
 					await deleteSubscriptionById(subscription.id)
 				}
 
-				return json({}, { status: 200 })
+				return data({}, { status: 200 })
 			}
 		}
 	} catch (err: unknown) {
 		console.log(err)
-		return json({}, { status: 400 })
+		return data({}, { status: 400 })
 	}
 
 	// We'll return a 200 status code for all other events.
 	// A `501 Not Implemented` or any other status code could be returned.
-	return json({}, { status: 200 })
+	return data({}, { status: 200 })
 }

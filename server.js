@@ -1,4 +1,5 @@
-import { createRequestHandler } from "@remix-run/express";
+import crypto from 'node:crypto'
+import { createRequestHandler } from "@react-router/express";
 import compression from "compression";
 import express from "express";
 import morgan from "morgan";
@@ -6,6 +7,8 @@ import closeWithGrace from 'close-with-grace'
 import rateLimit from 'express-rate-limit'
 import Redis from "ioredis"
 import { RedisStore } from 'rate-limit-redis'
+
+const MODE = process.env.NODE_ENV ?? 'development'
 
 const viteDevServer =
   process.env.NODE_ENV === "production"
@@ -15,12 +18,6 @@ const viteDevServer =
           server: { middlewareMode: true },
         })
       );
-
-const remixHandler = createRequestHandler({
-  build: viteDevServer
-    ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
-    : await import("./build/server/index.js"),
-});
 
 const app = express();
 
@@ -70,6 +67,11 @@ app.get(['/img/*', '/favicons/*'], (_req, res) => {
 
 morgan.token('url', (req) => decodeURIComponent(req.url ?? ''))
 app.use(morgan("tiny"));
+
+app.use((_, res, next) => {
+	res.locals.cspNonce = crypto.randomBytes(16).toString('hex')
+	next()
+})
 
 // redis store
 const client = new Redis(process.env.REDIS_URL)
@@ -156,8 +158,39 @@ app.use((req, res, next) => {
     return generalRateLimit(req, res, next)
 })
 
-// handle SSR requests
-app.all("*", remixHandler);
+async function getBuild() {
+	try {
+		const build = viteDevServer
+			? await viteDevServer.ssrLoadModule('virtual:react-router/server-build')
+			: // @ts-expect-error - the file might not exist yet but it will
+				await import('./build/server/index.js')
+
+		return { build: build, error: null }
+	} catch (error) {
+		// Catch error and return null to make express happy and avoid an unrecoverable crash
+		console.error('Error creating build:', error)
+		return { error: error, build: null}
+	}
+}
+
+app.all(
+	'*',
+	createRequestHandler({
+		getLoadContext: (_,res) => ({
+			cspNonce: res.locals.cspNonce,
+			serverBuild: getBuild(),
+		}),
+		mode: MODE,
+		build: async () => {
+			const { error, build } = await getBuild()
+			// gracefully "catch" the error
+			if (error) {
+				throw error
+			}
+			return build
+		},
+	}),
+)
 
 
 const port = process.env.PORT || 3000;

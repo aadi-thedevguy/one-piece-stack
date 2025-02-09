@@ -1,11 +1,11 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import { data } from "react-router";
 import { TERMS_OF_SERVICE } from "~/constants/index";
 import { parse } from "marked";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
 	const content = parse(TERMS_OF_SERVICE)
-	return json({
+	return data({
 		content
 	})
 }

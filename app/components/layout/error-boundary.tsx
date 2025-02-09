@@ -1,16 +1,17 @@
+import { captureException } from '@sentry/react'
+import { useEffect, type ReactElement } from 'react'
 import {
 	type ErrorResponse,
 	isRouteErrorResponse,
 	useParams,
 	useRouteError,
-} from '@remix-run/react'
-import { captureRemixErrorBoundaryError } from '@sentry/remix'
+} from 'react-router'
 import { getErrorMessage } from '~/lib/utils'
 
 type StatusHandler = (info: {
 	error: ErrorResponse
 	params: Record<string, string | undefined>
-}) => JSX.Element | null
+}) => ReactElement | null
 
 export function GeneralErrorBoundary({
 	defaultStatusHandler = ({ error }) => (
@@ -23,23 +24,26 @@ export function GeneralErrorBoundary({
 }: {
 	defaultStatusHandler?: StatusHandler
 	statusHandlers?: Record<number, StatusHandler>
-	unexpectedErrorHandler?: (error: unknown) => JSX.Element | null
+	unexpectedErrorHandler?: (error: unknown) => ReactElement | null
 }) {
 	const error = useRouteError()
-	captureRemixErrorBoundaryError(error)
 	const params = useParams()
 
 	if (typeof document !== 'undefined') {
 		console.error(error)
 	}
 
+	useEffect(() => {
+		captureException(error)
+	}, [error])
+
 	return (
 		<div className="container flex items-center justify-center p-20 text-h2">
 			{isRouteErrorResponse(error)
 				? (statusHandlers?.[error.status] ?? defaultStatusHandler)({
-					error,
-					params,
-				})
+						error,
+						params,
+					})
 				: unexpectedErrorHandler(error)}
 		</div>
 	)

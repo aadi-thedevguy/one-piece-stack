@@ -23,7 +23,6 @@ model User {
   roles        Role[]        @relation(fields: [roleIDs], references: [id])
   sessions     Session[]
   connections  Connection[]
-  roleId       String?       @db.ObjectId
   // Added for Payment Provider 
   customerId   String?       @unique
   subscription Subscription?
@@ -46,6 +45,7 @@ model Note {
 model UserImage {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   altText     String?
+  filename    String
   contentType String
   url         String
 

@@ -6,20 +6,13 @@ import {
 } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import {
-	redirect,
-	json,
-	type ActionFunctionArgs,
-	type LoaderFunctionArgs,
-	type MetaFunction,
-} from '@remix-run/node'
-import {
-	type Params,
-	Form,
-	Link,
-	useActionData,
-	useLoaderData,
-	useSearchParams,
-} from '@remix-run/react'
+    redirect,
+    data,
+    type ActionFunctionArgs,
+    type LoaderFunctionArgs,
+    type MetaFunction,
+} from 'react-router';
+import { type Params, Form, Link, useActionData, useLoaderData, useSearchParams } from 'react-router';
 import { safeRedirect } from 'remix-utils/safe-redirect'
 import { z } from 'zod'
 import { ErrorList, Field, CheckboxField } from '~/components/layout/forms'
@@ -79,7 +72,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 	const formError = connectionSession.get(authenticator.sessionErrorKey)
 	const hasError = typeof formError === 'string'
 
-	return json({
+	return data({
 		email,
 		status: 'idle',
 		submission: {
@@ -127,7 +120,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 	})
 
 	if (submission.status !== 'success') {
-		return json(
+		return data(
 			{ result: submission.reply() },
 			{ status: submission.status === 'error' ? 400 : 200 },
 		)
@@ -159,7 +152,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export const meta: MetaFunction = () => {
-	return [{ title: 'Setup Epic Notes Account' }]
+	return [{ title: 'Setup Your Account' }]
 }
 
 export default function OnboardingProviderRoute() {

@@ -1,5 +1,5 @@
 import { invariant } from '@epic-web/invariant'
-import { redirect } from '@remix-run/node'
+import { redirect } from 'react-router';
 import { verifySessionStorage } from '~/lib/auth/verification.server'
 import { onboardingEmailSessionKey } from '~/constants/keys'
 import { type VerifyFunctionArgs } from '~/types'
