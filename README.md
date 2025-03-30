@@ -33,16 +33,16 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 ## Development
 
-Clone this Repo
+Create a new project
 
 ```sh
-git clone https://github.com/aadi-thedevguy/one-piece-stack
+npx create-one-piece-app <project-name>
 ```
 
-Install dependencies:
+or
 
 ```sh
-pnpm i
+pnpm dlx create-one-piece-app <project-name>
 ```
 
 Replace .env.example with .env and fill in the values.
