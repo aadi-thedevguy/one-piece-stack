@@ -42,7 +42,7 @@ npx create-one-piece-app <project-name>
 or
 
 ```sh
-pnpm dlx create-one-piece-app <project-name>
+pnpm create one-piece-app <project-name>
 ```
 
 Replace .env.example with .env and fill in the values.
