@@ -105,8 +105,7 @@ export const PRICING_PLANS = {
 	[PlanId.PRO]: {
 		planID: PlanId.PRO,
 		name: 'Premium',
-		description:
-			'Best for large scale uses and extended redistribution rights.',
+		description: 'Best for large scale uses and extended rights.',
 		features: [
 			'20 users included',
 			'10 GB of storage',

@@ -81,7 +81,7 @@ export default function Plans() {
 							<div
 								key={plan.planID}
 								className={cn(
-									'flex flex-col p-6 mx-auto max-w-lg text-center relative rounded-xl border border-border shadow-sm xl:p-8',
+									'flex flex-col p-6 mx-auto min-w-2xs max-w-lg text-center relative rounded-xl border border-border shadow-sm xl:p-8',
 									{
 										'border-yellow-500 dark:border-yellow-300':
 											plan.isPopular,

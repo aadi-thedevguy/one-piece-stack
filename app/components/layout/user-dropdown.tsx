@@ -31,7 +31,7 @@ export function UserDropdown() {
 							alt={user.name ?? user.username}
 							src={user.image?.url || placeholderAvatar}
 						/>
-						<span className='text-body-sm font-bold'>
+						<span className='hidden sm:inline text-body-sm font-bold'>
 							{user.name ?? user.username}
 						</span>
 					</Link>

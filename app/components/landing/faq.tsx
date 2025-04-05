@@ -29,8 +29,8 @@ const FAQ_DATA = [
 
 function FAQ() {
 	return (
-		<div className='flex flex-wrap justify-between mb-24 px-4 py-20 bg-background'>
-			<div className='w-full md:w-2/5 lg:w-1/2 px-2'>
+		<div className='w-10/12 mx-auto flex flex-wrap justify-between mb-24 px-4 py-20 bg-background'>
+			<div className='w-full lg:w-1/2 px-2'>
 				<SectionTitle
 					subtitle='OUR FAQS'
 					title='Frequently Asked'
@@ -38,11 +38,7 @@ function FAQ() {
 				/>
 			</div>
 
-			<Accordion
-				type='single'
-				collapsible
-				className='w-full md:w-3/5 lg:w-1/2'
-			>
+			<Accordion type='single' collapsible className='w-full lg:w-1/2'>
 				{FAQ_DATA.map((item, i) => (
 					<AccordionItem key={i} value={item.question}>
 						<AccordionTrigger className='text-xl py-8 hover:no-underline'>

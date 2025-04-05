@@ -27,26 +27,25 @@ function DemoSteps() {
 			defaultValue={featuresTabData[0].id}
 			className='mx-auto max-w-(--breakpoint-xl) pb-20 pt-16 px-4 md:px-8 2xl:px-0'
 		>
-			{/* <!-- Tab Menues --> */}
-			<TabsList className='mb-15 flex flex-wrap justify-center rounded-lg py-6 border shadow-lg md:flex-nowrap md:items-center lg:gap-7.5 xl:mb-21.5 xl:gap-12.5'>
+			{/* <!-- Tab Menus --> */}
+			<TabsList className='flex flex-col min-h-fit gap-2 w-full overflow-x-hidden mb-15 lg:gap-0 lg:border lg:shadow-lg lg:h-9 lg:flex-row rounded-lg'>
 				{featuresTabData.map((item, i) => (
 					<TabsTrigger
 						key={i}
 						value={item.id}
-						className='relative flex cursor-pointer items-center gap-4 before:absolute before:bottom-0 before:left-0 before:h-1 before:w-full before:rounded-tl-[4px] before:rounded-tr-[4px] before:bg-blue-500 before:opacity-0 before:scale-0 transition-all duration-300 focus:before:opacity-100 focus:before:scale-100'
+						className='w-full h-full flex justify-start cursor-pointer'
 					>
 						<div className='flex items-center justify-center h-8 w-8 rounded-[50%] border'>
 							<span className='text-muted-foreground font-medium'>
 								0{i + 1}
 							</span>
 						</div>
-						<p className='md:w-3/5 lg:w-auto text-sm font-medium xl:text-base'>
+						<p className='text-sm font-medium xl:text-base'>
 							{item.title}
 						</p>
 					</TabsTrigger>
 				))}
 			</TabsList>
-
 			{/* <!-- Tab Content  --> */}
 			{featuresTabData.map((feature, key) => (
 				<TabsContent value={feature.id} key={key}>
