@@ -1,4 +1,4 @@
-import { useNavigation } from 'react-router';
+import { useNavigation } from 'react-router'
 import { useEffect, useRef, useState } from 'react'
 import { useSpinDelay } from 'spin-delay'
 import { cn } from '~/lib/utils'
@@ -29,27 +29,29 @@ function EpicProgress() {
 
 	return (
 		<div
-			role="progressbar"
+			role='progressbar'
 			aria-hidden={delayedPending ? undefined : true}
 			aria-valuetext={delayedPending ? 'Loading' : undefined}
-			className="fixed inset-x-0 left-0 top-0 z-50 h-[0.20rem] animate-pulse"
+			className='fixed inset-x-0 left-0 top-0 z-50 h-[0.20rem] animate-pulse'
 		>
 			<div
 				ref={ref}
 				className={cn(
 					'h-full w-0 bg-foreground duration-500 ease-in-out',
 					transition.state === 'idle' &&
-					(animationComplete
-						? 'transition-none'
-						: 'w-full opacity-0 transition-all'),
-					delayedPending && transition.state === 'submitting' && 'w-5/12',
-					delayedPending && transition.state === 'loading' && 'w-8/12',
+						(animationComplete
+							? 'transition-none'
+							: 'w-full opacity-0 transition-all'),
+					delayedPending &&
+						transition.state === 'submitting' &&
+						'w-5/12',
+					delayedPending && transition.state === 'loading' && 'w-8/12'
 				)}
 			/>
 			{delayedPending && (
-				<div className="absolute flex items-center justify-center">
+				<div className='absolute flex items-center justify-center'>
 					<UpdateIcon
-						className="m-1 animate-spin text-foreground"
+						className='m-1 animate-spin text-foreground'
 						aria-hidden
 					/>
 				</div>

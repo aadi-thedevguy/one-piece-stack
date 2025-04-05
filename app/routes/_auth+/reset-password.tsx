@@ -2,13 +2,13 @@ import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
 import {
-    data,
-    redirect,
-    type ActionFunctionArgs,
-    type LoaderFunctionArgs,
-    type MetaFunction,
-} from 'react-router';
-import { Form, useActionData, useLoaderData } from 'react-router';
+	data,
+	redirect,
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+	type MetaFunction,
+} from 'react-router'
+import { Form, useActionData, useLoaderData } from 'react-router'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { ErrorList, Field } from '~/components/layout/forms'
 import { StatusButton } from '~/components/layout/status-button'
@@ -27,10 +27,10 @@ const ResetPasswordSchema = PasswordAndConfirmPasswordSchema
 async function requireResetPasswordUsername(request: Request) {
 	await requireAnonymous(request)
 	const verifySession = await verifySessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 	const resetPasswordUsername = verifySession.get(
-		resetPasswordUsernameSessionKey,
+		resetPasswordUsernameSessionKey
 	)
 	if (typeof resetPasswordUsername !== 'string' || !resetPasswordUsername) {
 		throw redirect('/login')
@@ -52,7 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	if (submission.status !== 'success') {
 		return data(
 			{ result: submission.reply() },
-			{ status: submission.status === 'error' ? 400 : 200 },
+			{ status: submission.status === 'error' ? 400 : 200 }
 		)
 	}
 	const { password } = submission.value
@@ -61,7 +61,8 @@ export async function action({ request }: ActionFunctionArgs) {
 	const verifySession = await verifySessionStorage.getSession()
 	return redirect('/login', {
 		headers: {
-			'set-cookie': await verifySessionStorage.destroySession(verifySession),
+			'set-cookie':
+				await verifySessionStorage.destroySession(verifySession),
 		},
 	})
 }
@@ -86,22 +87,25 @@ export default function ResetPasswordPage() {
 	})
 
 	return (
-		<div className="container flex flex-col justify-center pb-32 pt-20">
-			<div className="text-center">
-				<h1 className="text-h1">Password Reset</h1>
-				<p className="mt-3 text-body-md text-muted-foreground">
-					Hi, {data.resetPasswordUsername}. No worries. It happens all the time.
+		<div className='container flex flex-col justify-center pb-32 pt-20'>
+			<div className='text-center'>
+				<h1 className='text-h1'>Password Reset</h1>
+				<p className='mt-3 text-body-md text-muted-foreground'>
+					Hi, {data.resetPasswordUsername}. No worries. It happens all
+					the time.
 				</p>
 			</div>
-			<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
-				<Form method="POST" {...getFormProps(form)}>
+			<div className='mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]'>
+				<Form method='POST' {...getFormProps(form)}>
 					<Field
 						labelProps={{
 							htmlFor: fields.password.id,
 							children: 'New Password',
 						}}
 						inputProps={{
-							...getInputProps(fields.password, { type: 'password' }),
+							...getInputProps(fields.password, {
+								type: 'password',
+							}),
 							autoComplete: 'new-password',
 							autoFocus: true,
 						}}
@@ -113,7 +117,9 @@ export default function ResetPasswordPage() {
 							children: 'Confirm Password',
 						}}
 						inputProps={{
-							...getInputProps(fields.confirmPassword, { type: 'password' }),
+							...getInputProps(fields.confirmPassword, {
+								type: 'password',
+							}),
 							autoComplete: 'new-password',
 						}}
 						errors={fields.confirmPassword.errors}
@@ -122,9 +128,9 @@ export default function ResetPasswordPage() {
 					<ErrorList errors={form.errors} id={form.errorId} />
 
 					<StatusButton
-						className="w-full"
+						className='w-full'
 						status={isPending ? 'pending' : (form.status ?? 'idle')}
-						type="submit"
+						type='submit'
 						disabled={isPending}
 					>
 						Reset password

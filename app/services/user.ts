@@ -1,14 +1,16 @@
 import { type Role } from '@prisma/client'
-import { useRouteLoaderData } from 'react-router';
+import { useRouteLoaderData } from 'react-router'
 import { type loader as rootLoader } from '~/root'
 
-function isUser(user: unknown): user is Awaited<ReturnType<typeof rootLoader>>['data']['user'] {
+function isUser(
+	user: unknown
+): user is Awaited<ReturnType<typeof rootLoader>>['data']['user'] {
 	return (
 		typeof user === 'object' &&
 		user !== null &&
 		'id' in user &&
 		typeof (user as { id: unknown }).id === 'string'
-	);
+	)
 }
 
 export function useOptionalUser() {
@@ -23,7 +25,7 @@ export function useUser() {
 	const maybeUser = useOptionalUser()
 	if (!maybeUser) {
 		throw new Error(
-			'No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead.',
+			'No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead.'
 		)
 	}
 	return maybeUser
@@ -51,7 +53,7 @@ export function parsePermissionString(permissionString: PermissionString) {
 
 export function userHasPermission(
 	user: Pick<ReturnType<typeof useUser>, 'roles'> | null | undefined,
-	permission: PermissionString,
+	permission: PermissionString
 ) {
 	if (!user) return false
 	const { action, entity, access } = parsePermissionString(permission)
@@ -60,14 +62,14 @@ export function userHasPermission(
 			(permission) =>
 				permission.entity === entity &&
 				permission.action === action &&
-				(!access || access.includes(permission.access)),
-		),
+				(!access || access.includes(permission.access))
+		)
 	)
 }
 
 export function userHasRole(
 	user: Pick<ReturnType<typeof useUser>, 'roles'> | null,
-	role: string,
+	role: string
 ) {
 	if (!user) return false
 	return user.roles.some((r: Role) => r.name === role)

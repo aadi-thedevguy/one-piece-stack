@@ -1,14 +1,23 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import { data, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
-import { Form, Link, useActionData } from 'react-router';
+import {
+	data,
+	redirect,
+	type LoaderFunctionArgs,
+	type ActionFunctionArgs,
+} from 'react-router'
+import { Form, Link, useActionData } from 'react-router'
 import { z } from 'zod'
 import { ErrorList, Field } from '~/components/layout/forms'
 import { StatusButton } from '~/components/layout/status-button'
 import { Button } from '~/components/ui/button'
 import { useIsPending } from '~/lib/utils'
-import { requireUserId, getPasswordHash, verifyUserPassword } from '~/lib/auth/auth.server'
+import {
+	requireUserId,
+	getPasswordHash,
+	verifyUserPassword,
+} from '~/lib/auth/auth.server'
 import { prisma } from '~/lib/db.server'
 import { redirectWithToast } from '~/lib/toast.server'
 import { type BreadcrumbHandle } from '~/lib/validations'
@@ -18,10 +27,12 @@ import { validateCSRF } from '~/lib/csrf.server'
 import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 export const handle: BreadcrumbHandle & SEOHandle = {
-	breadcrumb: <div className='flex items-center gap-2'>
-		<DotsHorizontalIcon className='h-4 w-4' />
-		<span>Password</span>
-	</div>,
+	breadcrumb: (
+		<div className='flex items-center gap-2'>
+			<DotsHorizontalIcon className='h-4 w-4' />
+			<span>Password</span>
+		</div>
+	),
 	getSitemapEntries: () => null,
 }
 
@@ -51,7 +62,10 @@ export async function action({ request }: ActionFunctionArgs) {
 		schema: ChangePasswordForm.superRefine(
 			async ({ currentPassword, newPassword }, ctx) => {
 				if (currentPassword && newPassword) {
-					const user = await verifyUserPassword({ id: userId }, currentPassword)
+					const user = await verifyUserPassword(
+						{ id: userId },
+						currentPassword
+					)
 					if (!user) {
 						ctx.addIssue({
 							path: ['currentPassword'],
@@ -60,17 +74,21 @@ export async function action({ request }: ActionFunctionArgs) {
 						})
 					}
 				}
-			},
+			}
 		),
 	})
 	if (submission.status !== 'success') {
 		return data(
 			{
 				result: submission.reply({
-					hideFields: ['currentPassword', 'newPassword', 'confirmNewPassword'],
+					hideFields: [
+						'currentPassword',
+						'newPassword',
+						'confirmNewPassword',
+					],
 				}),
 			},
-			{ status: submission.status === 'error' ? 400 : 200 },
+			{ status: submission.status === 'error' ? 400 : 200 }
 		)
 	}
 
@@ -95,7 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
 			title: 'Password Changed',
 			description: 'Your password has been changed.',
 		},
-		{ status: 302 },
+		{ status: 302 }
 	)
 }
 
@@ -114,12 +132,18 @@ export default function ChangePasswordRoute() {
 	})
 
 	return (
-		<Form method="POST" {...getFormProps(form)} className="mx-auto max-w-md">
+		<Form
+			method='POST'
+			{...getFormProps(form)}
+			className='mx-auto max-w-md'
+		>
 			<AuthenticityTokenInput />
 			<Field
 				labelProps={{ children: 'Current Password' }}
 				inputProps={{
-					...getInputProps(fields.currentPassword, { type: 'password' }),
+					...getInputProps(fields.currentPassword, {
+						type: 'password',
+					}),
 					autoComplete: 'current-password',
 				}}
 				errors={fields.currentPassword.errors}
@@ -143,12 +167,12 @@ export default function ChangePasswordRoute() {
 				errors={fields.confirmNewPassword.errors}
 			/>
 			<ErrorList id={form.errorId} errors={form.errors} />
-			<div className="grid w-full grid-cols-2 gap-6">
-				<Button variant="secondary" asChild>
-					<Link to="..">Cancel</Link>
+			<div className='grid w-full grid-cols-2 gap-6'>
+				<Button variant='secondary' asChild>
+					<Link to='..'>Cancel</Link>
 				</Button>
 				<StatusButton
-					type="submit"
+					type='submit'
 					status={isPending ? 'pending' : (form.status ?? 'idle')}
 				>
 					Change Password

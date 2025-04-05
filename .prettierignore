@@ -1,6 +1,6 @@
 node_modules
 
-/.cache
 /build
+/public
 .env
-.react-router
+package-lock.json

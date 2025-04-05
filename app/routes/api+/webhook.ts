@@ -1,7 +1,11 @@
-import { type ActionFunctionArgs, data } from 'react-router';
+import { type ActionFunctionArgs, data } from 'react-router'
 import { type Stripe } from 'stripe'
 
-import { deleteSubscriptionById, getSubscriptionById, updateSubscriptionByUserId, } from '~/models/subscription'
+import {
+	deleteSubscriptionById,
+	getSubscriptionById,
+	updateSubscriptionByUserId,
+} from '~/models/subscription'
 import { getUserByCustomerId } from '~/models/user'
 import { retrieveStripeSubscription } from '~/services/payment/stripe.server'
 import { stripe } from '~/services/payment/config.server'
@@ -21,7 +25,7 @@ async function getStripeEvent(request: Request) {
 		const event = stripe.webhooks.constructEvent(
 			payload,
 			signature,
-			ENDPOINT_SECRET!,
+			ENDPOINT_SECRET!
 		) as Stripe.Event
 
 		return event
@@ -47,7 +51,8 @@ export async function action({ request }: ActionFunctionArgs) {
 				if (!user) throw new Error('User not found.')
 
 				// Retrieve and update database subscription.
-				const subscription = await retrieveStripeSubscription(subscriptionId)
+				const subscription =
+					await retrieveStripeSubscription(subscriptionId)
 				await updateSubscriptionByUserId(user.id, {
 					id: subscription.id,
 					planId: String(subscription.items.data[0].plan.product),
@@ -107,7 +112,9 @@ export async function action({ request }: ActionFunctionArgs) {
 				const subscription = event.data.object
 
 				// Get database subscription.
-				const dbSubscription = await getSubscriptionById(subscription.id)
+				const dbSubscription = await getSubscriptionById(
+					subscription.id
+				)
 
 				if (dbSubscription) {
 					// Delete database subscription.

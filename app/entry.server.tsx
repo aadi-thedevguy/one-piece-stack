@@ -58,7 +58,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
 						new Response(createReadableStreamFromReadable(body), {
 							headers: responseHeaders,
 							status: didError ? 500 : responseStatusCode,
-						}),
+						})
 					)
 					pipe(body)
 				},
@@ -69,7 +69,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
 					didError = true
 				},
 				nonce,
-			},
+			}
 		)
 
 		setTimeout(abort, streamTimeout + 5000)
@@ -78,7 +78,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
 
 export function handleError(
 	error: unknown,
-	{ request }: LoaderFunctionArgs | ActionFunctionArgs,
+	{ request }: LoaderFunctionArgs | ActionFunctionArgs
 ): void {
 	// Skip capturing if the request is aborted as Remix docs suggest
 	// Ref: https://remix.run/docs/en/main/file-conventions/entry.server#handleerror

@@ -1,15 +1,14 @@
 import { useForm, getFormProps } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { invariantResponse } from '@epic-web/invariant'
-import { data, type ActionFunctionArgs } from 'react-router';
-import { redirect, useFetcher, useFetchers } from 'react-router';
+import { data, type ActionFunctionArgs } from 'react-router'
+import { redirect, useFetcher, useFetchers } from 'react-router'
 import { LaptopIcon, MoonIcon, SunIcon } from 'lucide-react'
 import { ServerOnly } from 'remix-utils/server-only'
 import { useHints } from '~/lib/client/client-hints'
 import { useRequestInfo } from '~/lib/request-info'
 import { type Theme, setTheme } from '~/lib/theme.server'
 import { ThemeFormSchema } from '~/lib/validations'
-
 
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
@@ -53,41 +52,45 @@ export function ThemeSwitch({
 			// <Icon name="sun">
 			// 	<span className="sr-only">Light</span>
 			// </Icon>
-			(<div>
-                <span className="sr-only">Light</span>
-                <SunIcon className="w-6 h-6" />
-            </div>)
+			<div>
+				<span className='sr-only'>Light</span>
+				<SunIcon className='w-6 h-6' />
+			</div>
 		),
 		dark: (
 			<div>
-				<span className="sr-only">Dark</span>
-				<MoonIcon className="w-6 h-6" />
+				<span className='sr-only'>Dark</span>
+				<MoonIcon className='w-6 h-6' />
 			</div>
 		),
 		system: (
 			<div>
-				<span className="sr-only">System</span>
-				<LaptopIcon className="w-6 h-6" />
+				<span className='sr-only'>System</span>
+				<LaptopIcon className='w-6 h-6' />
 			</div>
 		),
 	}
 
 	return (
 		<fetcher.Form
-			method="POST"
+			method='POST'
 			{...getFormProps(form)}
-			action="/resources/theme-switch"
+			action='/resources/theme-switch'
 		>
 			<ServerOnly>
 				{() => (
-					<input type="hidden" name="redirectTo" value={requestInfo.path} />
+					<input
+						type='hidden'
+						name='redirectTo'
+						value={requestInfo.path}
+					/>
 				)}
 			</ServerOnly>
-			<input type="hidden" name="theme" value={nextMode} />
-			<div className="flex gap-2">
+			<input type='hidden' name='theme' value={nextMode} />
+			<div className='flex gap-2'>
 				<button
-					type="submit"
-					className="flex h-8 w-8 cursor-pointer items-center justify-center"
+					type='submit'
+					className='flex h-8 w-8 cursor-pointer items-center justify-center'
 				>
 					{modeLabel[mode]}
 				</button>
@@ -103,7 +106,7 @@ export function ThemeSwitch({
 export function useOptimisticThemeMode() {
 	const fetchers = useFetchers()
 	const themeFetcher = fetchers.find(
-		(f) => f.formAction === '/resources/theme-switch',
+		(f) => f.formAction === '/resources/theme-switch'
 	)
 
 	if (themeFetcher && themeFetcher.formData) {

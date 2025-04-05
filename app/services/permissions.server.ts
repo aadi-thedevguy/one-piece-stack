@@ -1,11 +1,11 @@
-import { data } from 'react-router';
+import { data } from 'react-router'
 import { requireUserId } from '../lib/auth/auth.server'
 import { prisma } from '../lib/db.server'
 import { type PermissionString, parsePermissionString } from './user'
 
 export async function requireUserWithPermission(
 	request: Request,
-	permission: PermissionString,
+	permission: PermissionString
 ) {
 	const userId = await requireUserId(request)
 	const permissionData = parsePermissionString(permission)
@@ -34,7 +34,7 @@ export async function requireUserWithPermission(
 				requiredPermission: permissionData,
 				message: `Unauthorized: required permissions: ${permission}`,
 			},
-			{ status: 403 },
+			{ status: 403 }
 		)
 	}
 	return user.id
@@ -53,7 +53,7 @@ export async function requireUserWithRole(request: Request, name: string) {
 				requiredRole: name,
 				message: `Unauthorized: required role: ${name}`,
 			},
-			{ status: 403 },
+			{ status: 403 }
 		)
 	}
 	return user.id

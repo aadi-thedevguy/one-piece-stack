@@ -12,7 +12,6 @@ const value = {
 export default function CTA() {
 	return (
 		<article className='mx-auto max-w-7xl my-32 py-20 px-12 rounded-xl lg:px-24 bg-accent text-accent-foreground text-center'>
-
 			<div className='flex flex-col items-center'>
 				<h2 className='text-3xl font-bold sm:text-4xl text-secondary-foreground'>
 					{value.subjectLine}
@@ -23,9 +22,12 @@ export default function CTA() {
 				<div className='mt-10'>
 					<a
 						href={value.btnLink}
-						rel="noreferrer"
+						rel='noreferrer'
 						target='_blank'
-						className={buttonVariants({ variant: "default", size: "lg" })}
+						className={buttonVariants({
+							variant: 'default',
+							size: 'lg',
+						})}
 					>
 						{value.btnText}
 						<GitHubLogoIcon className='w-5 h-5 ml-3' />

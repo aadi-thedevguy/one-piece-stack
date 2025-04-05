@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from 'react-router';
+import { createCookieSessionStorage, redirect } from 'react-router'
 import { combineHeaders } from './utils'
 import { ToastSchema, type ToastInput } from '~/lib/validations'
 import { toastKey } from '~/constants/keys'
@@ -17,7 +17,7 @@ export const toastSessionStorage = createCookieSessionStorage({
 export async function redirectWithToast(
 	url: string,
 	toast: ToastInput,
-	init?: ResponseInit,
+	init?: ResponseInit
 ) {
 	return redirect(url, {
 		...init,
@@ -35,7 +35,7 @@ export async function createToastHeaders(toastInput: ToastInput) {
 
 export async function getToast(request: Request) {
 	const session = await toastSessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 	const result = ToastSchema.safeParse(session.get(toastKey))
 	const toast = result.success ? result.data : null
@@ -43,8 +43,9 @@ export async function getToast(request: Request) {
 		toast,
 		headers: toast
 			? new Headers({
-				'set-cookie': await toastSessionStorage.destroySession(session),
-			})
+					'set-cookie':
+						await toastSessionStorage.destroySession(session),
+				})
 			: null,
 	}
 }

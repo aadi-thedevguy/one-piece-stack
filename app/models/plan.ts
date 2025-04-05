@@ -3,7 +3,7 @@ import { prisma } from '~/lib/db.server'
 
 export async function getPlanById(
 	planID: Plan['planID'],
-	include?: Prisma.PlanInclude,
+	include?: Prisma.PlanInclude
 ) {
 	return prisma.plan.findUnique({
 		where: { planID },

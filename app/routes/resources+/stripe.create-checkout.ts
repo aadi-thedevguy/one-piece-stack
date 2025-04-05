@@ -1,4 +1,8 @@
-import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect } from 'react-router';
+import {
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+	redirect,
+} from 'react-router'
 import { getPlanById } from '~/models/plan'
 import { createStripeCheckoutSession } from '~/services/payment/stripe.server'
 import { requireUserId } from '~/lib/auth/auth.server'
@@ -30,7 +34,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	if (!planId || !planInterval)
 		throw new Error(
-			'Missing required parameters to create Stripe Checkout Session.',
+			'Missing required parameters to create Stripe Checkout Session.'
 		)
 
 	// Get client's currency.
@@ -39,8 +43,9 @@ export async function action({ request }: ActionFunctionArgs) {
 	// Get price ID for the requested plan.
 	const plan = await getPlanById(planId, { prices: true })
 	const planPrice = plan?.prices.find(
-		price =>
-			price.interval === planInterval && price.currency === defaultCurrency,
+		(price) =>
+			price.interval === planInterval &&
+			price.currency === defaultCurrency
 	)
 	if (!planPrice) throw new Error('Unable to find a Plan price.')
 
@@ -48,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	const checkoutUrl = await createStripeCheckoutSession(
 		user.customerId,
 		planPrice.id,
-		request,
+		request
 	)
 	return redirect(checkoutUrl)
 }

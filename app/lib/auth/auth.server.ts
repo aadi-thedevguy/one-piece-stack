@@ -1,5 +1,5 @@
 import { type Connection, type Password, type User } from '@prisma/client'
-import { data, redirect } from 'react-router';
+import { data, redirect } from 'react-router'
 import bcrypt from 'bcryptjs'
 import { safeRedirect } from 'remix-utils/safe-redirect'
 import { prisma } from '../db.server'
@@ -10,10 +10,9 @@ import { SESSION_EXPIRATION_TIME, sessionKey } from '~/constants/keys'
 export const getSessionExpirationDate = () =>
 	new Date(Date.now() + SESSION_EXPIRATION_TIME)
 
-
 export async function getUserId(request: Request) {
 	const authSession = await authSessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 	const sessionId = authSession.get(sessionKey)
 	if (!sessionId) return null
@@ -24,7 +23,8 @@ export async function getUserId(request: Request) {
 	if (!session?.user) {
 		throw redirect('/', {
 			headers: {
-				'set-cookie': await authSessionStorage.destroySession(authSession),
+				'set-cookie':
+					await authSessionStorage.destroySession(authSession),
 			},
 		})
 	}
@@ -33,7 +33,7 @@ export async function getUserId(request: Request) {
 
 export async function requireUserId(
 	request: Request,
-	{ redirectTo }: { redirectTo?: string | null } = {},
+	{ redirectTo }: { redirectTo?: string | null } = {}
 ) {
 	const userId = await getUserId(request)
 	if (!userId) {
@@ -41,8 +41,10 @@ export async function requireUserId(
 		redirectTo =
 			redirectTo === null
 				? null
-				: redirectTo ?? `${requestUrl.pathname}${requestUrl.search}`
-		const loginParams = redirectTo ? new URLSearchParams({ redirectTo }) : null
+				: (redirectTo ?? `${requestUrl.pathname}${requestUrl.search}`)
+		const loginParams = redirectTo
+			? new URLSearchParams({ redirectTo })
+			: null
 		const loginRedirect = ['/login', loginParams?.toString()]
 			.filter(Boolean)
 			.join('?')
@@ -108,12 +110,11 @@ export async function signup({
 	name: User['name']
 	password: string
 }) {
-
 	const hashedPassword = await getPasswordHash(password)
 
 	const userRole = await prisma.role.findUnique({
 		where: { name: 'user' },
-	});
+	})
 
 	if (!userRole) {
 		throw data(
@@ -121,7 +122,7 @@ export async function signup({
 				error: 'Unauthorized',
 				message: `Unauthorized: Role 'user' not found`,
 			},
-			{ status: 401 },
+			{ status: 401 }
 		)
 	}
 
@@ -166,7 +167,7 @@ export async function signupWithConnection({
 	// Ensure the 'user' role exists
 	const userRole = await prisma.role.findUnique({
 		where: { name: 'user' },
-	});
+	})
 
 	if (!userRole) {
 		throw data(
@@ -174,7 +175,7 @@ export async function signupWithConnection({
 				error: 'Unauthorized',
 				message: `Unauthorized: Role 'user' not found`,
 			},
-			{ status: 401 },
+			{ status: 401 }
 		)
 	}
 
@@ -190,11 +191,11 @@ export async function signupWithConnection({
 					connections: { create: { providerId, providerName } },
 					image: imageUrl
 						? {
-							create: {
-								url: imageUrl,
-								contentType: 'image/png',
-							},
-						}
+								create: {
+									url: imageUrl,
+									contentType: 'image/png',
+								},
+							}
 						: undefined,
 					// image: imageUrl
 					// 	? { create: await downloadFile(imageUrl) }
@@ -216,10 +217,10 @@ export async function logout(
 		request: Request
 		redirectTo?: string
 	},
-	responseInit?: ResponseInit,
+	responseInit?: ResponseInit
 ) {
 	const authSession = await authSessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 	const sessionId = authSession.get(sessionKey)
 	// if this fails, we still need to delete the session from the user's browser
@@ -227,13 +228,18 @@ export async function logout(
 	if (sessionId) {
 		// the .catch is important because that's what triggers the query.
 		// learn more about PrismaPromise: https://www.prisma.io/docs/orm/reference/prisma-client-reference#prismapromise-behavior
-		void prisma.session.deleteMany({ where: { id: sessionId } }).catch(() => { })
+		void prisma.session
+			.deleteMany({ where: { id: sessionId } })
+			.catch(() => {})
 	}
 	throw redirect(safeRedirect(redirectTo), {
 		...responseInit,
 		headers: combineHeaders(
-			{ 'set-cookie': await authSessionStorage.destroySession(authSession) },
-			responseInit?.headers,
+			{
+				'set-cookie':
+					await authSessionStorage.destroySession(authSession),
+			},
+			responseInit?.headers
 		),
 	})
 }
@@ -245,7 +251,7 @@ export async function getPasswordHash(password: string) {
 
 export async function verifyUserPassword(
 	where: Pick<User, 'username'> | Pick<User, 'id'>,
-	password: Password['hash'],
+	password: Password['hash']
 ) {
 	const userWithPassword = await prisma.user.findUnique({
 		where,
@@ -256,7 +262,10 @@ export async function verifyUserPassword(
 		return null
 	}
 
-	const isValid = await bcrypt.compare(password, userWithPassword.password.hash)
+	const isValid = await bcrypt.compare(
+		password,
+		userWithPassword.password.hash
+	)
 
 	if (!isValid) {
 		return null

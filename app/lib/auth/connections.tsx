@@ -1,8 +1,8 @@
-import { Form } from 'react-router';
+import { Form } from 'react-router'
 import { useIsPending } from '../utils'
 import { GoogleIcon } from '~/constants/icons'
 import { StatusButton } from '~/components/layout/status-button'
-import {type ProviderName } from '../validations'
+import { type ProviderName } from '../validations'
 // import { TwitterLogoIcon } from "@radix-ui/react-icons"
 // import { GitHubLogoIcon } from '@radix-ui/react-icons'
 
@@ -32,19 +32,19 @@ export function ProviderConnectionForm({
 	const isPending = useIsPending({ formAction })
 	return (
 		<Form
-			className="flex items-center justify-center gap-2"
+			className='flex items-center justify-center gap-2'
 			action={formAction}
-			method="POST"
+			method='POST'
 		>
 			{redirectTo ? (
-				<input type="hidden" name="redirectTo" value={redirectTo} />
+				<input type='hidden' name='redirectTo' value={redirectTo} />
 			) : null}
 			<StatusButton
-				type="submit"
-				className="w-full"
+				type='submit'
+				className='w-full'
 				status={isPending ? 'pending' : 'idle'}
 			>
-				<span className="inline-flex items-center gap-1.5">
+				<span className='inline-flex items-center gap-1.5'>
 					{providerIcons[providerName]}
 					<span>
 						{type} with {label}

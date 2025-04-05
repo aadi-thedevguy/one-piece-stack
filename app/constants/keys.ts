@@ -5,6 +5,6 @@ export const providerIdKey = 'providerId'
 export const prefilledProfileKey = 'prefilledProfile'
 export const onboardingEmailSessionKey = 'onboardingEmail'
 export const resetPasswordUsernameSessionKey = 'resetPasswordUsername'
-export const placeholderAvatar = 'https://api.dicebear.com/9.x/adventurer/svg?seed=Oliver'
+export const placeholderAvatar =
+	'https://api.dicebear.com/9.x/adventurer/svg?seed=Oliver'
 // export const placeholderAvatar = '/placeholder.jpg'
-

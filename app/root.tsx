@@ -33,7 +33,7 @@ import { UserDropdown } from '~/components/layout/user-dropdown'
 import { csrf } from '~/lib/csrf.server'
 import type { Route } from './+types/root'
 
-export const links : Route.LinksFunction = () => {
+export const links: Route.LinksFunction = () => {
 	return [
 		{
 			rel: 'icon',
@@ -44,90 +44,92 @@ export const links : Route.LinksFunction = () => {
 	].filter(Boolean)
 }
 
-export const meta : Route.MetaFunction = ({ data }) => {
+export const meta: Route.MetaFunction = ({ data }) => {
 	return [
 		{ title: data ? 'One Piece Stack' : 'Error | One Piece Stack' },
 		{ name: 'description', content: '' },
-    {
-      property: 'og:site',
-      content: '',
-    },
-    {
-      property: 'og:url',
-      content: '',
-    },
-    {
-      property: 'og:title',
-      content: '',
-    },
-    {
-      property: 'og:description',
-      content: '',
-    },
-    {
-      property: 'og:image',
-      content: '',
-    },
-    {
-      name: 'twitter:card',
-      content: 'summary_large_image',
-    },
-    {
-      name: 'twitter:site',
-      content: '',
-    },
-    {
-      name: 'twitter:url',
-      content: '',
-    },
-    {
-      name: 'twitter:title',
-      content: 'One Piece Stack',
-    },
-    {
-      name: 'twitter:description',
-      content: '',
-    },
-    {
-      name: 'twitter:image',
-      content: '',
-    }
+		{
+			property: 'og:site',
+			content: '',
+		},
+		{
+			property: 'og:url',
+			content: '',
+		},
+		{
+			property: 'og:title',
+			content: '',
+		},
+		{
+			property: 'og:description',
+			content: '',
+		},
+		{
+			property: 'og:image',
+			content: '',
+		},
+		{
+			name: 'twitter:card',
+			content: 'summary_large_image',
+		},
+		{
+			name: 'twitter:site',
+			content: '',
+		},
+		{
+			name: 'twitter:url',
+			content: '',
+		},
+		{
+			name: 'twitter:title',
+			content: 'One Piece Stack',
+		},
+		{
+			name: 'twitter:description',
+			content: '',
+		},
+		{
+			name: 'twitter:image',
+			content: '',
+		},
 	]
 }
 
-export async function loader({ request } : Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
+	const userId = await getUserId(request)
 
-  const userId = await getUserId(request)
-
-  const user = userId
-    ? await
-      prisma.user.findUniqueOrThrow({
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          image: { select: { url: true } },
-          roles: {
-            select: {
-              name: true,
-              permissions: {
-                select: { entity: true, action: true, access: true },
-              },
-            },
-          },
-        },
-        where: { id: userId },
-      })
-    : null
-  if (userId && !user) {
-    console.info('something weird happened')
-    // something weird happened... The user is authenticated but we can't find
-    // them in the database. Maybe they were deleted? Let's log them out.
-    await logout({ request, redirectTo: '/' })
-  }
-  const { toast, headers: toastHeaders } = await getToast(request)
-  const honeyProps = honeypot.getInputProps()
-  const [csrfToken, csrfCookieHeader] = await csrf.commitToken()
+	const user = userId
+		? await prisma.user.findUniqueOrThrow({
+				select: {
+					id: true,
+					name: true,
+					username: true,
+					image: { select: { url: true } },
+					roles: {
+						select: {
+							name: true,
+							permissions: {
+								select: {
+									entity: true,
+									action: true,
+									access: true,
+								},
+							},
+						},
+					},
+				},
+				where: { id: userId },
+			})
+		: null
+	if (userId && !user) {
+		console.info('something weird happened')
+		// something weird happened... The user is authenticated but we can't find
+		// them in the database. Maybe they were deleted? Let's log them out.
+		await logout({ request, redirectTo: '/' })
+	}
+	const { toast, headers: toastHeaders } = await getToast(request)
+	const honeyProps = honeypot.getInputProps()
+	const [csrfToken, csrfCookieHeader] = await csrf.commitToken()
 
 	return data(
 		{
@@ -143,14 +145,14 @@ export async function loader({ request } : Route.LoaderArgs) {
 			ENV: getEnv(),
 			toast,
 			honeyProps,
-      csrfToken
-    },
-    {
-      headers: combineHeaders(
-        toastHeaders,
-        csrfCookieHeader ? { 'set-cookie': csrfCookieHeader } : null,
-      ),
-    },
+			csrfToken,
+		},
+		{
+			headers: combineHeaders(
+				toastHeaders,
+				csrfCookieHeader ? { 'set-cookie': csrfCookieHeader } : null
+			),
+		}
 	)
 }
 
@@ -170,18 +172,21 @@ function Document({
 }) {
 	const allowIndexing = ENV.ALLOW_INDEXING !== 'false'
 	return (
-		<html lang="en" className={`${theme}`}>
+		<html lang='en' className={`${theme}`}>
 			<head>
 				<ClientHintCheck nonce={nonce} />
 				<Meta />
-				<meta charSet="utf-8" />
-				<meta name="viewport" content="width=device-width,initial-scale=1" />
+				<meta charSet='utf-8' />
+				<meta
+					name='viewport'
+					content='width=device-width,initial-scale=1'
+				/>
 				{allowIndexing ? null : (
-					<meta name="robots" content="noindex, nofollow" />
+					<meta name='robots' content='noindex, nofollow' />
 				)}
 				<Links />
 			</head>
-      <body className='h-full max-w-screen bg-background text-foreground font-sans overflow-x-hidden'>
+			<body className='h-full max-w-screen bg-background text-foreground font-sans overflow-x-hidden'>
 				{children}
 				<script
 					nonce={nonce}
@@ -200,7 +205,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	// if there was an error running the loader, data could be missing
 	const data = useLoaderData<typeof loader | null>()
 	const nonce = useNonce()
-  const theme = useTheme()
+	const theme = useTheme()
 	return (
 		<Document nonce={nonce} env={data?.ENV} theme={theme}>
 			{children}
@@ -215,43 +220,48 @@ function App() {
 
 	return (
 		<>
-			  <div className="flex h-screen flex-col justify-between">
-        <Navbar>
-          <div className="flex items-center gap-10">
-            {data.user ? (
-              <UserDropdown />
-            ) : (
-              <Button asChild variant="default" size="lg">
-                <Link to="/login">Log In</Link>
-              </Button>
-            )}
-          </div>
-        </Navbar>
+			<div className='flex h-screen flex-col justify-between'>
+				<Navbar>
+					<div className='flex items-center gap-10'>
+						{data.user ? (
+							<UserDropdown />
+						) : (
+							<Button asChild variant='default' size='lg'>
+								<Link to='/login'>Log In</Link>
+							</Button>
+						)}
+					</div>
+				</Navbar>
 
-        <div className="flex-1">
-          <Outlet />
-        </div>
+				<div className='flex-1'>
+					<Outlet />
+				</div>
 
-        <Footer>
-          <ThemeSwitch userPreference={data.requestInfo.userPrefs.theme} />
-        </Footer>
-      </div>
-      <EpicToaster closeButton position="top-center" theme={theme ?? "light"} />
-      <EpicProgress />
+				<Footer>
+					<ThemeSwitch
+						userPreference={data.requestInfo.userPrefs.theme}
+					/>
+				</Footer>
+			</div>
+			<EpicToaster
+				closeButton
+				position='top-center'
+				theme={theme ?? 'light'}
+			/>
+			<EpicProgress />
 		</>
 	)
 }
 
 function AppWithProviders() {
 	const data = useLoaderData<typeof loader>()
-  return (
-    <AuthenticityTokenProvider token={data.csrfToken}>
-      <HoneypotProvider {...data.honeyProps}>
-        <App />
-      </HoneypotProvider>
-    </AuthenticityTokenProvider>
-
-  )
+	return (
+		<AuthenticityTokenProvider token={data.csrfToken}>
+			<HoneypotProvider {...data.honeyProps}>
+				<App />
+			</HoneypotProvider>
+		</AuthenticityTokenProvider>
+	)
 }
 export default AppWithProviders
 

@@ -1,8 +1,13 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import { data, type ActionFunctionArgs, type LoaderFunctionArgs, type MetaFunction } from 'react-router';
-import { Form, Link, useActionData, useSearchParams } from 'react-router';
+import {
+	data,
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+	type MetaFunction,
+} from 'react-router'
+import { Form, Link, useActionData, useSearchParams } from 'react-router'
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
@@ -11,12 +16,8 @@ import { StatusButton } from '~/components/layout/status-button'
 import { checkHoneypot } from '~/lib/honeypot.server'
 import { useIsPending } from '~/lib/utils'
 import { login, requireAnonymous } from '~/lib/auth/auth.server'
-import {
-	ProviderConnectionForm,
-} from '~/lib/auth/connections'
-import {
-	providerNames
-} from "~/lib/validations"
+import { ProviderConnectionForm } from '~/lib/auth/connections'
+import { providerNames } from '~/lib/validations'
 import { LoginFormSchema } from '~/lib/validations/user-validation'
 import { handleNewSession } from '~/lib/auth/login.server'
 import { validateCSRF } from '~/lib/csrf.server'
@@ -58,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	if (submission.status !== 'success' || !submission.value.session) {
 		return data(
 			{ result: submission.reply({ hideFields: ['password'] }) },
-			{ status: submission.status === 'error' ? 400 : 200 },
+			{ status: submission.status === 'error' ? 400 : 200 }
 		)
 	}
 
@@ -90,24 +91,26 @@ export default function LoginPage() {
 	})
 
 	return (
-		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
-			<div className="mx-auto w-full max-w-md">
-				<div className="flex flex-col gap-3 text-center">
-					<h1 className="text-h1">Welcome back!</h1>
-					<p className="text-body-md text-muted-foreground">
+		<div className='flex min-h-full flex-col justify-center pb-32 pt-20'>
+			<div className='mx-auto w-full max-w-md'>
+				<div className='flex flex-col gap-3 text-center'>
+					<h1 className='text-h1'>Welcome back!</h1>
+					<p className='text-body-md text-muted-foreground'>
 						Please enter your details.
 					</p>
 				</div>
 
 				<div>
-					<div className="mx-auto w-full max-w-md px-8">
-						<Form method="POST" {...getFormProps(form)}>
+					<div className='mx-auto w-full max-w-md px-8'>
+						<Form method='POST' {...getFormProps(form)}>
 							<AuthenticityTokenInput />
 							<HoneypotInputs />
 							<Field
 								labelProps={{ children: 'Username' }}
 								inputProps={{
-									...getInputProps(fields.username, { type: 'text' }),
+									...getInputProps(fields.username, {
+										type: 'text',
+									}),
 									autoFocus: true,
 									className: 'lowercase',
 									autoComplete: 'username',
@@ -126,21 +129,24 @@ export default function LoginPage() {
 								errors={fields.password.errors}
 							/>
 
-							<div className="flex justify-between">
+							<div className='flex justify-between'>
 								<CheckboxField
 									labelProps={{
 										htmlFor: fields.remember.id,
 										children: 'Remember me',
 									}}
-									buttonProps={getInputProps(fields.remember, {
-										type: 'checkbox',
-									})}
+									buttonProps={getInputProps(
+										fields.remember,
+										{
+											type: 'checkbox',
+										}
+									)}
 									errors={fields.remember.errors}
 								/>
 								<div>
 									<Link
-										to="/forgot-password"
-										className="text-body-xs font-semibold"
+										to='/forgot-password'
+										className='text-body-xs font-semibold'
 									>
 										Forgot password?
 									</Link>
@@ -148,35 +154,42 @@ export default function LoginPage() {
 							</div>
 
 							<input
-								{...getInputProps(fields.redirectTo, { type: 'hidden' })}
+								{...getInputProps(fields.redirectTo, {
+									type: 'hidden',
+								})}
 							/>
 							<ErrorList errors={form.errors} id={form.errorId} />
 
-							<div className="flex items-center justify-between gap-6 pt-3">
+							<div className='flex items-center justify-between gap-6 pt-3'>
 								<StatusButton
-									className="w-full"
-									status={isPending ? 'pending' : (form.status ?? 'idle')}
-									type="submit"
+									className='w-full'
+									status={
+										isPending
+											? 'pending'
+											: (form.status ?? 'idle')
+									}
+									type='submit'
 									disabled={isPending}
 								>
 									Log in
 								</StatusButton>
 							</div>
 						</Form>
-						<ul className="mt-5 flex flex-col gap-5 border-t-2 border-border py-3">
-
+						<ul className='mt-5 flex flex-col gap-5 border-t-2 border-border py-3'>
 							{providerNames.map((providerName) => (
 								<li key={providerName}>
 									<ProviderConnectionForm
-										type="Login"
+										type='Login'
 										providerName={providerName}
 										redirectTo={redirectTo}
 									/>
 								</li>
 							))}
 						</ul>
-						<div className="flex items-center justify-center gap-2 pt-6">
-							<span className="text-muted-foreground">New here?</span>
+						<div className='flex items-center justify-center gap-2 pt-6'>
+							<span className='text-muted-foreground'>
+								New here?
+							</span>
 							<Link
 								to={
 									redirectTo

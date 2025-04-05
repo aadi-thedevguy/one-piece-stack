@@ -1,5 +1,5 @@
 import { invariant } from '@epic-web/invariant'
-import { redirect } from 'react-router';
+import { redirect } from 'react-router'
 import { safeRedirect } from 'remix-utils/safe-redirect'
 import { sessionKey } from '~/constants/keys'
 import { prisma } from '~/lib/db.server'
@@ -25,10 +25,10 @@ export async function handleNewSession(
 		redirectTo?: string
 		remember: boolean
 	},
-	responseInit?: ResponseInit,
+	responseInit?: ResponseInit
 ) {
 	const authSession = await authSessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 	authSession.set(sessionKey, session.id)
 
@@ -37,13 +37,18 @@ export async function handleNewSession(
 		combineResponseInits(
 			{
 				headers: {
-					'set-cookie': await authSessionStorage.commitSession(authSession, {
-						expires: remember ? session.expirationDate : undefined,
-					}),
+					'set-cookie': await authSessionStorage.commitSession(
+						authSession,
+						{
+							expires: remember
+								? session.expirationDate
+								: undefined,
+						}
+					),
 				},
 			},
-			responseInit,
-		),
+			responseInit
+		)
 	)
 }
 
@@ -53,13 +58,13 @@ export async function handleVerification({
 }: VerifyFunctionArgs) {
 	invariant(
 		submission.status === 'success',
-		'Submission should be successful by now',
+		'Submission should be successful by now'
 	)
 	const authSession = await authSessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 	const verifySession = await verifySessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 
 	const remember = verifySession.get(rememberKey)
@@ -77,7 +82,8 @@ export async function handleVerification({
 			throw await redirectWithToast('/login', {
 				type: 'error',
 				title: 'Invalid session',
-				description: 'Could not find session to verify. Please try again.',
+				description:
+					'Could not find session to verify. Please try again.',
 			})
 		}
 		authSession.set(sessionKey, unverifiedSessionId)
@@ -86,20 +92,19 @@ export async function handleVerification({
 			'set-cookie',
 			await authSessionStorage.commitSession(authSession, {
 				expires: remember ? session.expirationDate : undefined,
-			}),
+			})
 		)
 	} else {
 		headers.append(
 			'set-cookie',
-			await authSessionStorage.commitSession(authSession),
+			await authSessionStorage.commitSession(authSession)
 		)
 	}
 
 	headers.append(
 		'set-cookie',
-		await verifySessionStorage.destroySession(verifySession),
+		await verifySessionStorage.destroySession(verifySession)
 	)
 
 	return redirect(safeRedirect(redirectTo), { headers })
 }
-

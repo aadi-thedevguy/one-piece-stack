@@ -5,7 +5,8 @@ const schema = z.object({
 	DATABASE_URL: z.string(),
 	SESSION_SECRET: z.string(),
 	HONEYPOT_SECRET: z.string(),
-	REDIS_URL: z.string(),
+	// Uncomment below if you are using Redis
+	// REDIS_URL: z.string(),
 	SENTRY_DSN: z.string(),
 	EMAIL_FROM_ADDRESS: z.string(),
 	ADMIN_EMAIL: z.string(),
@@ -24,7 +25,7 @@ const schema = z.object({
 
 declare global {
 	namespace NodeJS {
-		interface ProcessEnv extends z.infer<typeof schema> { }
+		interface ProcessEnv extends z.infer<typeof schema> {}
 	}
 }
 
@@ -34,7 +35,7 @@ export function init() {
 	if (parsed.success === false) {
 		console.error(
 			'❌ Invalid environment variables:',
-			parsed.error.flatten().fieldErrors,
+			parsed.error.flatten().fieldErrors
 		)
 
 		throw new Error('Invalid environment variables')

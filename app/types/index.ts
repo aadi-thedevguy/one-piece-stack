@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 
-import { type Submission } from "@conform-to/react"
-import { z } from "zod"
-import { VerifySchema } from "~/lib/validations"
-import { Interval, Currency, PlanId } from "~/constants/index"
-import { type PlanLimit, type Price } from "@prisma/client"
+import { type Submission } from '@conform-to/react'
+import { z } from 'zod'
+import { VerifySchema } from '~/lib/validations'
+import { Interval, Currency, PlanId } from '~/constants/index'
+import { type PlanLimit, type Price } from '@prisma/client'
 
 /**
  * A helper type that defines our price by interval.
@@ -13,10 +13,10 @@ export type PriceInterval<
 	I extends Interval = Interval,
 	C extends Currency = Currency,
 > = {
-		[interval in I]: {
-			[currency in C]: Price['amount']
-		}
+	[interval in I]: {
+		[currency in C]: Price['amount']
 	}
+}
 
 /**
  * A helper type that defines our pricing plans structure by Interval.
