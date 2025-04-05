@@ -1,8 +1,13 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import { data, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
-import { Form, Link, useActionData } from 'react-router';
+import {
+	data,
+	redirect,
+	type LoaderFunctionArgs,
+	type ActionFunctionArgs,
+} from 'react-router'
+import { Form, Link, useActionData } from 'react-router'
 import { ErrorList, Field } from '~/components/layout/forms'
 import { StatusButton } from '~/components/layout/status-button'
 import { Button } from '~/components/ui/button'
@@ -14,10 +19,12 @@ import { type BreadcrumbHandle } from '~/lib/validations'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 
 export const handle: BreadcrumbHandle & SEOHandle = {
-	breadcrumb: <div className='flex items-center gap-2'>
-		<DotsHorizontalIcon className='h-4 w-4' />
-		<span>Password</span>
-	</div>,
+	breadcrumb: (
+		<div className='flex items-center gap-2'>
+			<DotsHorizontalIcon className='h-4 w-4' />
+			<span>Password</span>
+		</div>
+	),
 	getSitemapEntries: () => null,
 }
 
@@ -54,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
 					hideFields: ['password', 'confirmPassword'],
 				}),
 			},
-			{ status: submission.status === 'error' ? 400 : 200 },
+			{ status: submission.status === 'error' ? 400 : 200 }
 		)
 	}
 
@@ -90,7 +97,11 @@ export default function CreatePasswordRoute() {
 	})
 
 	return (
-		<Form method="POST" {...getFormProps(form)} className="mx-auto max-w-md">
+		<Form
+			method='POST'
+			{...getFormProps(form)}
+			className='mx-auto max-w-md'
+		>
 			<Field
 				labelProps={{ children: 'New Password' }}
 				inputProps={{
@@ -110,12 +121,12 @@ export default function CreatePasswordRoute() {
 				errors={fields.confirmPassword.errors}
 			/>
 			<ErrorList id={form.errorId} errors={form.errors} />
-			<div className="grid w-full grid-cols-2 gap-6">
-				<Button variant="secondary" asChild>
-					<Link to="..">Cancel</Link>
+			<div className='grid w-full grid-cols-2 gap-6'>
+				<Button variant='secondary' asChild>
+					<Link to='..'>Cancel</Link>
 				</Button>
 				<StatusButton
-					type="submit"
+					type='submit'
 					status={isPending ? 'pending' : (form.status ?? 'idle')}
 				>
 					Create Password

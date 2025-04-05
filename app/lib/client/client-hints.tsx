@@ -8,7 +8,7 @@ import {
 	subscribeToSchemeChange,
 } from '@epic-web/client-hints/color-scheme'
 import { clientHint as timeZoneHint } from '@epic-web/client-hints/time-zone'
-import { useRevalidator } from 'react-router';
+import { useRevalidator } from 'react-router'
 import * as React from 'react'
 import { useRequestInfo } from '../request-info'
 
@@ -37,7 +37,7 @@ export function ClientHintCheck({ nonce }: { nonce: string }) {
 	const { revalidate } = useRevalidator()
 	React.useEffect(
 		() => subscribeToSchemeChange(() => revalidate()),
-		[revalidate],
+		[revalidate]
 	)
 
 	return (

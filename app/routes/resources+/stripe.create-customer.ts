@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, redirect } from 'react-router';
+import { type LoaderFunctionArgs, redirect } from 'react-router'
 import { updateUserById } from '~/models/user'
 import { createStripeCustomer } from '~/services/payment/stripe.server'
 import { requireUserId } from '~/lib/auth/auth.server'

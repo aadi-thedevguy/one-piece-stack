@@ -1,48 +1,50 @@
 # One Piece Stack
+
 Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can focus on your product and customers
 (inspired by Epic Stack)
 
 ## What's in the box (well, stack)
 
--   Built with [React Rouer](https://reactrouter.com/)
--    Written in [TypeScript](https://typescriptlang.org)
--   Primary Database of Choice - [MongoDB](https://mongodb.com)
--   Secondary Database(optional) - [Redis](https://redis.io)
--   ORM - [Prisma](https://prisma.io)
--   Send Transactional emails with [Nodemailer](https://nodemailer.com/) 
--   Asset Uploads and Optimization with [Cloudinary](https://cloudinary.com/)
--   Styling with [TailwindCSS](https://tailwindcss.com)
--   Component Library - [ShadCN UI](https://ui.shadcn.com/)
--  Deploys anywhere with [Docker](https://docker.com)
--  Code formatting and linting with Eslint and Prettier
-
+- Built with [React Rouer](https://reactrouter.com/)
+- Written in [TypeScript](https://typescriptlang.org)
+- Primary Database of Choice - [MongoDB](https://mongodb.com)
+- Secondary Database(optional) - [Redis](https://redis.io)
+- ORM - [Prisma](https://prisma.io)
+- Send Transactional emails with [Nodemailer](https://nodemailer.com/)
+- Asset Uploads and Optimization with [Cloudinary](https://cloudinary.com/)
+- Styling with [TailwindCSS](https://tailwindcss.com)
+- Component Library - [ShadCN UI](https://ui.shadcn.com/)
+- Deploys anywhere with [Docker](https://docker.com)
+- Code formatting and linting with Eslint and Prettier
 
 ## Features
--   Custom-built email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers
--   Customizable Copy Writing Components and Pages like Privacy Policy, Terms of Service, Cookie Policy, Testimonials, Product Demo, Pricing, FAQ etc.
--   Health check API route
--   Dark Mode Support
--   CSRF Protection and Honeypot
--   Caching and Rate-Limiting
+
+- Custom-built email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers
+- Customizable Copy Writing Components and Pages like Privacy Policy, Terms of Service, Cookie Policy, Testimonials, Product Demo, Pricing, FAQ etc.
+- Health check API route
+- Dark Mode Support
+- CSRF Protection and Honeypot
+- Caching and Rate-Limiting
 
 ## Upcoming Tech in the Stack
--   Error Tracking with [Sentry](https://sentry.io)
--   Analytics - [Posthog](https://posthog.com)
--   Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
--   Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/) 
+
+- Error Tracking with [Sentry](https://sentry.io)
+- Analytics - [Posthog](https://posthog.com)
+- Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
+- Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/)
 
 ## Development
 
 Create a new project
 
 ```sh
-npx create-one-piece-app <project-name>
+npx create-one-piece-app
 ```
 
 or
 
 ```sh
-pnpm create one-piece-app <project-name>
+pnpm create one-piece-app
 ```
 
 Replace .env.example with .env and fill in the values.
@@ -106,7 +108,7 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
 
 ## Guidelines for Copy Writing
 
--   **CTA**: Every Call to action should be a card-like component consisting of:
+- **CTA**: Every Call to action should be a card-like component consisting of:
 
     1. A strong Subject line to grab the user's attention
     1. Subtitle to explain the benefits of using the product
@@ -114,19 +116,19 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
     1. A socially relevant "lovedBy" number which shows how many people love the product, it can be GitHub stars, testimonials, Twitter replies etc.
     1. A link to the product's dashboard page
 
--   **Why this:** Why would the customer want to use this product?
+- **Why this:** Why would the customer want to use this product?
 
     1. It should explain that the problem is real and people can pay for the solution
     2. It should compare what the currently available solutions aren't solving for and what your product does better than the competition
     3. The component can be two lists of problems and solutions Or a single-line bulleted list featuring the best of the product
 
--   **Demo steps:** Give interactive Definition list type components so that when a user clicks on a step, it expands and shows the next step while side by side it shows the UI of the app navigation structure so he knows if he clicks on "generate invoice", he will see the UI of the invoice generation page
+- **Demo steps:** Give interactive Definition list type components so that when a user clicks on a step, it expands and shows the next step while side by side it shows the UI of the app navigation structure so he knows if he clicks on "generate invoice", he will see the UI of the invoice generation page
 
--   **Value Prop:** What is the value proposition of the product?
+- **Value Prop:** What is the value proposition of the product?
 
     1. A Visual Interactive image-type component which shows the problem and solution in linked cards
     1. Give screenshots of people's tweets, Reddit posts, other forums, or blog articles on how a certain problem is expensive and a solution is needed.
 
--   **Pricing:** NO Free Planss. Only give free credits or 7-day trials. Price accordingly if the product is a _Vitamin_ or _Painkiller_
+- **Pricing:** NO Free Planss. Only give free credits or 7-day trials. Price accordingly if the product is a _Vitamin_ or _Painkiller_
 
--   **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best
+- **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best

@@ -1,4 +1,9 @@
-import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect, data } from 'react-router';
+import {
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+	redirect,
+	data,
+} from 'react-router'
 import { createStripeCustomerPortalSession } from '~/services/payment/stripe.server'
 import { requireUserId } from '~/lib/auth/auth.server'
 import { prisma } from '~/lib/db.server'
@@ -23,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	if (user.customerId) {
 		const customerPortalUrl = await createStripeCustomerPortalSession(
 			user.customerId,
-			request,
+			request
 		)
 		return redirect(customerPortalUrl)
 	}

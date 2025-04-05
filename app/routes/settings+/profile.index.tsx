@@ -2,8 +2,12 @@ import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { invariantResponse } from '@epic-web/invariant'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import { data, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
-import { Link, useFetcher, useLoaderData } from 'react-router';
+import {
+	data,
+	type LoaderFunctionArgs,
+	type ActionFunctionArgs,
+} from 'react-router'
+import { Link, useFetcher, useLoaderData } from 'react-router'
 import { z } from 'zod'
 import { ErrorList, Field } from '~/components/layout/forms'
 import { StatusButton } from '~/components/layout/status-button'
@@ -94,24 +98,24 @@ export default function EditUserProfile() {
 	const data = useLoaderData<typeof loader>()
 
 	return (
-		<div className="flex flex-col gap-12">
-			<div className="flex justify-center">
-				<div className="relative h-52 w-52">
+		<div className='flex flex-col gap-12'>
+			<div className='flex justify-center'>
+				<div className='relative h-52 w-52'>
 					<img
 						src={data.user.image?.url || placeholderAvatar}
 						alt={data.user.username}
-						className="h-full w-full rounded-full object-cover"
+						className='h-full w-full rounded-full object-cover'
 					/>
 					<Button
 						asChild
-						variant="outline"
-						className="absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
+						variant='outline'
+						className='absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0'
 					>
 						<Link
 							preventScrollReset
-							to="photo"
-							title="Change profile photo"
-							aria-label="Change profile photo"
+							to='photo'
+							title='Change profile photo'
+							aria-label='Change profile photo'
 						>
 							<Camera className='h-4 w-4' />
 						</Link>
@@ -120,16 +124,20 @@ export default function EditUserProfile() {
 			</div>
 			<UpdateProfile />
 
-			<div className="col-span-6 my-6 h-1 border-b-[1.5px] border-foreground" />
-			<div className="col-span-full flex flex-col gap-6">
-
-				<Link to={data.hasPassword ? 'password' : 'password/create'} className='flex items-center gap-2'>
+			<div className='col-span-6 my-6 h-1 border-b-[1.5px] border-foreground' />
+			<div className='col-span-full flex flex-col gap-6'>
+				<Link
+					to={data.hasPassword ? 'password' : 'password/create'}
+					className='flex items-center gap-2'
+				>
 					<EyeOffIcon className='h-4 w-4' />
 					<span>
-						{data.hasPassword ? 'Change Password' : 'Create a Password'}
+						{data.hasPassword
+							? 'Change Password'
+							: 'Create a Password'}
 					</span>
 				</Link>
-				<Link to="connections" className='flex items-center gap-2'>
+				<Link to='connections' className='flex items-center gap-2'>
 					<Link2Icon className='h-4 w-4' />
 					<span>Manage connections</span>
 				</Link>
@@ -160,7 +168,7 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
 	if (submission.status !== 'success') {
 		return data(
 			{ result: submission.reply() },
-			{ status: submission.status === 'error' ? 400 : 200 },
+			{ status: submission.status === 'error' ? 400 : 200 }
 		)
 	}
 	const { username, name } = submission.value
@@ -170,7 +178,7 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
 		where: { id: userId },
 		data: {
 			name,
-			username
+			username,
 		},
 	})
 
@@ -198,20 +206,22 @@ function UpdateProfile() {
 	})
 
 	return (
-		<fetcher.Form method="POST" {...getFormProps(form)}>
+		<fetcher.Form method='POST' {...getFormProps(form)}>
 			<AuthenticityTokenInput />
-			<div className="grid grid-cols-6 gap-x-10">
+			<div className='grid grid-cols-6 gap-x-10'>
 				<Field
-					className="col-span-3"
+					className='col-span-3'
 					labelProps={{
 						htmlFor: fields.username.id,
 						children: 'Username',
 					}}
-					inputProps={getInputProps(fields.username, { type: 'text' })}
+					inputProps={getInputProps(fields.username, {
+						type: 'text',
+					})}
 					errors={fields.username.errors}
 				/>
 				<Field
-					className="col-span-3"
+					className='col-span-3'
 					labelProps={{ htmlFor: fields.name.id, children: 'Name' }}
 					inputProps={getInputProps(fields.name, { type: 'text' })}
 					errors={fields.name.errors}
@@ -220,13 +230,15 @@ function UpdateProfile() {
 
 			<ErrorList errors={form.errors} id={form.errorId} />
 
-			<div className="mt-8 flex justify-center">
+			<div className='mt-8 flex justify-center'>
 				<StatusButton
-					type="submit"
-					name="intent"
+					type='submit'
+					name='intent'
 					value={profileUpdateActionIntent}
 					status={
-						fetcher.state !== 'idle' ? 'pending' : (form.status ?? 'idle')
+						fetcher.state !== 'idle'
+							? 'pending'
+							: (form.status ?? 'idle')
 					}
 				>
 					Save changes
@@ -238,12 +250,12 @@ function UpdateProfile() {
 
 async function signOutOfSessionsAction({ request, userId }: ProfileActionArgs) {
 	const authSession = await authSessionStorage.getSession(
-		request.headers.get('cookie'),
+		request.headers.get('cookie')
 	)
 	const sessionId = authSession.get(sessionKey)
 	invariantResponse(
 		sessionId,
-		'You must be authenticated to sign out of other sessions',
+		'You must be authenticated to sign out of other sessions'
 	)
 	await prisma.session.deleteMany({
 		where: {
@@ -263,7 +275,7 @@ function SignOutOfSessions() {
 	return (
 		<>
 			{otherSessionsCount ? (
-				<fetcher.Form method="POST">
+				<fetcher.Form method='POST'>
 					<AuthenticityTokenInput />
 					<StatusButton
 						{...dc.getButtonProps({
@@ -278,18 +290,18 @@ function SignOutOfSessions() {
 								: (fetcher.data?.status ?? 'idle')
 						}
 					>
-						<div className="flex items-center gap-2">
-
+						<div className='flex items-center gap-2'>
 							<AvatarIcon className='h-4 w-4' />
 							<span>
-								{dc.doubleCheck ? `Are you sure?` : `Sign out of ${otherSessionsCount} other sessions`}
+								{dc.doubleCheck
+									? `Are you sure?`
+									: `Sign out of ${otherSessionsCount} other sessions`}
 							</span>
 						</div>
-
 					</StatusButton>
 				</fetcher.Form>
 			) : (
-				<div className="flex items-center gap-2">
+				<div className='flex items-center gap-2'>
 					<AvatarIcon className='h-4 w-4' />
 					<span>This is your only session</span>
 				</div>
@@ -313,7 +325,7 @@ function DeleteData() {
 	const fetcher = useFetcher<typeof deleteDataAction>()
 	return (
 		<>
-			<fetcher.Form method="POST">
+			<fetcher.Form method='POST'>
 				<AuthenticityTokenInput />
 				<StatusButton
 					{...dc.getButtonProps({
@@ -324,13 +336,14 @@ function DeleteData() {
 					variant={dc.doubleCheck ? 'destructive' : 'default'}
 					status={fetcher.state !== 'idle' ? 'pending' : 'idle'}
 				>
-					<div className="flex items-center gap-2">
+					<div className='flex items-center gap-2'>
 						<TrashIcon className='h-4 w-4' />
 						<span>
-							{dc.doubleCheck ? `Are you sure?` : `Delete all your data`}
+							{dc.doubleCheck
+								? `Are you sure?`
+								: `Delete all your data`}
 						</span>
 					</div>
-
 				</StatusButton>
 			</fetcher.Form>
 		</>

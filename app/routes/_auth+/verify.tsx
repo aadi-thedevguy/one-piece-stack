@@ -1,8 +1,8 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import { type ActionFunctionArgs } from 'react-router';
-import { Form, useActionData, useSearchParams } from 'react-router';
+import { type ActionFunctionArgs } from 'react-router'
+import { Form, useActionData, useSearchParams } from 'react-router'
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
 import { ErrorList, OTPField } from '~/components/layout/forms'
@@ -10,7 +10,15 @@ import { StatusButton } from '~/components/layout/status-button'
 import { checkHoneypot } from '~/lib/honeypot.server'
 import { useIsPending } from '~/lib/utils'
 import { validateRequest } from '~/lib/auth/verify.server'
-import { codeQueryParam, redirectToQueryParam, targetQueryParam, typeQueryParam, type VerificationTypes, VerificationTypeSchema, VerifySchema } from '~/lib/validations'
+import {
+	codeQueryParam,
+	redirectToQueryParam,
+	targetQueryParam,
+	typeQueryParam,
+	type VerificationTypes,
+	VerificationTypeSchema,
+	VerifySchema,
+} from '~/lib/validations'
 import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 import { validateCSRF } from '~/lib/csrf.server'
 
@@ -30,14 +38,14 @@ export default function VerifyRoute() {
 	const isPending = useIsPending()
 	const actionData = useActionData<typeof action>()
 	const parseWithZoddType = VerificationTypeSchema.safeParse(
-		searchParams.get(typeQueryParam),
+		searchParams.get(typeQueryParam)
 	)
 	const type = parseWithZoddType.success ? parseWithZoddType.data : null
 
 	const checkEmail = (
 		<>
-			<h1 className="text-h1">Check your email</h1>
-			<p className="mt-3 text-body-md text-muted-foreground">
+			<h1 className='text-h1'>Check your email</h1>
+			<p className='mt-3 text-body-md text-muted-foreground'>
 				We&apos;ve sent you a code to verify your email address.
 			</p>
 		</>
@@ -65,28 +73,33 @@ export default function VerifyRoute() {
 	})
 
 	return (
-		<main className="container flex flex-col justify-center pb-32 pt-20">
-			<div className="text-center">
+		<main className='container flex flex-col justify-center pb-32 pt-20'>
+			<div className='text-center'>
 				{type ? headings[type] : 'Invalid Verification Type'}
 			</div>
 
-
-			<div className="mx-auto flex w-72 max-w-full flex-col justify-center gap-1">
+			<div className='mx-auto flex w-72 max-w-full flex-col justify-center gap-1'>
 				<div>
 					<ErrorList errors={form.errors} id={form.errorId} />
 				</div>
-				<div className="flex w-full gap-2">
-					<Form method="POST" {...getFormProps(form)} className="flex-1">
+				<div className='flex w-full gap-2'>
+					<Form
+						method='POST'
+						{...getFormProps(form)}
+						className='flex-1'
+					>
 						<AuthenticityTokenInput />
 						<HoneypotInputs />
-						<div className="flex items-center justify-center">
+						<div className='flex items-center justify-center'>
 							<OTPField
 								labelProps={{
 									htmlFor: fields[codeQueryParam].id,
 									children: 'Code',
 								}}
 								inputProps={{
-									...getInputProps(fields[codeQueryParam], { type: 'text' }),
+									...getInputProps(fields[codeQueryParam], {
+										type: 'text',
+									}),
 									autoComplete: 'one-time-code',
 									autoFocus: true,
 								}}
@@ -94,10 +107,14 @@ export default function VerifyRoute() {
 							/>
 						</div>
 						<input
-							{...getInputProps(fields[typeQueryParam], { type: 'hidden' })}
+							{...getInputProps(fields[typeQueryParam], {
+								type: 'hidden',
+							})}
 						/>
 						<input
-							{...getInputProps(fields[targetQueryParam], { type: 'hidden' })}
+							{...getInputProps(fields[targetQueryParam], {
+								type: 'hidden',
+							})}
 						/>
 						<input
 							{...getInputProps(fields[redirectToQueryParam], {
@@ -105,9 +122,11 @@ export default function VerifyRoute() {
 							})}
 						/>
 						<StatusButton
-							className="w-full"
-							status={isPending ? 'pending' : (form.status ?? 'idle')}
-							type="submit"
+							className='w-full'
+							status={
+								isPending ? 'pending' : (form.status ?? 'idle')
+							}
+							type='submit'
 							disabled={isPending}
 						>
 							Submit

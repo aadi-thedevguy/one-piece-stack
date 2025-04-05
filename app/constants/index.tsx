@@ -1,7 +1,6 @@
 import { type PricingPlan } from '~/types/index'
 
-export const PRIVACY_POLICY =
-	`
+export const PRIVACY_POLICY = `
 **Last updated: January 16, 2024**
 
 In this Policy, **“Shopagator”, “we”, “our,” or “us”** refers to *this Website* responsible for the collection, use, and handling of Personal Data as described in this document. 
@@ -14,9 +13,9 @@ When you use an End User Service for personal use, such as shopping from our web
 1. Personal Data we collect and how we use and share it
 Our collection and use of Personal Data differs based on whether you are an End User or a Visitor, and the specific Service being utilized.
 
-- Personal Data we collect about End Users
-**Payment Provider:** When you purchase goods or services directly from us, we share your Transaction Data with our payment providers. For instance, when you make a payment to our Store, we collect information about the transaction, as well as your contact and payment method details.
-Identity/Verification Services: We also collect your basic user information like name, email address etc. to identify and track your orders etc.
+	- Personal Data we collect about End Users
+	- **Payment Provider:** When you purchase goods or services directly from us, we share your Transaction Data with our payment providers. For instance, when you make a payment to our Store, we collect information about the transaction, as well as your contact and payment method details.
+	- **Identity/Verification Services:** We also collect your basic user information like name, email address etc. to identify and track your orders etc.
 
 2. More ways we collect, use, and share Personal Data
 
@@ -76,7 +75,6 @@ export const enum Currency {
 	EUR = 'eur',
 }
 
-
 /**
  * Defines our plans structure.
  */
@@ -107,7 +105,8 @@ export const PRICING_PLANS = {
 	[PlanId.PRO]: {
 		planID: PlanId.PRO,
 		name: 'Premium',
-		description: 'Best for large scale uses and extended redistribution rights.',
+		description:
+			'Best for large scale uses and extended redistribution rights.',
 		features: [
 			'20 users included',
 			'10 GB of storage',

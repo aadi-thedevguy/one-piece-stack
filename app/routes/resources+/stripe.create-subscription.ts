@@ -1,6 +1,9 @@
-import { type LoaderFunctionArgs, redirect } from 'react-router';
+import { type LoaderFunctionArgs, redirect } from 'react-router'
 import { getPlanById } from '~/models/plan'
-import { createSubscription, getSubscriptionByUserId } from '~/models/subscription'
+import {
+	createSubscription,
+	getSubscriptionByUserId,
+} from '~/models/subscription'
 
 import { PlanId } from '~/constants'
 import { requireUserId } from '~/lib/auth/auth.server'
@@ -27,16 +30,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	const currency = getDefaultCurrency(request)
 	const freePlan = await getPlanById(PlanId.STARTER, { prices: true })
 	const freePlanPrice = freePlan?.prices.find(
-		price => price.interval === 'year' && price.currency === currency,
+		(price) => price.interval === 'year' && price.currency === currency
 	)
 	if (!freePlanPrice) throw new Error('Unable to find Free Plan price.')
 
 	// Create Stripe Subscription.
 	const newSubscription = await createStripeSubscription(
 		user.customerId,
-		freePlanPrice.priceID,
+		freePlanPrice.priceID
 	)
-	if (!newSubscription) throw new Error('Unable to create Stripe Subscription.')
+	if (!newSubscription)
+		throw new Error('Unable to create Stripe Subscription.')
 
 	// Store Subscription into database.
 	const storedSubscription = await createSubscription({

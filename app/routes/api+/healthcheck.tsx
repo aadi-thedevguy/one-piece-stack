@@ -1,5 +1,5 @@
 // learn more: https://fly.io/docs/reference/configuration/#services-http_checks
-import { type LoaderFunctionArgs } from 'react-router';
+import { type LoaderFunctionArgs } from 'react-router'
 import { prisma } from '~/lib/db.server'
 
 export async function loader({ request }: LoaderFunctionArgs) {

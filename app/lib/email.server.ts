@@ -30,7 +30,6 @@ const transporter = nodemailer.createTransport({
 
 // export default sendEmail
 
-
 export async function sendEmail({
 	react,
 	...options
@@ -38,18 +37,15 @@ export async function sendEmail({
 	to: string[]
 	subject: string
 } & (
-		| { html: string; text: string; react?: never }
-		| { react: ReactElement; html?: never; text?: never }
-	)) {
-
+	| { html: string; text: string; react?: never }
+	| { react: ReactElement; html?: never; text?: never }
+)) {
 	const message = {
 		from: `Demo <${process.env.EMAIL_FROM_ADDRESS}>`,
 		...options,
 		...(react ? await renderReactEmail(react) : null),
-
 	}
 	try {
-
 		const data = await transporter.sendMail(message)
 
 		if (data.messageId) {
@@ -59,7 +55,6 @@ export async function sendEmail({
 			} as const
 		}
 	} catch (error) {
-
 		if (error instanceof Error) {
 			return {
 				status: 'error',
@@ -68,11 +63,10 @@ export async function sendEmail({
 					message: error.message,
 					statusCode: 500,
 					cause: error,
-				}
+				},
 			}
 		}
 	}
-
 }
 
 async function renderReactEmail(react: ReactElement) {
@@ -82,4 +76,3 @@ async function renderReactEmail(react: ReactElement) {
 	])
 	return { html, text }
 }
-

@@ -1,8 +1,13 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type SEOHandle } from '@nasa-gcn/remix-seo'
-import { data, redirect, type ActionFunctionArgs, type MetaFunction } from 'react-router';
-import { Link, useFetcher } from 'react-router';
+import {
+	data,
+	redirect,
+	type ActionFunctionArgs,
+	type MetaFunction,
+} from 'react-router'
+import { Link, useFetcher } from 'react-router'
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/layout/error-boundary'
@@ -51,13 +56,15 @@ export async function action({ request }: ActionFunctionArgs) {
 	if (submission.status !== 'success') {
 		return data(
 			{ result: submission.reply() },
-			{ status: submission.status === 'error' ? 400 : 200 },
+			{ status: submission.status === 'error' ? 400 : 200 }
 		)
 	}
 	const { usernameOrEmail } = submission.value
 
 	const user = await prisma.user.findFirstOrThrow({
-		where: { OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }] },
+		where: {
+			OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }],
+		},
 		select: { email: true, username: true },
 	})
 
@@ -72,21 +79,27 @@ export async function action({ request }: ActionFunctionArgs) {
 		to: [user.email],
 		subject: `One Piece Stack Password Reset`,
 		react: (
-			<ForgotPasswordEmail onboardingUrl={verifyUrl.toString()} otp={otp} />
+			<ForgotPasswordEmail
+				onboardingUrl={verifyUrl.toString()}
+				otp={otp}
+			/>
 		),
 	})
-	invariant(response, "Failed to Reset the password")
+	invariant(response, 'Failed to Reset the password')
 
 	if (response.status === 'success') {
 		return redirect(redirectTo.toString())
 	} else if (response.error) {
 		return data(
-			{ result: submission.reply({ formErrors: [response.error.message] }) },
-			{ status: 500 },
+			{
+				result: submission.reply({
+					formErrors: [response.error.message],
+				}),
+			},
+			{ status: 500 }
 		)
 	}
 }
-
 
 export const meta: MetaFunction = () => {
 	return [{ title: 'Password Recovery for One Piece Stack' }]
@@ -106,16 +119,16 @@ export default function ForgotPasswordRoute() {
 	})
 
 	return (
-		<div className="container pb-32 pt-20">
-			<div className="flex flex-col justify-center">
-				<div className="text-center">
-					<h1 className="text-h1">Forgot Password</h1>
-					<p className="mt-3 text-body-md text-muted-foreground">
+		<div className='container pb-32 pt-20'>
+			<div className='flex flex-col justify-center'>
+				<div className='text-center'>
+					<h1 className='text-h1'>Forgot Password</h1>
+					<p className='mt-3 text-body-md text-muted-foreground'>
 						No worries, we&apos;ll send you reset instructions.
 					</p>
 				</div>
-				<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
-					<forgotPassword.Form method="POST" {...getFormProps(form)}>
+				<div className='mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]'>
+					<forgotPassword.Form method='POST' {...getFormProps(form)}>
 						<AuthenticityTokenInput />
 						<HoneypotInputs />
 						<div>
@@ -126,22 +139,24 @@ export default function ForgotPasswordRoute() {
 								}}
 								inputProps={{
 									autoFocus: true,
-									...getInputProps(fields.usernameOrEmail, { type: 'text' }),
+									...getInputProps(fields.usernameOrEmail, {
+										type: 'text',
+									}),
 								}}
 								errors={fields.usernameOrEmail.errors}
 							/>
 						</div>
 						<ErrorList errors={form.errors} id={form.errorId} />
 
-						<div className="mt-6">
+						<div className='mt-6'>
 							<StatusButton
-								className="w-full"
+								className='w-full'
 								status={
 									forgotPassword.state === 'submitting'
 										? 'pending'
 										: (form.status ?? 'idle')
 								}
-								type="submit"
+								type='submit'
 								disabled={forgotPassword.state !== 'idle'}
 							>
 								Recover password
@@ -149,8 +164,8 @@ export default function ForgotPasswordRoute() {
 						</div>
 					</forgotPassword.Form>
 					<Link
-						to="/login"
-						className="mt-11 text-center text-body-sm font-bold"
+						to='/login'
+						className='mt-11 text-center text-body-sm font-bold'
 					>
 						Back to Login
 					</Link>
