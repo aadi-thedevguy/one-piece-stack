@@ -1,8 +1,8 @@
+import crypto from 'node:crypto'
 import { PassThrough } from 'node:stream'
+import { styleText } from 'node:util'
 import { createReadableStreamFromReadable } from '@react-router/node'
-
-import * as Sentry from '@sentry/node'
-import chalk from 'chalk'
+import * as Sentry from '@sentry/react-router'
 import { isbot } from 'isbot'
 import { renderToPipeableStream } from 'react-dom/server'
 import {
@@ -11,8 +11,8 @@ import {
 	type ActionFunctionArgs,
 	type HandleDocumentRequestFunction,
 } from 'react-router'
-import { getEnv, init } from '~/lib/env.server.js'
-import { NonceProvider } from '~/lib/client/nonce-provider.js'
+import { getEnv, init } from '~/lib/env.server'
+import { NonceProvider } from '~/lib/client/nonce-provider'
 
 export const streamTimeout = 5000
 
@@ -22,13 +22,8 @@ global.ENV = getEnv()
 type DocRequestArgs = Parameters<HandleDocumentRequestFunction>
 
 export default async function handleRequest(...args: DocRequestArgs) {
-	const [
-		request,
-		responseStatusCode,
-		responseHeaders,
-		reactRouterContext,
-		loadContext,
-	] = args
+	const [request, responseStatusCode, responseHeaders, reactRouterContext] =
+		args
 
 	if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
 		responseHeaders.append('Document-Policy', 'js-profiling')
@@ -38,7 +33,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
 		? 'onAllReady'
 		: 'onShellReady'
 
-	const nonce = loadContext.cspNonce?.toString() ?? ''
+	const nonce = crypto.randomBytes(16).toString('hex')
 	return new Promise(async (resolve, reject) => {
 		let didError = false
 
@@ -86,10 +81,9 @@ export function handleError(
 		return
 	}
 	if (error instanceof Error) {
-		console.error(chalk.red(error.stack))
-		// void Sentry.captureException(error)
+		console.error(styleText('red', String(error.stack)))
 	} else {
 		console.error(error)
-		// Sentry.captureException(error)
 	}
+	Sentry.captureException(error)
 }

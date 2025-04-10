@@ -45,7 +45,7 @@ const Hero = () => {
 						title='Production Ready Remix Template for'
 						highlighted='SaaS'
 						paragraph='Solid Pro - Packed with all the key integrations you need for swift SaaS startup launch, including - Auth, Database,Components, Pages and More. 
-							Built-winth - ExpressJS, React and TypeScript.'
+						Built-with - ExpressJS, React Router and TypeScript.'
 					/>
 
 					<ul className='my-8 space-y-4 text-left'>

@@ -5,6 +5,7 @@ import express from 'express'
 import morgan from 'morgan'
 import closeWithGrace from 'close-with-grace'
 import rateLimit from 'express-rate-limit'
+import { styleText } from 'node:util'
 // import Redis from "ioredis"
 // import { RedisStore } from 'rate-limit-redis'
 
@@ -195,8 +196,16 @@ const server = app.listen(port, () =>
 	console.log(`Express server listening at http://localhost:${port}`)
 )
 
-closeWithGrace(async () => {
+closeWithGrace(async ({ err }) => {
 	await new Promise((resolve, reject) => {
 		server.close((e) => (e ? reject(e) : resolve('ok')))
 	})
+	if (err) {
+		console.error(styleText('red', String(err)))
+		console.error(styleText('red', String(err.stack)))
+		if (SENTRY_ENABLED) {
+			Sentry.captureException(err)
+			await Sentry.flush(500)
+		}
+	}
 })
