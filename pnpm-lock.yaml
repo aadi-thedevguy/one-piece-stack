@@ -176,9 +176,6 @@ importers:
       remix-auth:
         specifier: ^3.7.0
         version: 3.7.0(@remix-run/react@2.15.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(@remix-run/server-runtime@2.16.4(typescript@5.7.3))
-      remix-auth-github:
-        specifier: 1.6.0
-        version: 1.6.0(@remix-run/server-runtime@2.16.4(typescript@5.7.3))(remix-auth@3.7.0(@remix-run/react@2.15.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(@remix-run/server-runtime@2.16.4(typescript@5.7.3)))
       remix-auth-google:
         specifier: ^2.0.0
         version: 2.0.0(@remix-run/server-runtime@2.16.4(typescript@5.7.3))(remix-auth@3.7.0(@remix-run/react@2.15.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(@remix-run/server-runtime@2.16.4(typescript@5.7.3)))
@@ -5091,12 +5088,6 @@ packages:
 
   remark-rehype@10.1.0:
     resolution: {integrity: sha512-EFmR5zppdBp0WQeDVZ/b66CWJipB2q2VLNFMabzDSGR66Z2fQii83G5gTBbgGEnEEA0QRussvrFHxk1HWGJskw==}
-
-  remix-auth-github@1.6.0:
-    resolution: {integrity: sha512-qdQmWVVEDHxnzMPn7XE0s7QX5GYba0uH3MDW+lVJiCoHDZCGymqmGCajLThL5vFJdwSx0C4GpQJ5EgEsIjQ3pA==}
-    peerDependencies:
-      '@remix-run/server-runtime': ^1.0.0
-      remix-auth: ^3.4.0
 
   remix-auth-google@2.0.0:
     resolution: {integrity: sha512-qP38N1ZJADz+HlH2lrEn/rSL6m5Dwcnz8xUFDhbHecDMl9FU/UpkUx3w8jj5XhNSnkSue/GWT+p7OEkatgbXNA==}
@@ -11278,14 +11269,6 @@ snapshots:
       '@types/mdast': 3.0.15
       mdast-util-to-hast: 12.3.0
       unified: 10.1.2
-
-  remix-auth-github@1.6.0(@remix-run/server-runtime@2.16.4(typescript@5.7.3))(remix-auth@3.7.0(@remix-run/react@2.15.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(@remix-run/server-runtime@2.16.4(typescript@5.7.3))):
-    dependencies:
-      '@remix-run/server-runtime': 2.16.4(typescript@5.7.3)
-      remix-auth: 3.7.0(@remix-run/react@2.15.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(@remix-run/server-runtime@2.16.4(typescript@5.7.3))
-      remix-auth-oauth2: 1.11.2(@remix-run/server-runtime@2.16.4(typescript@5.7.3))(remix-auth@3.7.0(@remix-run/react@2.15.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(@remix-run/server-runtime@2.16.4(typescript@5.7.3)))
-    transitivePeerDependencies:
-      - supports-color
 
   remix-auth-google@2.0.0(@remix-run/server-runtime@2.16.4(typescript@5.7.3))(remix-auth@3.7.0(@remix-run/react@2.15.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(@remix-run/server-runtime@2.16.4(typescript@5.7.3))):
     dependencies:

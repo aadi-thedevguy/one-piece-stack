@@ -4,7 +4,6 @@ import { v4 as cuid } from 'uuid'
 export const providerNames = [
 	'google',
 	// 'twitter',
-	// 'github'
 ] as const
 const types = ['onboarding', 'reset-password', 'change-email'] as const
 export const codeQueryParam = 'code'

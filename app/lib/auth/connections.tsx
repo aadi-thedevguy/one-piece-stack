@@ -4,18 +4,15 @@ import { GoogleIcon } from '~/constants/icons'
 import { StatusButton } from '~/components/layout/status-button'
 import { type ProviderName } from '../validations'
 // import { TwitterLogoIcon } from "@radix-ui/react-icons"
-// import { GitHubLogoIcon } from '@radix-ui/react-icons'
 
 export const providerLabels: Record<ProviderName, string> = {
 	// ['twitter']: 'Twitter',
-	// ['github']: 'GitHub',
 	['google']: 'Google',
 } as const
 
 export const providerIcons: Record<ProviderName, React.ReactNode> = {
 	['google']: <GoogleIcon className='w-6 h-6' />,
 	// ['twitter']: <TwitterLogoIcon className='w-6 h-6' />,
-	// ['github']: <GitHubLogoIcon className='w-6 h-6' />,
 } as const
 
 export function ProviderConnectionForm({

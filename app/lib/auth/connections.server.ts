@@ -1,5 +1,4 @@
 import { GoogleStrategy } from 'remix-auth-google'
-import { GitHubStrategy } from 'remix-auth-github'
 import { Authenticator } from 'remix-auth'
 import { type ProviderUser } from '~/types'
 import { createCookieSessionStorage } from 'react-router'
@@ -56,42 +55,3 @@ auth.use(
 	)
 )
 
-// GITHUB
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID as string
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET as string
-
-if (!GITHUB_CLIENT_ID)
-	throw new Error('Missing GITHUB_CLIENT_ID environment variable')
-if (!GITHUB_CLIENT_SECRET)
-	throw new Error('Missing GITHUB_CLIENT_SECRET environment variable')
-
-// expires
-auth.use(
-	new GitHubStrategy(
-		{
-			clientID: GITHUB_CLIENT_ID,
-			clientSecret: GITHUB_CLIENT_SECRET,
-			// callbackURL: '/auth/github/callback',
-			callbackURL: process.env.SERVER_URL + '/auth/github/callback',
-		},
-		async ({ profile }) => {
-			const email = profile.emails[0]?.value.trim().toLowerCase()
-			if (!email) {
-				throw redirectWithToast('/login', {
-					title: 'Cannot connect Github Account',
-					description: 'Your Github Email is Unverified',
-					type: 'error',
-				})
-			}
-			const username = profile.displayName
-			const imageUrl = profile.photos[0].value
-			return {
-				email,
-				id: profile.id,
-				username,
-				name: profile.name.givenName,
-				imageUrl,
-			}
-		}
-	)
-)
