@@ -1,10 +1,9 @@
-export const toastKey = 'toast'
-export const SESSION_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 30
-export const sessionKey = 'sessionId'
-export const providerIdKey = 'providerId'
-export const prefilledProfileKey = 'prefilledProfile'
-export const onboardingEmailSessionKey = 'onboardingEmail'
-export const resetPasswordUsernameSessionKey = 'resetPasswordUsername'
+export const toastKey = "toast";
+export const SESSION_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 30;
+export const providerIdKey = "providerId";
+export const prefilledProfileKey = "prefilledProfile";
+export const onboardingEmailSessionKey = "onboardingEmail";
+export const resetPasswordUsernameSessionKey = "resetPasswordUsername";
 export const placeholderAvatar =
-	'https://api.dicebear.com/9.x/adventurer/svg?seed=Oliver'
+  "https://api.dicebear.com/9.x/adventurer/svg?seed=Oliver";
 // export const placeholderAvatar = '/placeholder.jpg'

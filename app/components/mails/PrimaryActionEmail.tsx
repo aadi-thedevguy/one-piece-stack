@@ -1,112 +1,49 @@
-import {
-	Body,
-	Button,
-	Container,
-	Head,
-	Hr,
-	Html,
-	Img,
-	Preview,
-	Section,
-	Text,
-	render,
-} from '@react-email/components'
+import * as E from "@react-email/components";
 
-interface EmailTemplateProps {
-	actionLabel: string
-	buttonText: string
-	href: string
-}
+type EmailTemplateProps = {
+  username: string;
+};
 
-export const EmailTemplate = ({
-	actionLabel,
-	buttonText,
-	href,
-}: EmailTemplateProps) => {
-	return (
-		<Html>
-			<Head />
-			<Preview>Some good things about your store.</Preview>
-			<Body style={main}>
-				<Container style={container}>
-					<Img
-						src='/path/to/image.png'
-						width='150'
-						height='150'
-						alt='Shopaggator Mascot'
-						style={logo}
-					/>
-					<Text style={paragraph}>Hi there,</Text>
-					<Text style={paragraph}>
-						Welcome to Your Store. Use the button below to{' '}
-						{actionLabel}.
-					</Text>
-					<Section style={btnContainer}>
-						<Button style={button} href={href}>
-							{buttonText}
-						</Button>
-					</Section>
-					<Text style={paragraph}>
-						Best,
-						<br />
-						The Shopaggator team
-					</Text>
-					<Hr style={hr} />
-					<Text style={footer}>
-						If you did not request this email, you can safely ignore
-						it.
-					</Text>
-				</Container>
-			</Body>
-		</Html>
-	)
-}
+const baseUrl = process.env.SERVER_URL ?? "http://localhost:3000";
 
-export const PrimaryActionEmailHtml = (props: EmailTemplateProps) => {
-	return render(<EmailTemplate {...props} />, { pretty: true })
-}
+export const PrimaryActionEmail = ({ username }: EmailTemplateProps) => (
+  <E.Html>
+    <E.Head />
+    <E.Preview>Some good things about your store.</E.Preview>
+    <E.Body style={main}>
+      <E.Container style={container}>
+        <E.Img alt="" height="150" src={baseUrl + "/preview.png"} width="150" />
+        <E.Text style={paragraph}>Hi {username ?? "there"},</E.Text>
+        <E.Text style={paragraph}>Welcome to One Piece App.</E.Text>
+        <E.Text style={paragraph}>
+          Thank you for signing up for our app! We're excited to have you on
+          board.
+        </E.Text>
+        <E.Text style={paragraph}>
+          Best,
+          <br />
+          The Shopaggator team
+        </E.Text>
+      </E.Container>
+    </E.Body>
+  </E.Html>
+);
+
+export const PrimaryActionEmailHtml = async (props: EmailTemplateProps) =>
+  await E.render(<PrimaryActionEmail {...props} />, { pretty: true });
 
 const main = {
-	backgroundColor: '#ffffff',
-	fontFamily:
-		'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
-}
+  backgroundColor: "#ffffff",
+  fontFamily:
+    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+};
 
 const container = {
-	margin: '0 auto',
-	padding: '20px 0 48px',
-}
-
-const logo = {
-	margin: '0 auto',
-}
+  margin: "0 auto",
+  padding: "20px 0 48px",
+};
 
 const paragraph = {
-	fontSize: '16px',
-	lineHeight: '26px',
-}
-
-const btnContainer = {
-	textAlign: 'center' as const,
-}
-
-const button = {
-	padding: '12px 12px',
-	backgroundColor: '#22c383',
-	borderRadius: '3px',
-	color: '#fff',
-	fontSize: '16px',
-	textDecoration: 'none',
-	textAlign: 'center' as const,
-	display: 'block',
-}
-
-const hr = {
-	borderColor: '#cccccc',
-	margin: '20px 0',
-}
-
-const footer = {
-	color: '#8898aa',
-	fontSize: '12px',
-}
+  fontSize: "16px",
+  lineHeight: "26px",
+};

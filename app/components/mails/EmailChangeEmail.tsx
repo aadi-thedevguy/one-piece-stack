@@ -1,29 +1,30 @@
-import * as E from '@react-email/components'
+import * as E from "@react-email/components";
 
-export function EmailChangeEmail({
-	verifyUrl,
-	otp,
-}: {
-	verifyUrl: string
-	otp: string
-}) {
-	return (
-		<E.Html lang='en' dir='ltr'>
-			<E.Container>
-				<h1>
-					<E.Text>One Piece Stack Email Change</E.Text>
-				</h1>
-				<p>
-					<E.Text>
-						Here&apos;s your verification code:{' '}
-						<strong>{otp}</strong>
-					</E.Text>
-				</p>
-				<p>
-					<E.Text>Or click the link:</E.Text>
-				</p>
-				<E.Link href={verifyUrl}>{verifyUrl}</E.Link>
-			</E.Container>
-		</E.Html>
-	)
+type EmailTemplateProps = {
+  verifyUrl: string;
+  // otp: string;
+};
+
+export function EmailChangeEmail({ verifyUrl }: EmailTemplateProps) {
+  return (
+    <E.Html dir="ltr" lang="en">
+      <E.Container>
+        <h1>
+          <E.Text>One Piece Stack Email Change</E.Text>
+        </h1>
+        {/* <p>
+          <E.Text>
+            Here&apos;s your verification code: <strong>{otp}</strong>
+          </E.Text>
+        </p> */}
+        <p>
+          <E.Text>Click the link to verify your email:</E.Text>
+        </p>
+        <E.Link href={verifyUrl}>{verifyUrl}</E.Link>
+      </E.Container>
+    </E.Html>
+  );
 }
+
+export const EmailChangeEmailHtml = async (props: EmailTemplateProps) =>
+  await E.render(<EmailChangeEmail {...props} />, { pretty: true });

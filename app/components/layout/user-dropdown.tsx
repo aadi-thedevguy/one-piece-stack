@@ -1,75 +1,77 @@
-import { useUser } from '~/services/user'
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { LogOutIcon, User2Icon } from "lucide-react";
+import { type FormEvent, useRef } from "react";
+import { Form, Link, useSubmit } from "react-router";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuPortal,
-} from '~/components/ui/dropdown-menu'
-import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
-import { LogOutIcon, User2Icon } from 'lucide-react'
-import { Form, Link, useSubmit } from 'react-router'
-import { type FormEvent, useRef } from 'react'
-import { Button } from '../ui/button'
-import { placeholderAvatar } from '~/constants/keys'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+} from "~/components/ui/dropdown-menu";
+import { placeholderAvatar } from "~/constants/keys";
+import { useUser } from "~/lib/utils";
+import { Button } from "../ui/button";
 
 export function UserDropdown() {
-	const user = useUser()
-	const submit = useSubmit()
-	const formRef = useRef<HTMLFormElement>(null)
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button asChild variant='secondary'>
-					<Link
-						to={`/users/${user.username}`}
-						// this is for progressive enhancement
-						onClick={(e: FormEvent) => e.preventDefault()}
-						className='flex items-center gap-2'
-					>
-						<img
-							className='h-8 w-8 rounded-full object-cover'
-							alt={user.name ?? user.username}
-							src={user.image?.url || placeholderAvatar}
-						/>
-						<span className='hidden sm:inline text-body-sm font-bold'>
-							{user.name ?? user.username}
-						</span>
-					</Link>
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuPortal>
-				<DropdownMenuContent sideOffset={8} align='start'>
-					<DropdownMenuItem asChild>
-						<Link
-							prefetch='intent'
-							to={`/users/${user.username}`}
-							className='flex items-center gap-2'
-						>
-							<User2Icon className='h-4 w-4' />
-							<span>Profile</span>
-						</Link>
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						asChild
-						// this prevents the menu from closing before the form submission is completed
-						onSelect={(event) => {
-							event.preventDefault()
-							submit(formRef.current)
-						}}
-					>
-						<Form action='/logout' method='POST' ref={formRef}>
-							<Button
-								type='submit'
-								variant='link'
-								className='flex items-center gap-2'
-							>
-								<LogOutIcon className='h-4 w-4' />
-								<span>Logout</span>
-							</Button>
-						</Form>
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenuPortal>
-		</DropdownMenu>
-	)
+  const user = useUser();
+  const submit = useSubmit();
+  const formRef = useRef<HTMLFormElement>(null);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button asChild variant="secondary">
+          <Link
+            className="flex items-center gap-2"
+            // this is for progressive enhancement
+            onClick={(e: FormEvent) => e.preventDefault()}
+            to={`/users/${user.username}`}
+          >
+            <img
+              alt={user.name ?? user.username}
+              className="h-8 w-8 rounded-full object-cover"
+              height={32}
+              src={user.image || placeholderAvatar}
+              width={32}
+            />
+            <span className="hidden font-bold text-body-sm sm:inline">
+              {user.name ?? user.username}
+            </span>
+          </Link>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuContent align="start" sideOffset={8}>
+          <DropdownMenuItem asChild>
+            <Link
+              className="flex items-center gap-2"
+              prefetch="intent"
+              to={`/users/${user.username}`}
+            >
+              <User2Icon className="h-4 w-4" />
+              <span>Profile</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            asChild
+            // this prevents the menu from closing before the form submission is completed
+            onSelect={(event) => {
+              event.preventDefault();
+              submit(formRef.current);
+            }}
+          >
+            <Form action="/logout" method="POST" ref={formRef}>
+              <Button
+                className="flex items-center gap-2"
+                type="submit"
+                variant="link"
+              >
+                <LogOutIcon className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
+            </Form>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenu>
+  );
 }
