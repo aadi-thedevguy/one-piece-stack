@@ -5,7 +5,6 @@ import {
   data,
   Form,
   Link,
-  type LoaderFunctionArgs,
   type MetaFunction,
   useLoaderData,
 } from "react-router";
@@ -14,8 +13,9 @@ import { Button } from "~/components/ui/button";
 import { placeholderAvatar } from "~/constants/keys";
 import { auth } from "~/lib/auth/auth.server";
 import { useOptionalUser } from "~/lib/utils";
+import type { Route } from "../+types/$";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const session = await auth.api.getSession({
     headers: request.headers,
   });
@@ -87,8 +87,8 @@ export default function ProfileRoute() {
   );
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
-  const displayName = data?.user.name ?? params.username;
+export const meta: MetaFunction<typeof loader> = ({ loaderData, params }) => {
+  const displayName = loaderData.user.name ?? params.username;
   return [
     { title: `${displayName} | One Piece Stack` },
     {

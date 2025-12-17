@@ -2,7 +2,6 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import {
-  type ActionFunctionArgs,
   data,
   Form,
   type LoaderFunctionArgs,
@@ -18,6 +17,7 @@ import { StatusButton } from "~/components/layout/status-button";
 import { auth } from "~/lib/auth/auth.server";
 import { useIsPending } from "~/lib/utils";
 import { PasswordAndConfirmPasswordSchema } from "~/lib/validations/user-validation";
+import type { Route } from "./+types/reset-password";
 
 export const handle: SEOHandle = {
   getSitemapEntries: () => null,
@@ -49,7 +49,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return data({ resetPasswordUsername, token: params.token });
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   await requireResetPasswordUsername(request);
   const formData = await request.formData();
   const submission = parseWithZod(formData, {

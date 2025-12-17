@@ -10,14 +10,7 @@ import {
   User2Icon,
 } from "lucide-react";
 import { Img } from "openimg/react";
-import {
-  type ActionFunctionArgs,
-  data,
-  Link,
-  type LoaderFunctionArgs,
-  useFetcher,
-  useLoaderData,
-} from "react-router";
+import { data, Link, useFetcher, useLoaderData } from "react-router";
 import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
 import { ErrorList, Field } from "~/components/layout/forms";
@@ -32,12 +25,13 @@ import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
 import { useDoubleCheck } from "~/lib/utils";
 import { ProfileFormSchema } from "~/lib/validations/user-validation";
+import type { Route } from "./+types/index";
 
 export const handle: SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
   const sessions = await auth.api.listSessions({
     headers: request.headers,
   });
@@ -70,7 +64,7 @@ const deleteDataActionIntent = "delete-data";
 //   }
 // }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const session = await auth.api.getSession({
     headers: request.headers,
   });

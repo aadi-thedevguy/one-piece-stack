@@ -3,7 +3,11 @@ import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { Link2Icon, X } from "lucide-react";
 import { useState } from "react";
-import { data, useFetcher, useLoaderData } from "react-router";
+import {
+  data,
+  useFetcher,
+  useLoaderData,
+} from "react-router";
 import { StatusButton } from "~/components/layout/status-button";
 import {
   Tooltip,
@@ -11,7 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userContext } from "~/context";
 import { ProviderConnectionForm, providerIcons } from "~/lib/auth/connections";
 import { prisma } from "~/lib/db.server";
 import { createToastHeaders } from "~/lib/toast.server";
@@ -34,25 +38,25 @@ export const handle: BreadcrumbHandle & SEOHandle = {
 };
 
 async function userCanDeleteConnections(userId: string) {
-  const user = await prisma.user.findUnique({
-    select: {
-      password: { select: { userId: true } },
-      _count: { select: { connections: true } },
-    },
-    where: { id: userId },
+  const accounts = await prisma.account.findMany({
+    where: { userId },
+    select: { password: true },
   });
-  // user can delete their connections if they have a password
-  if (user?.password) return true;
-  // users have to have more than one remaining connection to delete one
-  return Boolean(user?._count.connections && user?._count.connections > 1);
+
+  if (accounts.some((acc) => acc.password)) {
+    return true;
+  }
+
+  return accounts.length > 1;
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
-  const rawConnections = await prisma.connection.findMany({
+export async function loader({ context }: Route.LoaderArgs) {
+  const user = context.get(userContext);
+  invariantResponse(user, "User not found", { status: 404 });
+  const userId = user?.id;
+  const rawAccounts = await prisma.account.findMany({
     select: {
       id: true,
-      providerName: true,
       providerId: true,
       createdAt: true,
       user: {
@@ -72,17 +76,17 @@ export async function loader({ request }: Route.LoaderArgs) {
     link?: string | null;
     createdAtFormatted: string;
   }> = [];
-  for (const connection of rawConnections) {
-    const r = ProviderNameSchema.safeParse(connection.providerName);
+  for (const account of rawAccounts) {
+    const r = ProviderNameSchema.safeParse(account.providerId);
     if (!r.success) continue;
     const providerName = r.data;
 
     connections.push({
-      // link: connection.,
-      displayName: connection.user.username,
+      displayName:
+        account.user.username ?? account.user.name ?? "default username",
       providerName,
-      id: connection.id,
-      createdAtFormatted: connection.createdAt.toLocaleString(),
+      id: account.id,
+      createdAtFormatted: account.createdAt.toLocaleString(),
     });
   }
 
@@ -92,8 +96,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   });
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ request,context }: Route.ActionArgs) {
+  const user = context.get(userContext);
+  invariantResponse(user, "User not found", { status: 404 });
+  const userId = user?.id;
   const formData = await request.formData();
   invariantResponse(
     formData.get("intent") === "delete-connection",
@@ -105,7 +111,7 @@ export async function action({ request }: Route.ActionArgs) {
   );
   const connectionId = formData.get("connectionId");
   invariantResponse(typeof connectionId === "string", "Invalid connectionId");
-  await prisma.connection.delete({
+  await prisma.account.delete({
     where: {
       id: connectionId,
       userId,
@@ -157,7 +163,7 @@ function Connection({
   connection,
   canDelete,
 }: {
-  connection: Info["loaderData"]["connections"][number];
+  connection: Route.ComponentProps['loaderData']['connections'][number];
   canDelete: boolean;
 }) {
   const deleteFetcher = useFetcher<typeof action>();
