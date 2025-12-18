@@ -13,8 +13,8 @@ import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
 import { useIsPending } from "~/lib/utils";
 import type { BreadcrumbHandle } from "~/lib/validations";
-import type { Route } from "./+types/password_.create";
 import { PasswordAndConfirmPasswordSchema } from "~/lib/validations/user-validation";
+import type { Route } from "./+types/password_.create";
 
 const CreatePasswordForm = PasswordAndConfirmPasswordSchema;
 
@@ -106,31 +106,31 @@ export default function CreatePasswordRoute() {
   return (
     <Form method="POST" {...getFormProps(form)} className="mx-auto max-w-md">
       <Field
-        labelProps={{ children: "New Password" }}
+        errors={fields.password.errors}
         inputProps={{
           ...getInputProps(fields.password, { type: "password" }),
           autoComplete: "new-password",
         }}
-        errors={fields.password.errors}
+        labelProps={{ children: "New Password" }}
       />
       <Field
-        labelProps={{ children: "Confirm New Password" }}
+        errors={fields.confirmPassword.errors}
         inputProps={{
           ...getInputProps(fields.confirmPassword, {
             type: "password",
           }),
           autoComplete: "new-password",
         }}
-        errors={fields.confirmPassword.errors}
+        labelProps={{ children: "Confirm New Password" }}
       />
-      <ErrorList id={form.errorId} errors={form.errors} />
+      <ErrorList errors={form.errors} id={form.errorId} />
       <div className="grid w-full grid-cols-2 gap-6">
-        <Button variant="secondary" asChild>
+        <Button asChild variant="secondary">
           <Link to="..">Cancel</Link>
         </Button>
         <StatusButton
-          type="submit"
           status={isPending ? "pending" : (form.status ?? "idle")}
+          type="submit"
         >
           Create Password
         </StatusButton>
