@@ -12,17 +12,18 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Secondary Database(optional) - [Redis](https://redis.io)
 - Lightweight, performant server framework - [Hono](https://hono.dev)
 - ORM - [Prisma v7](https://prisma.io)
-- Send Transactional emails with [Nodemailer](https://nodemailer.com/)
+- Send Transactional emails with [Resend](https://resend.com/)
 - Asset Uploads and Optimization with [Cloudinary](https://cloudinary.com/)
 - Styling with [TailwindCSS](https://tailwindcss.com)
 - Component Library - [ShadCN UI](https://ui.shadcn.com/)
 - Deploys anywhere with [Docker](https://docker.com)
 - Ultra Fast Code formatting and linting with [Biome](https://biomejs.dev/) and [Oxlint](https://oxc.rs)
 - Git hooks for code quality - [Husky](https://typicode.github.io/husky/)
+- Payment and Subscriptions with [Dodo Payments](https://dodopayments.com/)
 
 ## Features
 
-- Custom-built email/Password Authentication with Email OTP and OAuth with Google/Twitter Providers
+- Email/Password Auth with Email Magic Link, Google/Twitter Providers and RBAC/ Admin Support.
 - Customizable Copy Writing Components and Pages like Privacy Policy, Terms of Service, Cookie Policy, Testimonials, Product Demo, Pricing, FAQ etc.
 - Health check API route
 - Dark Mode Support
@@ -33,7 +34,6 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 - Error Tracking with [Sentry](https://sentry.io)
 - Analytics - [Posthog](https://posthog.com)
-- Billing and Subscriptions using an international Payment provider(optional) (e.g. Stripe)
 - Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/)
 
 ## Development
@@ -61,8 +61,7 @@ docker-compose up -d
 Seed Database and Generate Prisma Client Types:
 
 ```sh
-pnpm run gen-types
-pnpm prisma db seed
+pnpm run db:generate
 ```
 
 Start dev server:
@@ -84,6 +83,12 @@ docker build -f Dockerfile -t my-app .
 docker run -p 3000:3000 my-app
 ```
 
+#### Other Available Scripts
+
+- `pnpm check`: Run Oxlint
+- `pnpm db:push`: Push schema changes to database
+- `pnpm db:studio`: Open database studio UI
+
 ## Deployment
 
 The containerized application of the One Piece Stack can be deployed to any platform that supports Docker, including:
@@ -101,11 +106,11 @@ This project uses TypeScript. It's recommended to get TypeScript set up for your
 
 ### Linting
 
-This project uses ESLint for linting. That is configured in `.eslintrc.js`.
+This project uses Oxlint for linting. That is configured in `.oxlintrc.json`.
 
 ### Formatting
 
-We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `pnpm format` script you can run to format all files in the project.
+We use [Biome](https://biomejs.dev/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Biome Plugin](https://marketplace.visualstudio.com/items?itemName=biomejs.biome) to get auto-formatting on save.
 
 <hr />
 
@@ -136,11 +141,3 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
 
 - **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best
 
-
-## Available Scripts
-
-- `pnpm dev`: Start application in development mode
-- `pnpm build`: Build application
-- `pnpm check-types`: Check TypeScript types across all apps
-- `pnpm db:push`: Push schema changes to database
-- `pnpm db:studio`: Open database studio UI

@@ -1,11 +1,6 @@
 {
-  "include": [
-    "**/*",
-    "**/.server/**/*",
-    "**/.client/**/*",
-    ".react-router/types/**/*",
-    "../react-router.config.ts"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
+  // "extends": ["@epic-web/config/typescript"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["node", "vite/client", "@react-router/node"],

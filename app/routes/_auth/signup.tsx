@@ -2,6 +2,7 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { invariant } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
+import { Fragment } from "react/jsx-runtime";
 import {
   data,
   Form,
@@ -141,7 +142,7 @@ export default function SignupRoute() {
       </div>
       <Spacer size="xs" />
 
-      <div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
+      <div className="mx-auto mt-8 min-w-full max-w-sm sm:min-w-92">
         <Form method="POST" {...getFormProps(form)}>
           <AuthenticityTokenInput />
           <HoneypotInputs />
@@ -153,7 +154,11 @@ export default function SignupRoute() {
               autoComplete: "username",
               className: "lowercase",
             }}
-            labelProps={{ htmlFor: fields.username.id, children: "Username" }}
+            labelProps={{
+              htmlFor: fields.username.id,
+              children: "Username",
+              className: "mb-2",
+            }}
           />
           <Field
             errors={fields.name.errors}
@@ -161,7 +166,11 @@ export default function SignupRoute() {
               ...getInputProps(fields.name, { type: "text" }),
               autoComplete: "name",
             }}
-            labelProps={{ htmlFor: fields.name.id, children: "Name" }}
+            labelProps={{
+              htmlFor: fields.name.id,
+              children: "Name",
+              className: "mb-2",
+            }}
           />
 
           <Field
@@ -174,6 +183,7 @@ export default function SignupRoute() {
             labelProps={{
               htmlFor: fields.email.id,
               children: "Email",
+              className: "mb-2",
             }}
           />
           <Field
@@ -182,7 +192,11 @@ export default function SignupRoute() {
               ...getInputProps(fields.password, { type: "password" }),
               autoComplete: "new-password",
             }}
-            labelProps={{ htmlFor: fields.password.id, children: "Password" }}
+            labelProps={{
+              htmlFor: fields.password.id,
+              children: "Password",
+              className: "mb-2",
+            }}
           />
 
           <Field
@@ -194,6 +208,7 @@ export default function SignupRoute() {
             labelProps={{
               htmlFor: fields.confirmPassword.id,
               children: "Confirm Password",
+              className: "mb-2",
             }}
           />
           <CheckboxField
@@ -232,16 +247,16 @@ export default function SignupRoute() {
         </Form>
         <ul className="flex flex-col gap-4 py-4">
           {providerNames.map((providerName) => (
-            <>
+            <Fragment key={providerName}>
               <hr />
-              <li key={providerName}>
+              <li>
                 <ProviderConnectionForm
                   providerName={providerName}
                   redirectTo={redirectTo}
                   type="Signup"
                 />
               </li>
-            </>
+            </Fragment>
           ))}
         </ul>
       </div>

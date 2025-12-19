@@ -1,9 +1,9 @@
-import {
-  checkout,
-  dodopayments,
-  portal,
-  webhooks,
-} from "@dodopayments/better-auth";
+// import {
+//   checkout,
+//   dodopayments,
+//   portal,
+//   webhooks,
+// } from "@dodopayments/better-auth";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
@@ -123,29 +123,29 @@ export const auth = betterAuth({
         user,
       },
     }),
-    dodopayments({
-      client: dodoPayments,
-      createCustomerOnSignUp: true,
-      use: [
-        checkout({
-          products: [
-            {
-              productId: "pdt_xxxxxxxxxxxxxxxxxxxxx",
-              slug: "premium-plan",
-            },
-          ],
-          successUrl: "/dashboard/success",
-          authenticatedUsersOnly: true,
-        }),
-        portal(),
-        webhooks({
-          webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_SECRET,
-          onPayload: async (payload: unknown) => {
-            console.log("Received webhook:", payload.event_type);
-          },
-        }),
-      ],
-    }),
+    // dodopayments({
+    //   client: dodoPayments,
+    //   createCustomerOnSignUp: true,
+    //   use: [
+    //     checkout({
+    //       products: [
+    //         {
+    //           productId: "pdt_xxxxxxxxxxxxxxxxxxxxx",
+    //           slug: "premium-plan",
+    //         },
+    //       ],
+    //       successUrl: "/dashboard/success",
+    //       authenticatedUsersOnly: true,
+    //     }),
+    //     portal(),
+    //     webhooks({
+    //       webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_SECRET,
+    //       onPayload: async (payload: unknown) => {
+    //         console.log("Received webhook:", payload.event_type);
+    //       },
+    //     }),
+    //   ],
+    // }),
   ],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {

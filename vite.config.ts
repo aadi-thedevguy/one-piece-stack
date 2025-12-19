@@ -15,15 +15,11 @@ export default defineConfig((config) => ({
   build: {
     target: "es2022",
     cssMinify: MODE === "production",
-    assetsInlineLimit: (source: string) => {
-      if (
-        source.endsWith("favicon.svg") ||
-        source.endsWith("apple-touch-icon.png")
-      ) {
-        return false;
-      }
-    },
 
+    // rollupOptions: {
+    //   input: config.isSsrBuild ? "./server/app.ts" : undefined,
+    //   external: [/node:.*/, "fsevents"],
+    // },
     sourcemap: true,
   },
   sentryConfig,
