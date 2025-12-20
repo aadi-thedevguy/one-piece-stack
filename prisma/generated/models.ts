@@ -9,7 +9,17 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
+export type * from './models/Note'
+export type * from './models/UserImage'
+export type * from './models/Password'
 export type * from './models/Session'
-export type * from './models/Account'
+export type * from './models/Permission'
+export type * from './models/Role'
 export type * from './models/Verification'
+export type * from './models/Connection'
+export type * from './models/Passkey'
+export type * from './models/Plan'
+export type * from './models/PlanLimit'
+export type * from './models/Price'
+export type * from './models/Subscription'
 export type * from './commonInputTypes'

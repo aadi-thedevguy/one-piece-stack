@@ -1,31 +1,39 @@
 import { type MiddlewareFunction, redirect } from "react-router";
-import { userContext } from "~/context";
-import { auth } from "./lib/auth/auth.server";
+import { userIdContext } from "~/context";
+import { prisma } from "~/lib/db.server";
+import { authSessionStorage } from "~/lib/session.server";
 
 export const requireUserMiddleware: MiddlewareFunction = async ({
   request,
   context,
 }) => {
-  console.log("\n\n\n user middleware ran on route: ");
-  console.log(new URL(request.url).pathname);
-  console.log("\n\n\n");
-  const session = await auth.api.getSession(request);
-  if (!session?.session || session.session.expiresAt < new Date()) {
+  const cookie = request.headers.get("cookie");
+  const session = await authSessionStorage.getSession(cookie);
+  const sessionId = session.get("sessionId") as string | undefined;
+  if (!sessionId)
+    throw redirect(
+      `/login?redirectTo=${encodeURIComponent(new URL(request.url).pathname)}`
+    );
+
+  const sessionRecord = await prisma.session.findUnique({
+    select: { userId: true, expirationDate: true },
+    where: { id: sessionId },
+  });
+
+  if (!sessionRecord || sessionRecord.expirationDate < new Date()) {
     throw redirect(
       `/login?redirectTo=${encodeURIComponent(new URL(request.url).pathname)}`
     );
   }
 
-  // context.set(userIdContext, session.user.id);
-  context.set(userContext, session.user);
+  context.set(userIdContext, sessionRecord.userId);
 };
 
 export const requireAnonymousMiddleware: MiddlewareFunction = async ({
   request,
 }) => {
-  console.log("\n\n\n anonymous middleware ran on route: ");
-  console.log(new URL(request.url).pathname);
-  console.log("\n\n\n");
-  const session = await auth.api.getSession(request);
-  if (session?.session) throw redirect("/");
+  const cookie = request.headers.get("cookie");
+  const session = await authSessionStorage.getSession(cookie);
+  const sessionId = session.get("sessionId") as string | undefined;
+  if (sessionId) throw redirect("/");
 };

@@ -11,9 +11,9 @@ const schema = z.object({
   SESSION_SECRET: z.string(),
   HONEYPOT_SECRET: z.string(),
   // Uncomment below if you are using Redis
-  REDIS_URL: z.string(),
+  // REDIS_URL: z.string(),
   SENTRY_DSN: z.string(),
-	RESEND_API_KEY: z.string(),
+  RESEND_API_KEY: z.string(),
   CLOUDINARY_API_KEY: z.string(),
   CLOUDINARY_API_SECRET: z.string(),
   CLOUDINARY_CLOUD_NAME: z.string(),
@@ -25,6 +25,13 @@ const schema = z.object({
   DODO_PAYMENTS_API_KEY: z.string(),
   DODO_PAYMENTS_WEBHOOK_SECRET: z.string(),
   ALLOW_INDEXING: z.enum(["true", "false"]).optional(),
+
+  // Object Storage Configuration
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_REGION: z.string(),
+  AWS_ENDPOINT_URL_S3: z.string().url(),
+  BUCKET_NAME: z.string(),
 });
 
 declare global {

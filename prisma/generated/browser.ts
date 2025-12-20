@@ -23,17 +23,67 @@ export * from './enums';
  */
 export type User = Prisma.UserModel
 /**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel
+/**
+ * Model UserImage
+ * 
+ */
+export type UserImage = Prisma.UserImageModel
+/**
+ * Model Password
+ * 
+ */
+export type Password = Prisma.PasswordModel
+/**
  * Model Session
  * 
  */
 export type Session = Prisma.SessionModel
 /**
- * Model Account
+ * Model Permission
  * 
  */
-export type Account = Prisma.AccountModel
+export type Permission = Prisma.PermissionModel
+/**
+ * Model Role
+ * 
+ */
+export type Role = Prisma.RoleModel
 /**
  * Model Verification
  * 
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model Connection
+ * 
+ */
+export type Connection = Prisma.ConnectionModel
+/**
+ * Model Passkey
+ * 
+ */
+export type Passkey = Prisma.PasskeyModel
+/**
+ * Model Plan
+ * 
+ */
+export type Plan = Prisma.PlanModel
+/**
+ * Model PlanLimit
+ * 
+ */
+export type PlanLimit = Prisma.PlanLimitModel
+/**
+ * Model Price
+ * 
+ */
+export type Price = Prisma.PriceModel
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel

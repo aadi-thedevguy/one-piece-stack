@@ -46,7 +46,8 @@
         "noShadow": "off"
       },
       "complexity": {
-        "noExcessiveCognitiveComplexity": "warn"
+        "noExcessiveCognitiveComplexity": "warn",
+        "noVoid": "warn"
       }
     }
   }

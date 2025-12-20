@@ -52,9 +52,19 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Note: 'Note',
+  UserImage: 'UserImage',
+  Password: 'Password',
   Session: 'Session',
-  Account: 'Account',
-  Verification: 'Verification'
+  Permission: 'Permission',
+  Role: 'Role',
+  Verification: 'Verification',
+  Connection: 'Connection',
+  Passkey: 'Passkey',
+  Plan: 'Plan',
+  PlanLimit: 'PlanLimit',
+  Price: 'Price',
+  Subscription: 'Subscription'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -75,68 +85,182 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
-  name: 'name',
   email: 'email',
-  emailVerified: 'emailVerified',
-  image: 'image',
+  username: 'username',
+  name: 'name',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  role: 'role',
-  banned: 'banned',
-  banReason: 'banReason',
-  banExpires: 'banExpires',
-  favoriteNumber: 'favoriteNumber',
-  username: 'username',
-  displayUsername: 'displayUsername'
+  customerId: 'customerId'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const SessionScalarFieldEnum = {
+export const NoteScalarFieldEnum = {
   id: 'id',
-  expiresAt: 'expiresAt',
-  token: 'token',
+  title: 'title',
+  content: 'content',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  ipAddress: 'ipAddress',
-  userAgent: 'userAgent',
-  userId: 'userId',
-  impersonatedBy: 'impersonatedBy'
+  ownerId: 'ownerId'
+} as const
+
+export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
+
+
+export const UserImageScalarFieldEnum = {
+  id: 'id',
+  altText: 'altText',
+  objectKey: 'objectKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type UserImageScalarFieldEnum = (typeof UserImageScalarFieldEnum)[keyof typeof UserImageScalarFieldEnum]
+
+
+export const PasswordScalarFieldEnum = {
+  hash: 'hash',
+  userId: 'userId'
+} as const
+
+export type PasswordScalarFieldEnum = (typeof PasswordScalarFieldEnum)[keyof typeof PasswordScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  id: 'id',
+  expirationDate: 'expirationDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
 } as const
 
 export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
 
 
-export const AccountScalarFieldEnum = {
+export const PermissionScalarFieldEnum = {
   id: 'id',
-  accountId: 'accountId',
-  providerId: 'providerId',
-  userId: 'userId',
-  accessToken: 'accessToken',
-  refreshToken: 'refreshToken',
-  idToken: 'idToken',
-  accessTokenExpiresAt: 'accessTokenExpiresAt',
-  refreshTokenExpiresAt: 'refreshTokenExpiresAt',
-  scope: 'scope',
-  password: 'password',
+  action: 'action',
+  entity: 'entity',
+  access: 'access',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
+export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
+
+
+export const RoleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
 
 
 export const VerificationScalarFieldEnum = {
   id: 'id',
-  identifier: 'identifier',
-  value: 'value',
-  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  type: 'type',
+  target: 'target',
+  secret: 'secret',
+  algorithm: 'algorithm',
+  digits: 'digits',
+  period: 'period',
+  charSet: 'charSet',
+  expiresAt: 'expiresAt'
+} as const
+
+export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const ConnectionScalarFieldEnum = {
+  id: 'id',
+  providerName: 'providerName',
+  providerId: 'providerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type ConnectionScalarFieldEnum = (typeof ConnectionScalarFieldEnum)[keyof typeof ConnectionScalarFieldEnum]
+
+
+export const PasskeyScalarFieldEnum = {
+  id: 'id',
+  aaguid: 'aaguid',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  publicKey: 'publicKey',
+  userId: 'userId',
+  webauthnUserId: 'webauthnUserId',
+  counter: 'counter',
+  deviceType: 'deviceType',
+  backedUp: 'backedUp',
+  transports: 'transports'
+} as const
+
+export type PasskeyScalarFieldEnum = (typeof PasskeyScalarFieldEnum)[keyof typeof PasskeyScalarFieldEnum]
+
+
+export const PlanScalarFieldEnum = {
+  id: 'id',
+  planID: 'planID',
+  name: 'name',
+  description: 'description',
+  active: 'active',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+export type PlanScalarFieldEnum = (typeof PlanScalarFieldEnum)[keyof typeof PlanScalarFieldEnum]
+
+
+export const PlanLimitScalarFieldEnum = {
+  id: 'id',
+  planId: 'planId',
+  maxItems: 'maxItems'
+} as const
+
+export type PlanLimitScalarFieldEnum = (typeof PlanLimitScalarFieldEnum)[keyof typeof PlanLimitScalarFieldEnum]
+
+
+export const PriceScalarFieldEnum = {
+  id: 'id',
+  priceID: 'priceID',
+  planId: 'planId',
+  amount: 'amount',
+  currency: 'currency',
+  interval: 'interval',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PriceScalarFieldEnum = (typeof PriceScalarFieldEnum)[keyof typeof PriceScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  subscriptionID: 'subscriptionID',
+  userId: 'userId',
+  planId: 'planId',
+  priceId: 'priceId',
+  interval: 'interval',
+  status: 'status',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
 
 
 export const SortOrder = {

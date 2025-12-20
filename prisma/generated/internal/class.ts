@@ -19,10 +19,10 @@ const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [
     "typedSql"
   ],
-  "clientVersion": "7.0.1",
-  "engineVersion": "f09f2815f091dbba658cdcd2264306d88bb5bda6",
+  "clientVersion": "7.2.0",
+  "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider        = \"prisma-client\"\n  output          = \"./generated\"\n  moduleFormat    = \"esm\"\n  runtime         = \"nodejs\"\n  previewFeatures = [\"typedSql\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id            String    @id @map(\"_id\")\n  name          String\n  email         String\n  emailVerified Boolean\n  image         String?\n  createdAt     DateTime\n  updatedAt     DateTime\n  sessions      Session[]\n  accounts      Account[]\n\n  role           String?\n  banned         Boolean?  @default(false)\n  banReason      String?\n  banExpires     DateTime?\n  favoriteNumber Int\n\n  username        String?\n  displayUsername String?\n\n  @@unique([email])\n  @@unique([username])\n  @@map(\"one_piece_app_users\")\n}\n\nmodel Session {\n  id        String   @id @map(\"_id\")\n  expiresAt DateTime\n  token     String\n  createdAt DateTime\n  updatedAt DateTime\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  impersonatedBy String?\n\n  @@unique([token])\n  @@index([userId])\n  @@map(\"one_piece_app_sessions\")\n}\n\nmodel Account {\n  id                    String    @id @map(\"_id\")\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime\n  updatedAt             DateTime\n\n  @@index([userId])\n  @@map(\"one_piece_app_accounts\")\n}\n\nmodel Verification {\n  id         String    @id @map(\"_id\")\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime?\n  updatedAt  DateTime?\n\n  @@index([identifier])\n  @@map(\"one_piece_app_verification\")\n}\n",
+  "inlineSchema": "generator client {\n  provider        = \"prisma-client\"\n  output          = \"./generated\"\n  moduleFormat    = \"esm\"\n  runtime         = \"nodejs\"\n  previewFeatures = [\"typedSql\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id       String  @id @default(cuid())\n  email    String  @unique\n  username String  @unique\n  name     String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  image        UserImage?\n  password     Password?\n  notes        Note[]\n  roles        Role[]\n  sessions     Session[]\n  connections  Connection[]\n  passkey      Passkey[]\n  customerId   String?       @unique\n  subscription Subscription?\n}\n\nmodel Note {\n  id      String @id @default(cuid())\n  title   String\n  content String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  ownerId String\n\n  // non-unique foreign key\n  @@index([ownerId])\n  // This helps our order by in the user search a LOT\n  @@index([ownerId, updatedAt])\n}\n\nmodel UserImage {\n  id        String  @id @default(cuid())\n  altText   String?\n  objectKey String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  userId String @unique\n}\n\nmodel Password {\n  hash String\n\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  userId String @unique\n}\n\nmodel Session {\n  id             String   @id @default(cuid())\n  expirationDate DateTime\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  userId String\n\n  // non-unique foreign key\n  @@index([userId])\n}\n\nmodel Permission {\n  id          String @id @default(cuid())\n  action      String // e.g. create, read, update, delete\n  entity      String // e.g. note, user, etc.\n  access      String // e.g. own or any\n  description String @default(\"\")\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  roles Role[]\n\n  @@unique([action, entity, access])\n}\n\nmodel Role {\n  id          String @id @default(cuid())\n  name        String @unique\n  description String @default(\"\")\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  users       User[]\n  permissions Permission[]\n}\n\nmodel Verification {\n  id        String   @id @default(cuid())\n  createdAt DateTime @default(now())\n\n  /// The type of verification, e.g. \"email\" or \"phone\"\n  type String\n\n  /// The thing we're trying to verify, e.g. a user's email or phone number\n  target String\n\n  /// The secret key used to generate the otp\n  secret String\n\n  /// The algorithm used to generate the otp\n  algorithm String\n\n  /// The number of digits in the otp\n  digits Int\n\n  /// The number of seconds the otp is valid for\n  period Int\n\n  /// The valid characters for the otp\n  charSet String\n\n  /// When it's safe to delete this verification\n  expiresAt DateTime?\n\n  @@unique([target, type])\n}\n\nmodel Connection {\n  id           String @id @default(cuid())\n  providerName String\n  providerId   String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  userId String\n\n  @@unique([providerName, providerId])\n}\n\nmodel Passkey {\n  id             String   @id\n  aaguid         String\n  createdAt      DateTime @default(now())\n  updatedAt      DateTime @updatedAt\n  publicKey      Bytes\n  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId         String\n  webauthnUserId String\n  counter        BigInt\n  deviceType     String // 'singleDevice' or 'multiDevice'\n  backedUp       Boolean\n  transports     String? // Stored as comma-separated values\n\n  @@index(userId)\n}\n\n// ...\n// Subscription Related Models.\n// ...\n\n// Plans are used to describe and group our Products.\nmodel Plan {\n  id            String         @id @default(cuid())\n  planID        String         @unique // Managed by your Payment Provider - (Plan ID)\n  name          String         @unique\n  description   String?\n  active        Boolean?       @default(true)\n  limits        PlanLimit?\n  prices        Price[]\n  subscriptions Subscription[]\n  createdAt     DateTime       @default(now())\n  updatedAt     DateTime       @updatedAt\n}\n\n// Plan limits are used to describe the limits available to a plan.\nmodel PlanLimit {\n  id       String @id @default(cuid())\n  plan     Plan   @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  planId   String @unique\n  // Here you can define your own limits.\n  // For example, you could have a limit on the number of items a user can create.\n  maxItems Int    @default(0)\n}\n\n// Prices are used to identify our plan prices.\nmodel Price {\n  id            String         @id @default(cuid())\n  priceID       String         @unique // Managed by your Payment Provider - (Price ID)\n  plan          Plan           @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  planId        String\n  amount        Int\n  currency      String\n  interval      String\n  active        Boolean        @default(true)\n  subscriptions Subscription[]\n  createdAt     DateTime       @default(now())\n  updatedAt     DateTime       @updatedAt\n}\n\n// Subscriptions are used to identify our customers subscriptions.\nmodel Subscription {\n  id                 String   @id @default(cuid())\n  subscriptionID     String   @unique // Managed by your Payment Provider - (Subscription ID)\n  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n  userId             String   @unique\n  plan               Plan     @relation(fields: [planId], references: [id])\n  planId             String   @unique\n  price              Price    @relation(fields: [priceId], references: [id])\n  priceId            String\n  interval           String\n  status             String\n  currentPeriodStart Int\n  currentPeriodEnd   Int\n  cancelAtPeriodEnd  Boolean  @default(false)\n  createdAt          DateTime @default(now())\n  updatedAt          DateTime @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -30,7 +30,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"role\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"banned\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"banReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"banExpires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"favoriteNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"displayUsername\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"one_piece_app_users\"},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"},{\"name\":\"impersonatedBy\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"one_piece_app_sessions\"},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"accountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"accessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refreshToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"idToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accessTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"refreshTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"one_piece_app_accounts\"},\"Verification\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"_id\"},{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"one_piece_app_verification\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"image\",\"kind\":\"object\",\"type\":\"UserImage\",\"relationName\":\"UserToUserImage\"},{\"name\":\"password\",\"kind\":\"object\",\"type\":\"Password\",\"relationName\":\"PasswordToUser\"},{\"name\":\"notes\",\"kind\":\"object\",\"type\":\"Note\",\"relationName\":\"NoteToUser\"},{\"name\":\"roles\",\"kind\":\"object\",\"type\":\"Role\",\"relationName\":\"RoleToUser\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"connections\",\"kind\":\"object\",\"type\":\"Connection\",\"relationName\":\"ConnectionToUser\"},{\"name\":\"passkey\",\"kind\":\"object\",\"type\":\"Passkey\",\"relationName\":\"PasskeyToUser\"},{\"name\":\"customerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subscription\",\"kind\":\"object\",\"type\":\"Subscription\",\"relationName\":\"SubscriptionToUser\"}],\"dbName\":null},\"Note\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"owner\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"NoteToUser\"},{\"name\":\"ownerId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"UserImage\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"altText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"objectKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToUserImage\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Password\":{\"fields\":[{\"name\":\"hash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PasswordToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expirationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Permission\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"action\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"entity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"access\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"roles\",\"kind\":\"object\",\"type\":\"Role\",\"relationName\":\"PermissionToRole\"}],\"dbName\":null},\"Role\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"users\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RoleToUser\"},{\"name\":\"permissions\",\"kind\":\"object\",\"type\":\"Permission\",\"relationName\":\"PermissionToRole\"}],\"dbName\":null},\"Verification\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"target\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"secret\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"algorithm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"digits\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"period\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"charSet\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Connection\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ConnectionToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Passkey\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"aaguid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"publicKey\",\"kind\":\"scalar\",\"type\":\"Bytes\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PasskeyToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"webauthnUserId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"counter\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"deviceType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"backedUp\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"transports\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Plan\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"planID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"limits\",\"kind\":\"object\",\"type\":\"PlanLimit\",\"relationName\":\"PlanToPlanLimit\"},{\"name\":\"prices\",\"kind\":\"object\",\"type\":\"Price\",\"relationName\":\"PlanToPrice\"},{\"name\":\"subscriptions\",\"kind\":\"object\",\"type\":\"Subscription\",\"relationName\":\"PlanToSubscription\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"PlanLimit\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"plan\",\"kind\":\"object\",\"type\":\"Plan\",\"relationName\":\"PlanToPlanLimit\"},{\"name\":\"planId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"maxItems\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"Price\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"priceID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"plan\",\"kind\":\"object\",\"type\":\"Plan\",\"relationName\":\"PlanToPrice\"},{\"name\":\"planId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"currency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"interval\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"subscriptions\",\"kind\":\"object\",\"type\":\"Subscription\",\"relationName\":\"PriceToSubscription\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Subscription\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subscriptionID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SubscriptionToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"plan\",\"kind\":\"object\",\"type\":\"Plan\",\"relationName\":\"PlanToSubscription\"},{\"name\":\"planId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"object\",\"type\":\"Price\",\"relationName\":\"PriceToSubscription\"},{\"name\":\"priceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"interval\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"currentPeriodStart\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"currentPeriodEnd\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cancelAtPeriodEnd\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -64,7 +64,7 @@ export interface PrismaClientConstructor {
    * const users = await prisma.user.findMany()
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+   * Read more in our [docs](https://pris.ly/d/client).
    */
 
   new <
@@ -86,7 +86,7 @@ export interface PrismaClientConstructor {
  * const users = await prisma.user.findMany()
  * ```
  * 
- * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ * Read more in our [docs](https://pris.ly/d/client).
  */
 
 export interface PrismaClient<
@@ -115,7 +115,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -127,7 +127,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -138,7 +138,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -150,7 +150,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -197,6 +197,36 @@ export interface PrismaClient<
   get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
+   * `prisma.note`: Exposes CRUD operations for the **Note** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Notes
+    * const notes = await prisma.note.findMany()
+    * ```
+    */
+  get note(): Prisma.NoteDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.userImage`: Exposes CRUD operations for the **UserImage** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserImages
+    * const userImages = await prisma.userImage.findMany()
+    * ```
+    */
+  get userImage(): Prisma.UserImageDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.password`: Exposes CRUD operations for the **Password** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Passwords
+    * const passwords = await prisma.password.findMany()
+    * ```
+    */
+  get password(): Prisma.PasswordDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
    * `prisma.session`: Exposes CRUD operations for the **Session** model.
     * Example usage:
     * ```ts
@@ -207,14 +237,24 @@ export interface PrismaClient<
   get session(): Prisma.SessionDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
-   * `prisma.account`: Exposes CRUD operations for the **Account** model.
+   * `prisma.permission`: Exposes CRUD operations for the **Permission** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Accounts
-    * const accounts = await prisma.account.findMany()
+    * // Fetch zero or more Permissions
+    * const permissions = await prisma.permission.findMany()
     * ```
     */
-  get account(): Prisma.AccountDelegate<ExtArgs, { omit: OmitOpts }>;
+  get permission(): Prisma.PermissionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.role`: Exposes CRUD operations for the **Role** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Roles
+    * const roles = await prisma.role.findMany()
+    * ```
+    */
+  get role(): Prisma.RoleDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
    * `prisma.verification`: Exposes CRUD operations for the **Verification** model.
@@ -225,6 +265,66 @@ export interface PrismaClient<
     * ```
     */
   get verification(): Prisma.VerificationDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.connection`: Exposes CRUD operations for the **Connection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Connections
+    * const connections = await prisma.connection.findMany()
+    * ```
+    */
+  get connection(): Prisma.ConnectionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.passkey`: Exposes CRUD operations for the **Passkey** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Passkeys
+    * const passkeys = await prisma.passkey.findMany()
+    * ```
+    */
+  get passkey(): Prisma.PasskeyDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.plan`: Exposes CRUD operations for the **Plan** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Plans
+    * const plans = await prisma.plan.findMany()
+    * ```
+    */
+  get plan(): Prisma.PlanDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.planLimit`: Exposes CRUD operations for the **PlanLimit** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PlanLimits
+    * const planLimits = await prisma.planLimit.findMany()
+    * ```
+    */
+  get planLimit(): Prisma.PlanLimitDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.price`: Exposes CRUD operations for the **Price** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Prices
+    * const prices = await prisma.price.findMany()
+    * ```
+    */
+  get price(): Prisma.PriceDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.subscription`: Exposes CRUD operations for the **Subscription** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Subscriptions
+    * const subscriptions = await prisma.subscription.findMany()
+    * ```
+    */
+  get subscription(): Prisma.SubscriptionDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

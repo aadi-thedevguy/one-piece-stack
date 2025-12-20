@@ -33,7 +33,7 @@ export * from "./enums"
  * const users = await prisma.user.findMany()
  * ```
  * 
- * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ * Read more in our [docs](https://pris.ly/d/client).
  */
 export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
@@ -45,17 +45,67 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel
+/**
+ * Model UserImage
+ * 
+ */
+export type UserImage = Prisma.UserImageModel
+/**
+ * Model Password
+ * 
+ */
+export type Password = Prisma.PasswordModel
+/**
  * Model Session
  * 
  */
 export type Session = Prisma.SessionModel
 /**
- * Model Account
+ * Model Permission
  * 
  */
-export type Account = Prisma.AccountModel
+export type Permission = Prisma.PermissionModel
+/**
+ * Model Role
+ * 
+ */
+export type Role = Prisma.RoleModel
 /**
  * Model Verification
  * 
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model Connection
+ * 
+ */
+export type Connection = Prisma.ConnectionModel
+/**
+ * Model Passkey
+ * 
+ */
+export type Passkey = Prisma.PasskeyModel
+/**
+ * Model Plan
+ * 
+ */
+export type Plan = Prisma.PlanModel
+/**
+ * Model PlanLimit
+ * 
+ */
+export type PlanLimit = Prisma.PlanLimitModel
+/**
+ * Model Price
+ * 
+ */
+export type Price = Prisma.PriceModel
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
