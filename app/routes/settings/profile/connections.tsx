@@ -1,13 +1,9 @@
 import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import { Link2Icon, X } from "lucide-react";
+import { Link2, X } from "lucide-react";
 import { useState } from "react";
-import {
-  data,
-  useFetcher,
-  useLoaderData,
-} from "react-router";
+import { data, useFetcher } from "react-router";
 import { StatusButton } from "~/components/layout/status-button";
 import {
   Tooltip,
@@ -15,22 +11,24 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { userContext } from "~/context";
+import { requireUserId } from "~/lib/auth/auth.server";
 import { ProviderConnectionForm, providerIcons } from "~/lib/auth/connections";
 import { prisma } from "~/lib/db.server";
+import { makeTimings } from "~/lib/timing.server";
 import { createToastHeaders } from "~/lib/toast.server";
+import { pipeHeaders } from "~/lib/utils";
 import {
   type ProviderName,
   ProviderNameSchema,
   providerNames,
 } from "~/lib/validations";
-import type { BreadcrumbHandle } from "~/lib/validations/index.js";
+import type { BreadcrumbHandle } from "./_layout";
 import type { Route } from "./+types/connections";
 
 export const handle: BreadcrumbHandle & SEOHandle = {
   breadcrumb: (
     <div className="flex items-center gap-2">
-      <Link2Icon className="h-4 w-4" />
+      <Link2 className="h-4 w-4" />
       <span>Connections</span>
     </div>
   ),
@@ -38,37 +36,26 @@ export const handle: BreadcrumbHandle & SEOHandle = {
 };
 
 async function userCanDeleteConnections(userId: string) {
-  const accounts = await prisma.account.findMany({
-    where: { userId },
-    select: { password: true },
+  const user = await prisma.user.findUnique({
+    select: {
+      password: { select: { userId: true } },
+      _count: { select: { connections: true } },
+    },
+    where: { id: userId },
   });
-
-  if (accounts.some((acc) => acc.password)) {
-    return true;
-  }
-
-  return accounts.length > 1;
+  // user can delete their connections if they have a password
+  if (user?.password) return true;
+  // users have to have more than one remaining connection to delete one
+  return Boolean(user?._count.connections && user?._count.connections > 1);
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
-  const user = context.get(userContext);
-  invariantResponse(user, "User not found", { status: 404 });
-  const userId = user?.id;
-  const rawAccounts = await prisma.account.findMany({
-    select: {
-      id: true,
-      providerId: true,
-      createdAt: true,
-      user: {
-        select: {
-          username: true,
-          name: true,
-        },
-      },
-    },
+export async function loader({ request }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
+  const timings = makeTimings("profile connections loader");
+  const rawConnections = await prisma.connection.findMany({
+    select: { id: true, providerName: true, providerId: true, createdAt: true },
     where: { userId },
   });
-
   const connections: Array<{
     providerName: ProviderName;
     id: string;
@@ -76,30 +63,36 @@ export async function loader({ context }: Route.LoaderArgs) {
     link?: string | null;
     createdAtFormatted: string;
   }> = [];
-  for (const account of rawAccounts) {
-    const r = ProviderNameSchema.safeParse(account.providerId);
+  for (const connection of rawConnections) {
+    const r = ProviderNameSchema.safeParse(connection.providerName);
     if (!r.success) continue;
-    const providerName = r.data;
-
-    connections.push({
-      displayName:
-        account.user.username ?? account.user.name ?? "default username",
-      providerName,
-      id: account.id,
-      createdAtFormatted: account.createdAt.toLocaleString(),
-    });
+    // const providerName = r.data;
+    // const connectionData = await resolveConnectionData(
+    //   providerName,
+    //   connection.providerId,
+    //   { timings }
+    // );
+    // connections.push({
+    //   ...connectionData,
+    //   providerName,
+    //   id: connection.id,
+    //   createdAtFormatted: connection.createdAt.toLocaleString(),
+    // });
   }
 
-  return data({
-    connections,
-    canDeleteConnections: await userCanDeleteConnections(userId),
-  });
+  return data(
+    {
+      connections,
+      canDeleteConnections: await userCanDeleteConnections(userId),
+    },
+    { headers: { "Server-Timing": timings.toString() } }
+  );
 }
 
-export async function action({ request,context }: Route.ActionArgs) {
-  const user = context.get(userContext);
-  invariantResponse(user, "User not found", { status: 404 });
-  const userId = user?.id;
+export const headers: Route.HeadersFunction = pipeHeaders;
+
+export async function action({ request }: Route.ActionArgs) {
+  const userId = await requireUserId(request);
   const formData = await request.formData();
   invariantResponse(
     formData.get("intent") === "delete-connection",
@@ -111,7 +104,7 @@ export async function action({ request,context }: Route.ActionArgs) {
   );
   const connectionId = formData.get("connectionId");
   invariantResponse(typeof connectionId === "string", "Invalid connectionId");
-  await prisma.account.delete({
+  await prisma.connection.delete({
     where: {
       id: connectionId,
       userId,
@@ -124,19 +117,17 @@ export async function action({ request,context }: Route.ActionArgs) {
   return data({ status: "success" } as const, { headers: toastHeaders });
 }
 
-export default function Connections() {
-  const data = useLoaderData<typeof loader>();
-
+export default function Connections({ loaderData }: Route.ComponentProps) {
   return (
     <div className="mx-auto max-w-md">
-      {data.connections.length ? (
+      {loaderData.connections.length ? (
         <div className="flex flex-col gap-2">
           <p>Here are your current connections:</p>
           <ul className="flex flex-col gap-4">
-            {data.connections.map((c) => (
+            {loaderData.connections.map((c) => (
               <li key={c.id}>
                 <Connection
-                  canDelete={data.canDeleteConnections}
+                  canDelete={loaderData.canDeleteConnections}
                   connection={c}
                 />
               </li>
@@ -144,10 +135,10 @@ export default function Connections() {
           </ul>
         </div>
       ) : (
-        <p>You don&apos;t have any connections yet.</p>
+        <p>You don't have any connections yet.</p>
       )}
       <div className="mt-5 flex flex-col gap-5 border-border border-t-2 border-b-2 py-3">
-        {providerNames.map((providerName: ProviderName) => (
+        {providerNames.map((providerName) => (
           <ProviderConnectionForm
             key={providerName}
             providerName={providerName}
@@ -163,7 +154,7 @@ function Connection({
   connection,
   canDelete,
 }: {
-  connection: Route.ComponentProps['loaderData']['connections'][number];
+  connection: Route.ComponentProps["loaderData"]["connections"][number];
   canDelete: boolean;
 }) {
   const deleteFetcher = useFetcher<typeof action>();
@@ -174,15 +165,13 @@ function Connection({
       <span className={"inline-flex items-center gap-1.5"}>
         {icon}
         <span>
-          {
-            // connection.link ? (
-            //     <a href={connection.link} className="underline">
-            //         {connection.displayName}
-            //     </a>
-            // ) :
-            // (
+          {connection.link ? (
+            <a className="underline" href={connection.link}>
+              {connection.displayName}
+            </a>
+          ) : (
             connection.displayName
-          }{" "}
+          )}{" "}
           ({connection.createdAtFormatted})
         </span>
       </span>

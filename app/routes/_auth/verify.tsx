@@ -1,18 +1,12 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
-import {
-  type ActionFunctionArgs,
-  Form,
-  useActionData,
-  useSearchParams,
-} from "react-router";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+import { Form, useSearchParams } from "react-router";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
 import { ErrorList, OTPField } from "~/components/layout/forms";
+import { Spacer } from "~/components/layout/spacer";
 import { StatusButton } from "~/components/layout/status-button";
-import { validateCSRF } from "~/lib/csrf.server";
 import { checkHoneypot } from "~/lib/honeypot.server";
 import { useIsPending } from "~/lib/utils";
 import {
@@ -23,23 +17,23 @@ import {
   VerificationTypeSchema,
   type VerificationTypes,
   VerifySchema,
-} from "~/lib/validations";
+} from "~/lib/validations/index";
+import type { Route } from "./+types/verify";
+import { validateRequest } from "./verify.server";
 
 export const handle: SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
-  checkHoneypot(formData);
-  // return validateRequest(request, formData);
+  await checkHoneypot(formData);
+  return validateRequest(request, formData);
 }
 
-export default function VerifyRoute() {
+export default function VerifyRoute({ actionData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
   const isPending = useIsPending();
-  const actionData = useActionData<typeof action>();
   const parseWithZoddType = VerificationTypeSchema.safeParse(
     searchParams.get(typeQueryParam)
   );
@@ -49,7 +43,7 @@ export default function VerifyRoute() {
     <>
       <h1 className="text-h1">Check your email</h1>
       <p className="mt-3 text-body-md text-muted-foreground">
-        We&apos;ve sent you a code to verify your email address.
+        We've sent you a code to verify your email address.
       </p>
     </>
   );
@@ -58,6 +52,14 @@ export default function VerifyRoute() {
     onboarding: checkEmail,
     "reset-password": checkEmail,
     "change-email": checkEmail,
+    "2fa": (
+      <>
+        <h1 className="text-h1">Check your 2FA app</h1>
+        <p className="mt-3 text-body-md text-muted-foreground">
+          Please enter your 2FA code to verify your identity.
+        </p>
+      </>
+    ),
   };
 
   const [form, fields] = useForm({
@@ -81,21 +83,20 @@ export default function VerifyRoute() {
         {type ? headings[type] : "Invalid Verification Type"}
       </div>
 
+      <Spacer size="xs" />
+
       <div className="mx-auto flex w-72 max-w-full flex-col justify-center gap-1">
         <div>
           <ErrorList errors={form.errors} id={form.errorId} />
         </div>
         <div className="flex w-full gap-2">
           <Form method="POST" {...getFormProps(form)} className="flex-1">
-            <AuthenticityTokenInput />
             <HoneypotInputs />
             <div className="flex items-center justify-center">
               <OTPField
                 errors={fields[codeQueryParam].errors}
                 inputProps={{
-                  ...getInputProps(fields[codeQueryParam], {
-                    type: "text",
-                  }),
+                  ...getInputProps(fields[codeQueryParam], { type: "text" }),
                   autoComplete: "one-time-code",
                   autoFocus: true,
                 }}
@@ -106,14 +107,10 @@ export default function VerifyRoute() {
               />
             </div>
             <input
-              {...getInputProps(fields[typeQueryParam], {
-                type: "hidden",
-              })}
+              {...getInputProps(fields[typeQueryParam], { type: "hidden" })}
             />
             <input
-              {...getInputProps(fields[targetQueryParam], {
-                type: "hidden",
-              })}
+              {...getInputProps(fields[targetQueryParam], { type: "hidden" })}
             />
             <input
               {...getInputProps(fields[redirectToQueryParam], {

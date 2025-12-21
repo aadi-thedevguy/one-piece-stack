@@ -1,7 +1,5 @@
-import React from 'react'
-
 function ValueProp() {
-	return <div>ValueProp</div>
+  return <div>ValueProp</div>;
 }
 
-export default ValueProp
+export default ValueProp;

@@ -7,13 +7,12 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 - Built with [React Rouer](https://reactrouter.com/)
 - Written in [TypeScript](https://typescriptlang.org)
-- Authentication - [Better Auth](https://better-auth.com)
 - Primary Database of Choice - [PostgreSQL](https://postgresql.org)
 - Secondary Database(optional) - [Redis](https://redis.io)
 - Lightweight, performant server framework - [Hono](https://hono.dev)
 - ORM - [Prisma v7](https://prisma.io)
 - Send Transactional emails with [Resend](https://resend.com/)
-- Asset Uploads and Optimization with [Cloudinary](https://cloudinary.com/)
+- Storing Assets in [AWS S3](https://https://aws.amazon.com/s3/)
 - Styling with [TailwindCSS](https://tailwindcss.com)
 - Component Library - [ShadCN UI](https://ui.shadcn.com/)
 - Deploys anywhere with [Docker](https://docker.com)
@@ -23,9 +22,9 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 ## Features
 
-- Email/Password Auth with Email Magic Link, Google/Twitter Providers and RBAC/ Admin Support.
+- Email/Password Auth with Email OTP, Google/Twitter Providers and Admin Support.
 - Customizable Copy Writing Components and Pages like Privacy Policy, Terms of Service, Cookie Policy, Testimonials, Product Demo, Pricing, FAQ etc.
-- Health check API route
+- Health check route
 - Dark Mode Support
 - CSRF Protection and Honeypot
 - Caching and Rate-Limiting
@@ -58,10 +57,12 @@ Start Local Database:
 docker-compose up -d
 ```
 
-Seed Database and Generate Prisma Client Types:
+Generate Prisma Client Types and Seed the Database:
 
 ```sh
 pnpm run db:generate
+
+pnpm run db:seed
 ```
 
 Start dev server:
@@ -88,6 +89,7 @@ docker run -p 3000:3000 my-app
 - `pnpm check`: Run Oxlint
 - `pnpm db:push`: Push schema changes to database
 - `pnpm db:studio`: Open database studio UI
+- `pnpm db:seed`: Seeding the Database
 
 ## Deployment
 

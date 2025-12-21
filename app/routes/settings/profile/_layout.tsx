@@ -1,14 +1,17 @@
 import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
+import { createId } from "@paralleldrive/cuid2";
 import { Edit3 } from "lucide-react";
-import { data, Link, Outlet, useMatches } from "react-router";
+import { Link, Outlet, useMatches } from "react-router";
 import { z } from "zod";
-import { userContext } from "~/context";
-import { authClient } from "~/lib/auth/auth-client";
-import { cn } from "~/lib/utils";
-import { BreadcrumbHandle } from "~/lib/validations";
-import { requireUserMiddleware } from "~/middleware.server";
+import { Spacer } from "~/components/layout/spacer";
+import { requireUserId } from "~/lib/auth/auth.server";
+import { prisma } from "~/lib/db.server";
+import { cn, useUser } from "~/lib/utils";
 import type { Route } from "./+types/_layout";
+
+export const BreadcrumbHandle = z.object({ breadcrumb: z.any() });
+export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>;
 
 export const handle: BreadcrumbHandle & SEOHandle = {
   breadcrumb: (
@@ -20,12 +23,14 @@ export const handle: BreadcrumbHandle & SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-export const middleware = [requireUserMiddleware];
-
-export async function loader({ context }: Route.LoaderArgs) {
-  const user = context.get(userContext);
+export async function loader({ request }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { username: true },
+  });
   invariantResponse(user, "User not found", { status: 404 });
-  return data({});
+  return {};
 }
 
 const BreadcrumbHandleMatch = z.object({
@@ -33,7 +38,7 @@ const BreadcrumbHandleMatch = z.object({
 });
 
 export default function EditUserProfile() {
-  const session = authClient.useSession();
+  const user = useUser();
   const matches = useMatches();
   const breadcrumbs = matches
     .map((m) => {
@@ -54,7 +59,7 @@ export default function EditUserProfile() {
           <li>
             <Link
               className="text-muted-foreground"
-              to={`/users/${session?.data?.user.username}`}
+              to={`/users/${user.username}`}
             >
               Profile
             </Link>
@@ -64,14 +69,14 @@ export default function EditUserProfile() {
               className={cn("flex items-center gap-3", {
                 "text-muted-foreground": i < arr.length - 1,
               })}
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              key={i}
+              key={createId()}
             >
               ▶️ {breadcrumb}
             </li>
           ))}
         </ul>
       </div>
+      <Spacer size="xs" />
       <main className="mx-auto bg-muted px-6 py-8 md:container md:rounded-3xl">
         <Outlet />
       </main>

@@ -75,6 +75,3 @@ const button = {
   color: "#fff",
   textAlign: "center" as const,
 };
-
-export const DeleteAccountEmailHtml = async (props: Props) =>
-  await E.render(<DeleteAccountEmail {...props} />, { pretty: true });

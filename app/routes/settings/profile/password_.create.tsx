@@ -1,22 +1,23 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { data, Form, Link, redirect, useActionData } from "react-router";
+import { data, Form, Link, redirect } from "react-router";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
-import { userContext } from "~/context";
-import { auth } from "~/lib/auth/auth.server";
+import {
+  checkIsCommonPassword,
+  getPasswordHash,
+  requireUserId,
+} from "~/lib/auth/auth.server";
+import { validateCSRF } from "~/lib/csrf.server";
 import { prisma } from "~/lib/db.server";
-import { redirectWithToast } from "~/lib/toast.server";
 import { useIsPending } from "~/lib/utils";
-import type { BreadcrumbHandle } from "~/lib/validations";
 import { PasswordAndConfirmPasswordSchema } from "~/lib/validations/user-validation";
+import type { BreadcrumbHandle } from "./_layout";
 import type { Route } from "./+types/password_.create";
-
-const CreatePasswordForm = PasswordAndConfirmPasswordSchema;
 
 export const handle: BreadcrumbHandle & SEOHandle = {
   breadcrumb: (
@@ -28,36 +29,41 @@ export const handle: BreadcrumbHandle & SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-async function requireNoPassword(userId: string) {
-  const passwordAccount = await prisma.account.findFirst({
-    where: {
-      userId,
-      password: {
-        not: null,
-      },
-    },
-  });
+const CreatePasswordForm = PasswordAndConfirmPasswordSchema;
 
-  if (passwordAccount) {
+async function requireNoPassword(userId: string) {
+  const password = await prisma.password.findUnique({
+    select: { userId: true },
+    where: { userId },
+  });
+  if (password) {
     throw redirect("/settings/profile/password");
   }
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
-  const user = context.get(userContext);
-  invariantResponse(user, "User not found", { status: 404 });
-  await requireNoPassword(user.id);
-  return data({});
+export async function loader({ request }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
+  await requireNoPassword(userId);
+  return {};
 }
 
-export async function action({ request, context }: Route.ActionArgs) {
-  const user = context.get(userContext);
-  invariantResponse(user, "User not found", { status: 404 });
-
+export async function action({ request }: Route.ActionArgs) {
+  const userId = await requireUserId(request);
+  await requireNoPassword(userId);
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
   const submission = await parseWithZod(formData, {
     async: true,
-    schema: CreatePasswordForm,
+    schema: CreatePasswordForm.superRefine(async ({ password }, ctx) => {
+      const isCommonPassword = await checkIsCommonPassword(password);
+      if (isCommonPassword) {
+        ctx.addIssue({
+          path: ["password"],
+          code: "custom",
+          message: "Password is too common",
+        });
+      }
+    }),
   });
   if (submission.status !== "success") {
     return data(
@@ -72,25 +78,24 @@ export async function action({ request, context }: Route.ActionArgs) {
 
   const { password } = submission.value;
 
-  await auth.api.setPassword({
-    body: {
-      newPassword: password,
+  await prisma.user.update({
+    select: { username: true },
+    where: { id: userId },
+    data: {
+      password: {
+        create: {
+          hash: await getPasswordHash(password),
+        },
+      },
     },
   });
 
-  return redirectWithToast(
-    "/settings/profile",
-    {
-      type: "success",
-      title: "Password Created",
-      description: "Your password has been created.",
-    },
-    { status: 302 }
-  );
+  return redirect("/settings/profile", { status: 302 });
 }
 
-export default function CreatePasswordRoute() {
-  const actionData = useActionData<typeof action>();
+export default function CreatePasswordRoute({
+  actionData,
+}: Route.ComponentProps) {
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
@@ -105,6 +110,7 @@ export default function CreatePasswordRoute() {
 
   return (
     <Form method="POST" {...getFormProps(form)} className="mx-auto max-w-md">
+      <AuthenticityTokenInput />
       <Field
         errors={fields.password.errors}
         inputProps={{

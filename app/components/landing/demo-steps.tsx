@@ -38,7 +38,7 @@ function DemoSteps() {
         {featuresTabData.map((item, i) => (
           <TabsTrigger
             className="flex h-full w-full cursor-pointer justify-start"
-            key={i}
+            key={item.id}
             value={item.id}
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-[50%] border">
@@ -51,7 +51,7 @@ function DemoSteps() {
         ))}
       </TabsList>
       {/* <!-- Tab Content  --> */}
-      {featuresTabData.map((feature, key) => (
+      {featuresTabData.map((feature) => (
         <TabsContent key={feature.id} value={feature.id}>
           <div className="flex items-center gap-8 bg-background lg:gap-19">
             <div className="md:w-1/2">
@@ -59,13 +59,13 @@ function DemoSteps() {
               <p className="mb-5">{feature.desc1}</p>
               <p className="w-11/12">{feature.desc2}</p>
             </div>
-            <div className="mx-auto hidden aspect-square max-w-[550px] rounded-lg md:block md:w-1/2">
+            <div className="mx-auto hidden aspect-square max-w-137.5 rounded-lg md:block md:w-1/2">
               <img
                 alt={feature.title}
-                height={25}
+                height={300}
                 loading="lazy"
                 src={`https://api.dicebear.com/9.x/notionists/svg?seed=${feature.id}`}
-                width={25}
+                width={300}
               />
             </div>
           </div>

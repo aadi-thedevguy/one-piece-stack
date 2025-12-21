@@ -52,14 +52,14 @@ export function Field({
   const errorId = errors?.length ? `${id}-error` : undefined;
   return (
     <div className={className}>
-      <Label htmlFor={id} {...labelProps} />
+      <Label className="mb-2" htmlFor={id} {...labelProps} />
       <Input
         aria-describedby={errorId}
         aria-invalid={errorId ? true : undefined}
         id={id}
         {...inputProps}
       />
-      <div className="min-h-[32px] px-4 pt-1 pb-3">
+      <div className="min-h-8 px-4 pt-1 pb-3">
         {errorId ? <ErrorList errors={errors} id={errorId} /> : null}
       </div>
     </div>
@@ -190,6 +190,7 @@ export function CheckboxField({
           }}
           type="button"
         />
+        {/** biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
         <label
           htmlFor={id}
           {...labelProps}

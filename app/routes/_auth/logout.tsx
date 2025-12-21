@@ -1,11 +1,11 @@
 import { redirect } from "react-router";
-import { authClient } from "~/lib/auth/auth-client";
+import { logout } from "~/lib/auth/auth.server";
+import type { Route } from "./+types/logout.ts";
 
 export async function loader() {
-  return redirect("/auth/sign-in");
+  return redirect("/");
 }
 
-export async function clientAction() {
-  await authClient.signOut();
-  return redirect("/auth/sign-in");
+export async function action({ request }: Route.ActionArgs) {
+  return logout({ request });
 }

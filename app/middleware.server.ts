@@ -1,7 +1,7 @@
 import { type MiddlewareFunction, redirect } from "react-router";
 import { userIdContext } from "~/context";
+import { authSessionStorage } from "~/lib/auth/session.server";
 import { prisma } from "~/lib/db.server";
-import { authSessionStorage } from "~/lib/session.server";
 
 export const requireUserMiddleware: MiddlewareFunction = async ({
   request,

@@ -4,45 +4,79 @@ import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import {
   Camera,
-  EyeOffIcon,
-  Link2Icon,
-  TrashIcon,
-  User2Icon,
+  CircleUser,
+  Download,
+  Link2,
+  Lock,
+  Mail,
+  MoreHorizontal,
+  Trash2,
+  Unlock,
 } from "lucide-react";
 import { Img } from "openimg/react";
-import { data, Link, useFetcher, useLoaderData } from "react-router";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+import { data, Link, useFetcher } from "react-router";
 import { z } from "zod";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
-import { placeholderAvatar } from "~/constants/keys";
-import { userContext } from "~/context";
-import { auth } from "~/lib/auth/auth.server";
-// import { authClient } from "~/lib/auth/auth-client";
-import { validateCSRF } from "~/lib/csrf.server";
+import { sessionKey } from "~/constants/keys";
+import { requireUserId } from "~/lib/auth/auth.server";
+import { authSessionStorage } from "~/lib/auth/session.server";
 import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
-import { useDoubleCheck } from "~/lib/utils";
-import { ProfileFormSchema } from "~/lib/validations/user-validation";
-import type { Route } from "./+types/index";
+import { getUserImgSrc, useDoubleCheck } from "~/lib/utils";
+import { NameSchema, UsernameSchema } from "~/lib/validations/user-validation";
+import type { Route } from "./+types";
+import { twoFAVerificationType } from "./two-factor/_layout";
 
 export const handle: SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-export async function loader({ request, context }: Route.LoaderArgs) {
-  const sessions = await auth.api.listSessions({
-    headers: request.headers,
-  });
-  const user = context.get(userContext);
-  const userId = user?.id as string;
-  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+const ProfileFormSchema = z.object({
+  name: NameSchema.nullable().default(null),
+  username: UsernameSchema,
+});
 
-  return data({
-    user,
-    otherSessionsCount: sessions.length - 1,
+export async function loader({ request }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      image: {
+        select: { objectKey: true },
+      },
+      _count: {
+        select: {
+          sessions: {
+            where: {
+              expirationDate: { gt: new Date() },
+            },
+          },
+        },
+      },
+    },
   });
+
+  const twoFactorVerification = await prisma.verification.findUnique({
+    select: { id: true },
+    where: { target_type: { type: twoFAVerificationType, target: userId } },
+  });
+
+  const password = await prisma.password.findUnique({
+    select: { userId: true },
+    where: { userId },
+  });
+
+  return {
+    user,
+    hasPassword: Boolean(password),
+    isTwoFactorEnabled: Boolean(twoFactorVerification),
+  };
 }
 
 type ProfileActionArgs = {
@@ -50,38 +84,23 @@ type ProfileActionArgs = {
   userId: string;
   formData: FormData;
 };
-
 const profileUpdateActionIntent = "update-profile";
 const signOutOfSessionsActionIntent = "sign-out-of-sessions";
 const deleteDataActionIntent = "delete-data";
 
-// export async function clientAction({ request }: ClientActionFunctionArgs) {
-//   const formData = await request.formData();
-//   await validateCSRF(formData, request.headers);
-//   const intent = formData.get("intent");
-//   if (intent === signOutOfSessionsActionIntent) {
-//     await authClient.revokeOtherSessions();
-//   }
-// }
-
 export async function action({ request }: Route.ActionArgs) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-  const userId = session?.user.id as string;
-  const token = session?.session.token as string;
+  const userId = await requireUserId(request);
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
   const intent = formData.get("intent");
   switch (intent) {
     case profileUpdateActionIntent: {
       return profileUpdateAction({ request, userId, formData });
     }
     case signOutOfSessionsActionIntent: {
-      return signOutOfSessionsAction({ request });
+      return signOutOfSessionsAction({ request, userId, formData });
     }
     case deleteDataActionIntent: {
-      return deleteDataAction({ request, token });
+      return deleteDataAction({ request, userId, formData });
     }
     default: {
       throw new Response(`Invalid intent "${intent}"`, { status: 400 });
@@ -89,23 +108,22 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function EditUserProfile() {
-  const data = useLoaderData<typeof loader>();
-
+export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col gap-12">
       <div className="flex justify-center">
-        <div className="relative h-52 w-52">
+        <div className="relative size-52">
           <Img
-            alt={data.user?.username}
+            alt={loaderData.user.name ?? loaderData.user.username}
             className="h-full w-full rounded-full object-cover"
-            height={200}
-            src={data.user?.image || placeholderAvatar}
-            width={200}
+            height={832}
+            isAboveFold
+            src={getUserImgSrc(loaderData.user.image?.objectKey)}
+            width={832}
           />
           <Button
             asChild
-            className="-right-3 absolute top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
+            className="-right-3 absolute top-3 flex size-10 items-center justify-center rounded-full p-0"
             variant="outline"
           >
             <Link
@@ -119,19 +137,66 @@ export default function EditUserProfile() {
           </Button>
         </div>
       </div>
-      <UpdateProfile />
+      <UpdateProfile loaderData={loaderData} />
 
       <div className="col-span-6 my-6 h-1 border-foreground border-b-[1.5px]" />
       <div className="col-span-full flex flex-col gap-6">
-        <Link className="flex items-center gap-2" to="password">
-          <EyeOffIcon className="h-4 w-4" />
-          <span>Change Password</span>
-        </Link>
-        <Link className="flex items-center gap-2" to="connections">
-          <Link2Icon className="h-4 w-4" />
-          <span>Manage connections</span>
-        </Link>
-        <SignOutOfSessions />
+        <div>
+          <Link className="flex items-center gap-2" to="change-email">
+            <Mail />
+            <span>Change email from {loaderData.user.email}</span>
+          </Link>
+        </div>
+        <div>
+          <Link className="flex items-center gap-2" to="two-factor">
+            {loaderData.isTwoFactorEnabled ? (
+              <>
+                <Lock />
+                <span>2FA is enabled</span>
+              </>
+            ) : (
+              <>
+                <Unlock />
+                <span>Enable 2FA</span>
+              </>
+            )}
+          </Link>
+        </div>
+        <div>
+          <Link
+            className="flex items-center gap-2"
+            to={loaderData.hasPassword ? "password" : "password/create"}
+          >
+            <MoreHorizontal />
+            <span>
+              {loaderData.hasPassword ? "Change Password" : "Create a Password"}
+            </span>
+          </Link>
+        </div>
+        <div>
+          <Link className="flex items-center gap-2" to="connections">
+            <Link2 />
+            <span>Manage connections</span>
+          </Link>
+        </div>
+        <div>
+          <Link className="flex items-center gap-2" to="passkeys">
+            <Unlock />
+            <span>Manage passkeys</span>
+          </Link>
+        </div>
+        <div>
+          <Link
+            className="flex items-center gap-2"
+            download="my-epic-notes-data.json"
+            reloadDocument
+            to="/resources/download-user-data"
+          >
+            <Download />
+            <span>Download your data</span>
+          </Link>
+        </div>
+        <SignOutOfSessions loaderData={loaderData} />
         <DeleteData />
       </div>
     </div>
@@ -161,23 +226,28 @@ async function profileUpdateAction({ userId, formData }: ProfileActionArgs) {
       { status: submission.status === "error" ? 400 : 200 }
     );
   }
+
   const { username, name } = submission.value;
 
-  await auth.api.updateUser({
-    body: {
-      username,
+  await prisma.user.update({
+    select: { username: true },
+    where: { id: userId },
+    data: {
       name,
+      username,
     },
   });
 
-  return data({
+  return {
     result: submission.reply(),
-  });
+  };
 }
 
-function UpdateProfile() {
-  const data = useLoaderData<typeof loader>();
-
+function UpdateProfile({
+  loaderData,
+}: {
+  loaderData: Route.ComponentProps["loaderData"];
+}) {
   const fetcher = useFetcher<typeof profileUpdateAction>();
 
   const [form, fields] = useForm({
@@ -188,21 +258,18 @@ function UpdateProfile() {
       return parseWithZod(formData, { schema: ProfileFormSchema });
     },
     defaultValue: {
-      username: data?.user?.username,
-      name: data?.user?.name,
+      username: loaderData.user.username,
+      name: loaderData.user.name,
     },
   });
 
   return (
     <fetcher.Form method="POST" {...getFormProps(form)}>
-      <AuthenticityTokenInput />
       <div className="grid grid-cols-6 gap-x-10">
         <Field
           className="col-span-3"
           errors={fields.username.errors}
-          inputProps={getInputProps(fields.username, {
-            type: "text",
-          })}
+          inputProps={getInputProps(fields.username, { type: "text" })}
           labelProps={{
             htmlFor: fields.username.id,
             children: "Username",
@@ -221,6 +288,7 @@ function UpdateProfile() {
       <div className="mt-8 flex justify-center">
         <StatusButton
           name="intent"
+          size="wide"
           status={
             fetcher.state !== "idle" ? "pending" : (form.status ?? "idle")
           }
@@ -234,31 +302,37 @@ function UpdateProfile() {
   );
 }
 
-async function signOutOfSessionsAction({ request }: { request: Request }) {
-  const authSession = await auth.api.getSession({
-    headers: request.headers,
-  });
+async function signOutOfSessionsAction({ request, userId }: ProfileActionArgs) {
+  const authSession = await authSessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  const sessionId = authSession.get(sessionKey);
   invariantResponse(
-    authSession,
+    sessionId,
     "You must be authenticated to sign out of other sessions"
   );
-  await auth.api.revokeOtherSessions({
-    headers: request.headers,
+  await prisma.session.deleteMany({
+    where: {
+      userId,
+      id: { not: sessionId },
+    },
   });
-  return data({ status: "success" } as const);
+  return { status: "success" } as const;
 }
 
-function SignOutOfSessions() {
-  const data = useLoaderData<typeof loader>();
+function SignOutOfSessions({
+  loaderData,
+}: {
+  loaderData: Route.ComponentProps["loaderData"];
+}) {
   const dc = useDoubleCheck();
 
   const fetcher = useFetcher<typeof signOutOfSessionsAction>();
-  const otherSessionsCount = data.otherSessionsCount;
+  const otherSessionsCount = loaderData.user._count.sessions - 1;
   return (
-    <>
+    <div>
       {otherSessionsCount ? (
         <fetcher.Form method="POST">
-          <AuthenticityTokenInput />
           <StatusButton
             {...dc.getButtonProps({
               type: "submit",
@@ -273,7 +347,7 @@ function SignOutOfSessions() {
             variant={dc.doubleCheck ? "destructive" : "default"}
           >
             <div className="flex items-center gap-2">
-              <User2Icon className="h-4 w-4" />
+              <CircleUser />
               <span>
                 {dc.doubleCheck
                   ? "Are you sure?"
@@ -284,25 +358,16 @@ function SignOutOfSessions() {
         </fetcher.Form>
       ) : (
         <div className="flex items-center gap-2">
-          <User2Icon className="h-4 w-4" />
+          <CircleUser />
           <span>This is your only session</span>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
-async function deleteDataAction({
-  token,
-}: {
-  request: Request;
-  token: string;
-}) {
-  await auth.api.deleteUser({
-    body: {
-      token,
-    },
-  });
+async function deleteDataAction({ userId }: ProfileActionArgs) {
+  await prisma.user.delete({ where: { id: userId } });
   return redirectWithToast("/", {
     type: "success",
     title: "Data Deleted",
@@ -315,24 +380,25 @@ function DeleteData() {
 
   const fetcher = useFetcher<typeof deleteDataAction>();
   return (
-    <fetcher.Form method="POST">
-      <AuthenticityTokenInput />
-      <StatusButton
-        {...dc.getButtonProps({
-          type: "submit",
-          name: "intent",
-          value: deleteDataActionIntent,
-        })}
-        status={fetcher.state !== "idle" ? "pending" : "idle"}
-        variant={dc.doubleCheck ? "destructive" : "default"}
-      >
-        <div className="flex items-center gap-2">
-          <TrashIcon className="h-4 w-4" />
-          <span>
-            {dc.doubleCheck ? "Are you sure?" : "Delete all your data"}
-          </span>
-        </div>
-      </StatusButton>
-    </fetcher.Form>
+    <div>
+      <fetcher.Form method="POST">
+        <StatusButton
+          {...dc.getButtonProps({
+            type: "submit",
+            name: "intent",
+            value: deleteDataActionIntent,
+          })}
+          status={fetcher.state !== "idle" ? "pending" : "idle"}
+          variant={dc.doubleCheck ? "destructive" : "default"}
+        >
+          <div className="flex items-center gap-2">
+            <Trash2 />
+            <span>
+              {dc.doubleCheck ? "Are you sure?" : "Delete all your data"}
+            </span>
+          </div>
+        </StatusButton>
+      </fetcher.Form>
+    </div>
   );
 }

@@ -1,46 +1,47 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { invariant } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { Fragment } from "react/jsx-runtime";
-import {
-  data,
-  Form,
-  type MetaFunction,
-  useActionData,
-  useSearchParams,
-} from "react-router";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+import { data, Form, redirect, useSearchParams } from "react-router";
+// import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
-import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
-import { CheckboxField, ErrorList, Field } from "~/components/layout/forms";
-import { Spacer } from "~/components/layout/spacer";
+import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
-import { auth } from "~/lib/auth/auth.server";
+import { SignupEmail } from "~/components/mails/SignupEmail.js";
+import { requireAnonymous } from "~/lib/auth/auth.server";
 import { ProviderConnectionForm } from "~/lib/auth/connections";
-import { validateCSRF } from "~/lib/csrf.server";
+// import { validateCSRF } from "~/lib/csrf.server";
 import { prisma } from "~/lib/db.server";
+import { sendEmail } from "~/lib/email.server";
 import { checkHoneypot } from "~/lib/honeypot.server";
-import { redirectWithToast } from "~/lib/toast.server";
 import { useIsPending } from "~/lib/utils";
 import { providerNames } from "~/lib/validations";
-import { FinalSignupFormSchema } from "~/lib/validations/user-validation";
-import type { Route } from "./+types/signup";
+import { EmailSchema } from "~/lib/validations/user-validation";
+import type { Route } from "./+types/signup.ts";
+import { prepareVerification } from "./verify.server";
 
 export const handle: SEOHandle = {
   getSitemapEntries: () => null,
 };
 
+const SignupSchema = z.object({
+  email: EmailSchema,
+});
+
+export async function loader({ request }: Route.LoaderArgs) {
+  await requireAnonymous(request);
+  return null;
+}
+
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-
-  await validateCSRF(formData, request.headers);
+  // await validateCSRF(formData, request.headers);
   checkHoneypot(formData);
 
   const submission = await parseWithZod(formData, {
-    schema: FinalSignupFormSchema.superRefine(async (data, ctx) => {
+    schema: SignupSchema.superRefine(async (data, ctx) => {
       const existingUser = await prisma.user.findUnique({
         where: { email: data.email },
         select: { id: true },
@@ -53,80 +54,57 @@ export async function action({ request }: Route.ActionArgs) {
         });
         return;
       }
-      const response = await auth.api.isUsernameAvailable({
-        body: {
-          username,
-        },
-      });
-      if (!response.available) {
-        ctx.addIssue({
-          path: ["username"],
-          code: z.ZodIssueCode.custom,
-          message: "A user already exists with this username",
-        });
-      }
     }),
     async: true,
   });
-
   if (submission.status !== "success") {
     return data(
       { result: submission.reply() },
       { status: submission.status === "error" ? 400 : 200 }
     );
   }
-  const { redirectTo, username } = submission.value;
+  const { email } = submission.value;
+  const { verifyUrl, redirectTo, otp } = await prepareVerification({
+    period: 10 * 60,
+    request,
+    type: "onboarding",
+    target: email,
+  });
 
-  try {
-    const { token } = await auth.api.signUpEmail({
-      body: {
-        ...submission.value,
-      },
-    });
-    invariant(token, "Failed to send email");
+  const response = await sendEmail({
+    to: email,
+    subject: "Welcome to One Piece App!",
+    react: <SignupEmail onboardingUrl={verifyUrl.toString()} otp={otp} />,
+  });
 
-    if (redirectTo) {
-      return redirectWithToast(
-        safeRedirect(redirectTo),
-        { title: "Email Sent!", description: "Please check your inbox" },
-        { headers: request.headers }
-      );
-    }
-    return redirectWithToast(
-      safeRedirect("/signup"),
-      { title: "Email Sent!", description: "Please check your inbox" },
-      { headers: request.headers }
-    );
-  } catch (error) {
-    if (error instanceof Error) {
-      return data(
-        {
-          result: submission.reply({ formErrors: [error.message] }),
-        },
-        {
-          status: 500,
-        }
-      );
-    }
+  if (response.status === "success") {
+    return redirect(redirectTo.toString());
   }
+  return data(
+    {
+      result: submission.reply({ formErrors: [response.error.message] }),
+    },
+    {
+      status: 500,
+    }
+  );
 }
 
-export const meta: MetaFunction = () => [
-  { title: "Sign Up | One Piece Stack" },
+export const meta: Route.MetaFunction = () => [
+  { title: "Sign Up | One Piece App" },
 ];
 
-export default function SignupRoute() {
-  const actionData = useActionData<typeof action>();
+export default function SignupRoute({ actionData }: Route.ComponentProps) {
   const isPending = useIsPending();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo");
 
   const [form, fields] = useForm({
     id: "signup-form",
-    constraint: getZodConstraint(FinalSignupFormSchema),
+    constraint: getZodConstraint(SignupSchema),
     lastResult: actionData?.result,
     onValidate({ formData }) {
-      const result = parseWithZod(formData, { schema: FinalSignupFormSchema });
+      const result = parseWithZod(formData, { schema: SignupSchema });
       return result;
     },
     shouldRevalidate: "onBlur",
@@ -137,42 +115,13 @@ export default function SignupRoute() {
       <div className="text-center">
         <h1 className="text-h1">Let's start your journey!</h1>
         <p className="mt-3 text-body-md text-muted-foreground">
-          Please enter your details.
+          Please enter your email.
         </p>
       </div>
-      <Spacer size="xs" />
-
-      <div className="mx-auto mt-8 min-w-full max-w-sm sm:min-w-92">
+      <div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-92">
         <Form method="POST" {...getFormProps(form)}>
-          <AuthenticityTokenInput />
+          {/* <AuthenticityTokenInput /> */}
           <HoneypotInputs />
-
-          <Field
-            errors={fields.username.errors}
-            inputProps={{
-              ...getInputProps(fields.username, { type: "text" }),
-              autoComplete: "username",
-              className: "lowercase",
-            }}
-            labelProps={{
-              htmlFor: fields.username.id,
-              children: "Username",
-              className: "mb-2",
-            }}
-          />
-          <Field
-            errors={fields.name.errors}
-            inputProps={{
-              ...getInputProps(fields.name, { type: "text" }),
-              autoComplete: "name",
-            }}
-            labelProps={{
-              htmlFor: fields.name.id,
-              children: "Name",
-              className: "mb-2",
-            }}
-          />
-
           <Field
             errors={fields.email.errors}
             inputProps={{
@@ -183,58 +132,8 @@ export default function SignupRoute() {
             labelProps={{
               htmlFor: fields.email.id,
               children: "Email",
-              className: "mb-2",
             }}
           />
-          <Field
-            errors={fields.password.errors}
-            inputProps={{
-              ...getInputProps(fields.password, { type: "password" }),
-              autoComplete: "new-password",
-            }}
-            labelProps={{
-              htmlFor: fields.password.id,
-              children: "Password",
-              className: "mb-2",
-            }}
-          />
-
-          <Field
-            errors={fields.confirmPassword.errors}
-            inputProps={{
-              ...getInputProps(fields.confirmPassword, { type: "password" }),
-              autoComplete: "new-password",
-            }}
-            labelProps={{
-              htmlFor: fields.confirmPassword.id,
-              children: "Confirm Password",
-              className: "mb-2",
-            }}
-          />
-          <CheckboxField
-            buttonProps={getInputProps(
-              fields.agreeToTermsOfServiceAndPrivacyPolicy,
-              { type: "checkbox" }
-            )}
-            errors={fields.agreeToTermsOfServiceAndPrivacyPolicy.errors}
-            labelProps={{
-              htmlFor: fields.agreeToTermsOfServiceAndPrivacyPolicy.id,
-              children:
-                "Do you agree to our Terms of Service and Privacy Policy?",
-            }}
-          />
-          <CheckboxField
-            buttonProps={getInputProps(fields.remember, { type: "checkbox" })}
-            errors={fields.remember.errors}
-            labelProps={{
-              htmlFor: fields.remember.id,
-              children: "Remember me",
-            }}
-          />
-          {redirectTo ? (
-            <input name="redirectTo" type="hidden" value={redirectTo} />
-          ) : null}
-
           <ErrorList errors={form.errors} id={form.errorId} />
           <StatusButton
             className="w-full"
@@ -242,7 +141,7 @@ export default function SignupRoute() {
             status={isPending ? "pending" : (form.status ?? "idle")}
             type="submit"
           >
-            Create an Account
+            Submit
           </StatusButton>
         </Form>
         <ul className="flex flex-col gap-4 py-4">

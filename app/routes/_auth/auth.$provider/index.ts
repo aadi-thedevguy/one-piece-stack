@@ -1,23 +1,19 @@
 import { redirect } from "react-router";
-import { authClient } from "~/lib/auth/auth-client";
+import { auth as authenticator } from "~/lib/auth/connections.server";
 import { getRedirectCookieHeader } from "~/lib/redirect-cookie.server";
 import { getReferrerRoute } from "~/lib/utils";
-import { ProviderNameSchema } from "~/lib/validations";
-import type { Route } from "./+types/index";
+import { ProviderNameSchema } from "~/lib/validations/index.js";
+import type { Route } from "./+types/index.ts";
 
 export async function loader() {
   return redirect("/login");
 }
 
-export async function clientAction({
-  request,
-  params,
-}: Route.ClientActionArgs) {
+export async function action({ request, params }: Route.ActionArgs) {
   const providerName = ProviderNameSchema.parse(params.provider);
+
   try {
-    return await authClient.signIn.social({
-      provider: providerName,
-    });
+    return await authenticator.authenticate(providerName, request);
   } catch (error: unknown) {
     if (error instanceof Response) {
       const formData = await request.formData();

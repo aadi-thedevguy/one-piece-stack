@@ -9,7 +9,7 @@ import {
   DropdownMenuPortal,
 } from "~/components/ui/dropdown-menu";
 import { placeholderAvatar } from "~/constants/keys";
-import { useUser } from "~/lib/utils";
+import { getUserImgSrc, useUser } from "~/lib/utils";
 import { Button } from "../ui/button";
 
 export function UserDropdown() {
@@ -30,7 +30,7 @@ export function UserDropdown() {
               alt={user.name ?? user.username}
               className="h-8 w-8 rounded-full object-cover"
               height={32}
-              src={user.image || placeholderAvatar}
+              src={getUserImgSrc(user.image?.objectKey) || placeholderAvatar}
               width={32}
             />
             <span className="hidden font-bold text-body-sm sm:inline">

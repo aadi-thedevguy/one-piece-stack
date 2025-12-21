@@ -23,7 +23,7 @@ import { EpicToaster } from "~/components/layout/sonner";
 import { useToast } from "~/components/layout/toaster";
 import { UserDropdown } from "~/components/layout/user-dropdown";
 import { Button } from "~/components/ui/button";
-import { auth } from "~/lib/auth/auth.server";
+import { getUserId, logout } from "~/lib/auth/auth.server";
 import { ClientHintCheck, getHints } from "~/lib/client/client-hints";
 import { useNonce } from "~/lib/client/nonce-provider";
 import { csrf } from "~/lib/csrf.server";
@@ -39,6 +39,8 @@ import {
 } from "~/lib/utils";
 import type { Route } from "./+types/root";
 import tailwindStyleSheetUrl from "./app.css?url";
+import { prisma } from "./lib/db.server";
+import { makeTimings, time } from "./lib/timing.server";
 import { ThemeSwitch, useTheme } from "./routes/resources/theme-switch";
 
 export const links: Route.LinksFunction = () =>
@@ -101,18 +103,44 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession(request);
-  const user = session?.user;
-  if (!user) {
+  const timings = makeTimings("root loader");
+  const userId = await time(() => getUserId(request), {
+    timings,
+    type: "getUserId",
+    desc: "getUserId in root",
+  });
+
+  const user = userId
+    ? await time(
+        () =>
+          prisma.user.findUnique({
+            select: {
+              id: true,
+              name: true,
+              username: true,
+              image: { select: { objectKey: true } },
+              roles: {
+                select: {
+                  name: true,
+                  permissions: {
+                    select: { entity: true, action: true, access: true },
+                  },
+                },
+              },
+            },
+            where: { id: userId },
+          }),
+        { timings, type: "find user", desc: "find user in root" }
+      )
+    : null;
+  if (userId && !user) {
     console.info("something weird happened");
     // something weird happened... The user is authenticated but we can't find
     // them in the database. Maybe they were deleted? Let's log them out.
-    await auth.api.signOut({
-      headers: request.headers,
-    });
+    await logout({ request, redirectTo: "/" });
   }
   const { toast, headers: toastHeaders } = await getToast(request);
-  const honeyProps = honeypot.getInputProps();
+  const honeyProps = await honeypot.getInputProps();
   const [csrfToken, csrfCookieHeader] = await csrf.commitToken();
 
   return data(

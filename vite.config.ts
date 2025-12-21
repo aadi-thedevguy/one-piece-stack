@@ -5,6 +5,7 @@ import {
 } from "@sentry/react-router";
 import tailwindcss from "@tailwindcss/vite";
 import { reactRouterDevTools } from "react-router-devtools";
+import { reactRouterHonoServer } from "react-router-hono-server/dev";
 import { defineConfig } from "vite";
 import { envOnlyMacros } from "vite-env-only";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -23,11 +24,15 @@ export default defineConfig((config) => ({
     sourcemap: true,
   },
   sentryConfig,
+  server: {
+    port: 3000,
+  },
   plugins: [
     envOnlyMacros(),
     tailwindcss(),
     tsconfigPaths(),
     reactRouterDevTools(),
+    reactRouterHonoServer({ serverEntryPoint: "./server" }),
     MODE === "test" ? null : reactRouter(),
     MODE === "production" && process.env.SENTRY_AUTH_TOKEN
       ? sentryReactRouter(sentryConfig, config)

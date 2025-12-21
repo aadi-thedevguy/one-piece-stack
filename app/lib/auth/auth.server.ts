@@ -267,6 +267,7 @@ export function getPasswordHashParts(password: string) {
 }
 
 export async function checkIsCommonPassword(password: string) {
+  if (process.env.NODE_ENV === "development") return false;
   const [prefix, suffix] = getPasswordHashParts(password);
 
   try {

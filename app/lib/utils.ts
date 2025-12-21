@@ -9,10 +9,18 @@ import {
 } from "react-router";
 import { useSpinDelay } from "spin-delay";
 import { twMerge } from "tailwind-merge";
+import { placeholderAvatar } from "~/constants/keys";
 import type { loader as rootLoader } from "~/root";
 
-export function getUserImgSrc(imageId: string | undefined) {
-  return imageId ? `/resources/user-images/${imageId}` : "";
+export function getUserImgSrc(objectKey?: string | null) {
+  if (!objectKey) return placeholderAvatar;
+  if (
+    process.env.NODE_ENV === "development" &&
+    objectKey.includes("icon.png")
+  ) {
+    return `https://thedevguy.in/images/${objectKey}`;
+  }
+  return `/resources/images?objectKey=${encodeURIComponent(objectKey)}`;
 }
 
 function isUser(

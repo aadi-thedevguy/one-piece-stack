@@ -1,45 +1,42 @@
-// import {
-//   data,
-//   type LoaderFunctionArgs,
-//   redirect,
-//   useLoaderData,
-// } from "react-router";
 // import { PlanId, PRICING_PLANS } from "~/constants/index";
+import { Img } from "openimg/react";
+import { data, type LoaderFunctionArgs, useLoaderData } from "react-router";
 import { placeholderAvatar } from "~/constants/keys";
-// import { requireUserId } from "~/lib/auth/auth.server";
-// import { prisma } from "~/lib/db.server";
+import { requireUserId } from "~/lib/auth/auth.server";
+import { prisma } from "~/lib/db.server";
+import { getUserImgSrc } from "~/lib/utils";
 // import { getSubscriptionByUserId } from "~/models/subscription";
 
-// export async function loader({ request }: LoaderFunctionArgs) {
-//   const userId = await requireUserId(request);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
 
-//   // get user details from prisma
-//   const user = await prisma.user.findUniqueOrThrow({
-//     select: {
-//       id: true,
-//       name: true,
-//       customerId: true,
-//       email: true,
-//       image: { select: { url: true } },
-//       username: true,
-//     },
-//     where: { id: userId },
-//   });
+  // get user details from prisma
+  const user = await prisma.user.findUniqueOrThrow({
+    select: {
+      id: true,
+      name: true,
+      customerId: true,
+      email: true,
+      image: true,
+      username: true,
+    },
+    where: { id: userId },
+  });
 
-//   const subscription = await getSubscriptionByUserId(user.id);
+  //   const subscription = await getSubscriptionByUserId(user.id);
 
-//   // Redirect with the intent to setup user customer.
-//   if (!user.customerId) return redirect("/resources/stripe/create-customer");
+  //   // Redirect with the intent to setup user customer.
+  //   if (!user.customerId) return redirect("/resources/stripe/create-customer");
 
-//   // Redirect with the intent to setup a free user subscription.
-//   if (!subscription) return redirect("/resources/stripe/create-subscription");
-
-//   return data({ user, subscription });
-// }
+  //   // Redirect with the intent to setup a free user subscription.
+  //   if (!subscription) return redirect("/resources/stripe/create-subscription");
+  const subscription = "";
+  return data({ user, subscription });
+}
 
 export default function Account() {
-  // const { user, subscription } = useLoaderData<typeof loader>();
-  // const userDisplayName = user.name ?? user.username;
+  const { user } = useLoaderData<typeof loader>();
+  const userDisplayName = user.name ?? user.username;
 
   return (
     <div className="flex w-full flex-col items-center justify-start px-6 py-12 md:h-full">
@@ -56,10 +53,12 @@ export default function Account() {
         {/* User. */}
         <div className="my-8 flex h-full w-full flex-col items-center md:my-0">
           {/* Avatar. */}
-          <img
+          <Img
             alt={userDisplayName}
             className="h-52 w-52 rounded-full object-cover"
-            src={user.image || placeholderAvatar}
+            height={208}
+            src={getUserImgSrc(user.image?.objectKey) || placeholderAvatar}
+            width={208}
           />
 
           <div className="my-3" />

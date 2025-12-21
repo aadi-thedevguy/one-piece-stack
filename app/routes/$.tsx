@@ -28,7 +28,7 @@ export function ErrorBoundary() {
       statusHandlers={{
         404: () => (
           <section className="overflow-hidden pt-45 pb-25 lg:pt-50 lg:pb-32.5 xl:pt-55 xl:pb-37.5">
-            <div className="mx-auto max-w-[518px] text-center">
+            <div className="mx-auto max-w-129.5 text-center">
               <Img
                 alt="404"
                 className="mx-auto mb-8"

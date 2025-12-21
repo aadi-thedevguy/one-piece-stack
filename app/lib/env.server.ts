@@ -14,10 +14,7 @@ const schema = z.object({
   // REDIS_URL: z.string(),
   SENTRY_DSN: z.string(),
   RESEND_API_KEY: z.string(),
-  CLOUDINARY_API_KEY: z.string(),
-  CLOUDINARY_API_SECRET: z.string(),
-  CLOUDINARY_CLOUD_NAME: z.string(),
-  CLOUDINARY_BUCKET: z.string(),
+
   // TWITTER_CLIENT_ID: z.string().default('TWITTER_CLIENT_ID'),
   // TWITTER_CLIENT_SECRET: z.string().default('TWITTER_CLIENT_SECRET'),
   GOOGLE_CLIENT_ID: z.string().default("GOOGLE_CLIENT_ID"),

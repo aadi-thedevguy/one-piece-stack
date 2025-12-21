@@ -5,7 +5,7 @@ export const providerNames = [
   "google",
   // 'twitter',
 ] as const;
-const types = ["onboarding", "reset-password", "change-email"] as const;
+const types = ["onboarding", "reset-password", "change-email", "2fa"] as const;
 export const codeQueryParam = "code";
 export const targetQueryParam = "target";
 export const typeQueryParam = "type";

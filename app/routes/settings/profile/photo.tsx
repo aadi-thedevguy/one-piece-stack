@@ -1,25 +1,22 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
+import { parseFormData } from "@mjackson/form-data-parser";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { AvatarIcon } from "@radix-ui/react-icons";
-import { Pencil, TrashIcon } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { data, Form, redirect, useNavigation } from "react-router";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
-import { ErrorList } from "~/components/layout/forms.js";
-import { StatusButton } from "~/components/layout/status-button.js";
-import { Button } from "~/components/ui/button.js";
-import { placeholderAvatar } from "~/constants/keys";
-import { userContext } from "~/context";
-import { validateCSRF } from "~/lib/csrf.server";
-import { prisma } from "~/lib/db.server.js";
-import { redirectWithToast } from "~/lib/toast.server";
-import { deleteFile, uploadFile } from "~/lib/upload.server";
-import { useDoubleCheck, useIsPending } from "~/lib/utils";
-import type { BreadcrumbHandle } from "~/lib/validations/index.js";
-import type { Route } from "./+types/photo";
+import { ErrorList } from "~/components/layout/forms";
+import { StatusButton } from "~/components/layout/status-button";
+import { Button } from "~/components/ui/button";
+import { requireUserId } from "~/lib/auth/auth.server";
+import { prisma } from "~/lib/db.server";
+import { uploadProfileImage } from "~/lib/upload.server";
+import { getUserImgSrc, useDoubleCheck, useIsPending } from "~/lib/utils";
+import type { BreadcrumbHandle } from "./_layout";
+import type { Route } from "./+types/photo.ts";
 
 export const handle: BreadcrumbHandle & SEOHandle = {
   breadcrumb: (
@@ -35,7 +32,6 @@ const MAX_SIZE = 1024 * 1024 * 3; // 3MB
 
 const DeleteImageSchema = z.object({
   intent: z.literal("delete"),
-  filename: z.string(),
 });
 
 const NewImageSchema = z.object({
@@ -54,27 +50,34 @@ const PhotoFormSchema = z.discriminatedUnion("intent", [
   NewImageSchema,
 ]);
 
-export async function loader({ context }: Route.LoaderArgs) {
-  const user = context.get(userContext);
+export async function loader({ request }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      image: { select: { objectKey: true } },
+    },
+  });
   invariantResponse(user, "User not found", { status: 404 });
   return { user };
 }
 
-export async function action({ context, request }: Route.ActionArgs) {
-  const user = context.get(userContext);
-  invariantResponse(user, "User not found", { status: 404 });
+export async function action({ request }: Route.ActionArgs) {
+  const userId = await requireUserId(request);
 
-  const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
-
+  const formData = await parseFormData(request, { maxFileSize: MAX_SIZE });
   const submission = await parseWithZod(formData, {
     schema: PhotoFormSchema.transform(async (data) => {
-      if (data.intent === "delete")
-        return { intent: "delete", filename: data.filename };
+      if (data.intent === "delete") return { intent: "delete" };
       if (data.photoFile.size <= 0) return z.NEVER;
       return {
         intent: data.intent,
-        image: data.photoFile,
+        image: {
+          objectKey: await uploadProfileImage(userId, data.photoFile),
+        },
       };
     }),
     async: true,
@@ -87,37 +90,20 @@ export async function action({ context, request }: Route.ActionArgs) {
     );
   }
 
-  const { image, intent, filename } = submission.value;
+  const { image, intent } = submission.value;
 
   if (intent === "delete") {
-    const deleted = await deleteFile(filename);
-    if (deleted)
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          image: "",
-        },
-      });
+    await prisma.userImage.deleteMany({ where: { userId } });
     return redirect("/settings/profile");
   }
 
-  const { url, error } = await uploadFile(image);
-
-  if (error) {
-    throw await redirectWithToast("/settings/profile/photo", {
-      type: "error",
-      title: "Upload Failed",
-      description: error,
+  await prisma.$transaction(async ($prisma) => {
+    await $prisma.userImage.deleteMany({ where: { userId } });
+    await $prisma.user.update({
+      where: { id: userId },
+      data: { image: { create: image } },
     });
-  }
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: user?.id },
-      data: {
-        image: url,
-      },
-    }),
-  ]);
+  });
 
   return redirect("/settings/profile");
 }
@@ -155,17 +141,16 @@ export default function PhotoRoute({
         onReset={() => setNewImageSrc(null)}
         {...getFormProps(form)}
       >
-        <AuthenticityTokenInput />
-        {/* <input
-          name="filename"
-          type="hidden"
-          value={loaderData.user?.image?.filename || ""}
-        /> */}
         <img
           alt={loaderData.user?.name ?? loaderData.user?.username}
-          className="h-52 w-52 rounded-full object-cover"
+          className="size-52 rounded-full object-cover"
           height={200}
-          src={newImageSrc ?? (loaderData.user.image || placeholderAvatar)}
+          src={
+            newImageSrc ??
+            (loaderData.user
+              ? getUserImgSrc(loaderData.user.image?.objectKey)
+              : "")
+          }
           width={200}
         />
         <ErrorList errors={fields.photoFile.errors} id={fields.photoFile.id} />
@@ -198,7 +183,7 @@ export default function PhotoRoute({
             className="cursor-pointer peer-valid:hidden peer-focus-within:ring-2 peer-focus-visible:ring-2"
           >
             <label
-              className="flex items-center gap-1"
+              className="flex items-center gap-2"
               htmlFor={fields.photoFile.id}
             >
               <Pencil className="h-4 w-4" />
@@ -221,11 +206,11 @@ export default function PhotoRoute({
             Save Photo
           </StatusButton>
           <Button
-            className="peer-invalid:hidden"
+            className="flex items-center gap-2 peer-invalid:hidden"
             variant="destructive"
             {...form.reset.getButtonProps()}
           >
-            <TrashIcon className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
             <span>Reset</span>
           </Button>
           {loaderData.user.image ? (
@@ -245,12 +230,14 @@ export default function PhotoRoute({
                     : "idle"
               }
             >
-              {/* <TrashIcon className='h-4 w-4' /> */}
-              <span>
-                {doubleCheckDeleteImage.doubleCheck
-                  ? "Are you sure?"
-                  : "Delete"}
-              </span>
+              <div className="flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                <span>
+                  {doubleCheckDeleteImage.doubleCheck
+                    ? "Are you sure?"
+                    : "Delete"}
+                </span>
+              </div>
             </StatusButton>
           ) : null}
         </div>

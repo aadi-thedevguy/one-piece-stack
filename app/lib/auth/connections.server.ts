@@ -1,8 +1,6 @@
 import { createCookieSessionStorage } from "react-router";
 import { Authenticator } from "remix-auth";
-import { GoogleStrategy } from "remix-auth-google";
 import type { ProviderUser } from "~/types";
-import { redirectWithToast } from "../toast.server";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
@@ -24,33 +22,32 @@ export const connectionSessionStorage = createCookieSessionStorage({
   },
 });
 
-export const auth = new Authenticator<ProviderUser>(connectionSessionStorage);
+export const auth = new Authenticator<ProviderUser>();
 
-auth.use(
-  new GoogleStrategy(
-    {
-      clientID: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
-    },
-    async ({ profile }) => {
-      const email = profile.emails[0]?.value.trim().toLowerCase();
-      if (!email) {
-        throw redirectWithToast("/login", {
-          title: "Cannot connect Google Account",
-          description: "Your Google Email is Unverified",
-          type: "error",
-        });
-      }
-      const username = profile.displayName;
-      const imageUrl = profile.photos[0].value;
-      return {
-        email,
-        id: profile.id,
-        username,
-        name: profile.name.givenName,
-        imageUrl,
-      };
-    }
-  )
-);
+// const strategy = new GoogleStrategy(
+//   {
+//     clientID: GOOGLE_CLIENT_ID,
+//     clientSecret: GOOGLE_CLIENT_SECRET,
+//     callbackURL: "/auth/google/callback",
+//   },
+//   async ({ profile }) => {
+//     const email = profile.emails[0]?.value.trim().toLowerCase();
+//     if (!email) {
+//       throw redirectWithToast("/login", {
+//         title: "Cannot connect Google Account",
+//         description: "Your Google Email is Unverified",
+//         type: "error",
+//       });
+//     }
+//     const username = profile.displayName;
+//     const imageUrl = profile.photos[0].value;
+//     return {
+//       email,
+//       id: profile.id,
+//       username,
+//       name: profile.name.givenName,
+//       imageUrl,
+//     };
+//   }
+// );
+// auth.use(strategy);

@@ -1,3 +1,4 @@
+import "dotenv/config";
 // import { createStripePlans } from "../app/models/seed-plans";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
@@ -27,22 +28,6 @@ async function seed() {
   ]);
   console.timeEnd("🧹 Cleaned up the database...");
 
-  console.time("🔑 Creating permissions...");
-  // const entities = ['user', 'note']
-  // const actions = ['create', 'read', 'update', 'delete']
-  // const accesses = ['own', 'any'] as const
-
-  // const permissionsToCreate = []
-  // for (const entity of entities) {
-  //     for (const action of actions) {
-  //         for (const access of accesses) {
-  //             permissionsToCreate.push({ entity, action, access })
-  //         }
-  //     }
-  // }
-  // await prisma.permission.createMany({ data: permissionsToCreate })
-  // console.timeEnd('🔑 Created permissions...')
-
   console.time("👑 Creating roles...");
   const adminRole = await prisma.role.create({
     data: {
@@ -66,6 +51,7 @@ async function seed() {
   console.timeEnd("👑 Created roles...");
 
   console.time("🐨 Creating admin user...");
+
   const adminUser = await prisma.user.create({
     select: { id: true },
     data: {

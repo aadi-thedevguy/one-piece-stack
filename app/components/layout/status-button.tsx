@@ -31,28 +31,19 @@ export const StatusButton = ({
   });
   const companion = {
     pending: delayedPending ? (
-      <div
-        className="inline-flex size-6 items-center justify-center"
-        role="status"
-      >
+      <output className="inline-flex size-6 items-center justify-center">
         <UpdateIcon className="animate-spin" name="update" />
-      </div>
+      </output>
     ) : null,
     success: (
-      <div
-        className="inline-flex size-6 items-center justify-center"
-        role="status"
-      >
+      <output className="inline-flex size-6 items-center justify-center">
         <CircleCheck name="check" />
-      </div>
+      </output>
     ),
     error: (
-      <div
-        className="inline-flex size-6 items-center justify-center rounded-full bg-destructive"
-        role="status"
-      >
+      <output className="inline-flex size-6 items-center justify-center rounded-full bg-destructive">
         <X className="text-destructive-foreground" />
-      </div>
+      </output>
     ),
     idle: null,
   }[status];

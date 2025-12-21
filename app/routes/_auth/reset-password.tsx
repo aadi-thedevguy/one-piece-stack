@@ -1,59 +1,65 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
-import {
-  data,
-  Form,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  redirect,
-  useActionData,
-  useLoaderData,
-} from "react-router";
-import z from "zod";
+import { data, Form, redirect } from "react-router";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
-import { auth } from "~/lib/auth/auth.server";
+import {
+  checkIsCommonPassword,
+  requireAnonymous,
+  resetUserPassword,
+} from "~/lib/auth/auth.server";
+import { verifySessionStorage } from "~/lib/auth/verification.server";
+import { validateCSRF } from "~/lib/csrf.server.js";
 import { useIsPending } from "~/lib/utils";
 import { PasswordAndConfirmPasswordSchema } from "~/lib/validations/user-validation";
-import type { Route } from "./+types/reset-password";
+import type { Route } from "./+types/reset-password.ts";
 
 export const handle: SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-const ResetPasswordSchema = PasswordAndConfirmPasswordSchema.and(
-  z.object({
-    token: z.string().min(5),
-  })
-);
+export const resetPasswordUsernameSessionKey = "resetPasswordUsername";
+
+const ResetPasswordSchema = PasswordAndConfirmPasswordSchema;
 
 async function requireResetPasswordUsername(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-  const resetPasswordUsername = session?.user.username;
+  await requireAnonymous(request);
+  const verifySession = await verifySessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  const resetPasswordUsername = verifySession.get(
+    resetPasswordUsernameSessionKey
+  );
   if (typeof resetPasswordUsername !== "string" || !resetPasswordUsername) {
     throw redirect("/login");
   }
   return resetPasswordUsername;
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  if (typeof params.token !== "string" || !params.token) {
-    throw redirect("/auth/forgot-password");
-  }
+export async function loader({ request }: Route.LoaderArgs) {
   const resetPasswordUsername = await requireResetPasswordUsername(request);
-
-  return data({ resetPasswordUsername, token: params.token });
+  return { resetPasswordUsername };
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireResetPasswordUsername(request);
+  const resetPasswordUsername = await requireResetPasswordUsername(request);
   const formData = await request.formData();
-  const submission = parseWithZod(formData, {
-    schema: ResetPasswordSchema,
+  await validateCSRF(formData, request.headers);
+  const submission = await parseWithZod(formData, {
+    schema: ResetPasswordSchema.superRefine(async ({ password }, ctx) => {
+      const isCommonPassword = await checkIsCommonPassword(password);
+      if (isCommonPassword) {
+        ctx.addIssue({
+          path: ["password"],
+          code: "custom",
+          message: "Password is too common",
+        });
+      }
+    }),
+    async: true,
   });
   if (submission.status !== "success") {
     return data(
@@ -61,40 +67,25 @@ export async function action({ request }: Route.ActionArgs) {
       { status: submission.status === "error" ? 400 : 200 }
     );
   }
-  const { password, token } = submission.value;
+  const { password } = submission.value;
 
-  const { status } = await auth.api.resetPassword({
-    body: {
-      newPassword: password,
-      token,
+  await resetUserPassword({ username: resetPasswordUsername, password });
+  const verifySession = await verifySessionStorage.getSession();
+  return redirect("/login", {
+    headers: {
+      "set-cookie": await verifySessionStorage.destroySession(verifySession),
     },
   });
-
-  if (status) {
-    await auth.api.signOut({
-      headers: request.headers,
-    });
-  } else {
-    return data(
-      {
-        result: submission.reply({
-          formErrors: ["Unable to reset password, Please try later"],
-        }),
-      },
-      {
-        status: 500,
-      }
-    );
-  }
 }
 
-export const meta: MetaFunction = () => [
-  { title: "Reset Password | One Piece Stack" },
+export const meta: Route.MetaFunction = () => [
+  { title: "Reset Password | One Piece App" },
 ];
 
-export default function ResetPasswordPage() {
-  const data = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+export default function ResetPasswordPage({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
@@ -112,17 +103,18 @@ export default function ResetPasswordPage() {
       <div className="text-center">
         <h1 className="text-h1">Password Reset</h1>
         <p className="mt-3 text-body-md text-muted-foreground">
-          Hi, {data.resetPasswordUsername}. No worries. It happens all the time.
+          Hi, {loaderData.resetPasswordUsername}. No worries. It happens all the
+          time.
         </p>
       </div>
-      <div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
+      <div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-92">
         <Form method="POST" {...getFormProps(form)}>
+          {" "}
+          <AuthenticityTokenInput />
           <Field
             errors={fields.password.errors}
             inputProps={{
-              ...getInputProps(fields.password, {
-                type: "password",
-              }),
+              ...getInputProps(fields.password, { type: "password" }),
               autoComplete: "new-password",
               autoFocus: true,
             }}
@@ -134,9 +126,7 @@ export default function ResetPasswordPage() {
           <Field
             errors={fields.confirmPassword.errors}
             inputProps={{
-              ...getInputProps(fields.confirmPassword, {
-                type: "password",
-              }),
+              ...getInputProps(fields.confirmPassword, { type: "password" }),
               autoComplete: "new-password",
             }}
             labelProps={{
@@ -144,13 +134,7 @@ export default function ResetPasswordPage() {
               children: "Confirm Password",
             }}
           />
-
-          {data.token && (
-            <input {...getInputProps(fields.token, { type: "hidden" })} />
-          )}
-
           <ErrorList errors={form.errors} id={form.errorId} />
-
           <StatusButton
             className="w-full"
             disabled={isPending}
