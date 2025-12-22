@@ -1,9 +1,9 @@
-import { type PricingPlan } from '~/types/index'
+import type { PricingPlan } from "~/types/index";
 
 export const PRIVACY_POLICY = `
 **Last updated: January 16, 2024**
 
-In this Policy, **“Shopagator”, “we”, “our,” or “us”** refers to *this Website* responsible for the collection, use, and handling of Personal Data as described in this document. 
+In this Policy, **One Piece App, “we”, “our,” or “us”** refers to *this Website* responsible for the collection, use, and handling of Personal Data as described in this document. 
 
 “Personal Data” refers to any information associated with an identified or identifiable individual, which can include data that you provide to us, and we collect about you during your interaction with our Services (such as device information, IP address, etc.).
 “Services” refer to the products and services provided by our Services Agreement and our Consumer Terms of Service.
@@ -44,85 +44,85 @@ We may provide you with disclosures and alerts regarding the Policy or Personal 
 
 6. Contact us
 If you have any questions or complaints about this Policy, please contact us at <a href="mailto:support@thedevguy.in">support@thedevguy.in</a>
-		`
+		`;
 
 export const TERMS_OF_SERVICE = `
 
-`
+`;
 
 /**
  * Defines our plans IDs.
  */
-export const enum PlanId {
-	STARTER = 'starter',
-	PRO = 'pro',
+export enum PlanId {
+  STARTER = "starter",
+  PRO = "pro",
 }
 
 /**
  * Defines our plan pricing intervals.
  */
-export const enum Interval {
-	MONTH = 'month',
-	YEAR = 'year',
+export enum Interval {
+  MONTH = "month",
+  YEAR = "year",
 }
 
 /**
  * Defines our plan pricing currencies.
  */
-export const enum Currency {
-	// DEFAULT_CURRENCY = 'inr',
-	USD = 'usd',
-	EUR = 'eur',
+export enum Currency {
+  // DEFAULT_CURRENCY = 'inr',
+  USD = "usd",
+  EUR = "eur",
 }
 
 /**
  * Defines our plans structure.
  */
 export const PRICING_PLANS = {
-	[PlanId.STARTER]: {
-		planID: PlanId.STARTER,
-		isPopular: false,
-		name: 'Starter',
-		description: 'Best option for personal use & for your next project.',
-		features: [
-			'10 users included',
-			'2 GB of storage',
-			'Help center access',
-			'Email support',
-		],
-		limits: { maxItems: 99 },
-		prices: {
-			[Interval.MONTH]: {
-				[Currency.USD]: 990,
-				[Currency.EUR]: 990,
-			},
-			[Interval.YEAR]: {
-				[Currency.USD]: 9990,
-				[Currency.EUR]: 9990,
-			},
-		},
-	},
-	[PlanId.PRO]: {
-		planID: PlanId.PRO,
-		name: 'Premium',
-		description: 'Best for large scale uses and extended rights.',
-		features: [
-			'20 users included',
-			'10 GB of storage',
-			'24x7 hour support',
-			'Unlimited email support',
-		],
-		isPopular: true,
-		limits: { maxItems: 999 },
-		prices: {
-			[Interval.MONTH]: {
-				[Currency.USD]: 1990,
-				[Currency.EUR]: 1990,
-			},
-			[Interval.YEAR]: {
-				[Currency.USD]: 19990,
-				[Currency.EUR]: 19990,
-			},
-		},
-	},
-} satisfies PricingPlan
+  [PlanId.STARTER]: {
+    planID: PlanId.STARTER,
+    isPopular: false,
+    name: "Starter",
+    description: "Best option for personal use & for your next project.",
+    features: [
+      "10 users included",
+      "2 GB of storage",
+      "Help center access",
+      "Email support",
+    ],
+    limits: { maxItems: 99 },
+    prices: {
+      [Interval.MONTH]: {
+        [Currency.USD]: 990,
+        [Currency.EUR]: 990,
+      },
+      [Interval.YEAR]: {
+        [Currency.USD]: 9990,
+        [Currency.EUR]: 9990,
+      },
+    },
+  },
+  [PlanId.PRO]: {
+    planID: PlanId.PRO,
+    name: "Premium",
+    description: "Best for large scale uses and extended rights.",
+    features: [
+      "20 users included",
+      "10 GB of storage",
+      "24x7 hour support",
+      "Unlimited email support",
+    ],
+    isPopular: true,
+    limits: { maxItems: 999 },
+    prices: {
+      [Interval.MONTH]: {
+        [Currency.USD]: 1990,
+        [Currency.EUR]: 1990,
+      },
+      [Interval.YEAR]: {
+        [Currency.USD]: 19_990,
+        [Currency.EUR]: 19_990,
+      },
+    },
+  },
+} satisfies PricingPlan;

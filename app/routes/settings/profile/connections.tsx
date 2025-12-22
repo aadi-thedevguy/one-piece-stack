@@ -53,7 +53,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   const userId = await requireUserId(request);
   const timings = makeTimings("profile connections loader");
   const rawConnections = await prisma.connection.findMany({
-    select: { id: true, providerName: true, providerId: true, createdAt: true },
+    select: {
+      id: true,
+      providerName: true,
+      providerId: true,
+      createdAt: true,
+      displayName: true,
+    },
     where: { userId },
   });
   const connections: Array<{
@@ -66,18 +72,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   for (const connection of rawConnections) {
     const r = ProviderNameSchema.safeParse(connection.providerName);
     if (!r.success) continue;
-    // const providerName = r.data;
-    // const connectionData = await resolveConnectionData(
-    //   providerName,
-    //   connection.providerId,
-    //   { timings }
-    // );
-    // connections.push({
-    //   ...connectionData,
-    //   providerName,
-    //   id: connection.id,
-    //   createdAtFormatted: connection.createdAt.toLocaleString(),
-    // });
+    const providerName = r.data;
+    connections.push({
+      displayName: connection.displayName ?? "Unknown",
+      providerName,
+      id: connection.id,
+      createdAtFormatted: connection.createdAt.toLocaleString(),
+    });
   }
 
   return data(
@@ -165,14 +166,7 @@ function Connection({
       <span className={"inline-flex items-center gap-1.5"}>
         {icon}
         <span>
-          {connection.link ? (
-            <a className="underline" href={connection.link}>
-              {connection.displayName}
-            </a>
-          ) : (
-            connection.displayName
-          )}{" "}
-          ({connection.createdAtFormatted})
+          {connection.displayName} ({connection.createdAtFormatted})
         </span>
       </span>
       {canDelete ? (

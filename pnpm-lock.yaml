@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@coji/remix-auth-google':
+        specifier: ^4.2.0
+        version: 4.2.0
       '@conform-to/react':
         specifier: ^1.15.0
         version: 1.15.0(react@19.2.3)
@@ -518,6 +521,9 @@ packages:
 
   '@clack/prompts@0.11.0':
     resolution: {integrity: sha512-pMN5FcrEw9hUkZA4f+zLlzivQSeQf5dRGJjSUbvVYDLvpKCdQx5OaknvKzgbtXOizhP+SJJJjqEbOe55uKKfAw==}
+
+  '@coji/remix-auth-google@4.2.0':
+    resolution: {integrity: sha512-H9i3fvVz0GE18GUZHpz7p7FQjuiuloTIBAPjW7cfv7lUEk+mI6WRTVLEHJBLLuTlAF1+0EbzvPRYKutxZiFdfw==}
 
   '@conform-to/dom@1.15.0':
     resolution: {integrity: sha512-v7sUaObBAgEnWi1AyMJBtfr8FAJ7cjhF9/t0QD0BUhN8JCd7KbZdv/r8TEdvODjEMXpuk2gX2QHV9qniZZLVTw==}
@@ -6321,6 +6327,8 @@ snapshots:
       '@clack/core': 0.5.0
       picocolors: 1.1.1
       sisteransi: 1.0.5
+
+  '@coji/remix-auth-google@4.2.0': {}
 
   '@conform-to/dom@1.15.0': {}
 

@@ -22,6 +22,7 @@ export default function Privacy() {
       </h1>
       <section
         className="prose prose-sky lg:prose-lg mx-auto my-4 max-w-[75ch]"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </main>

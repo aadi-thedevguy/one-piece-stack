@@ -6,7 +6,6 @@
 // message for them than the Remix and/or browser default.
 
 import { ArrowRightIcon } from "lucide-react";
-import { Img } from "openimg/react";
 import { Link, useLocation } from "react-router";
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
 import { buttonVariants } from "~/components/ui/button";
@@ -29,7 +28,7 @@ export function ErrorBoundary() {
         404: () => (
           <section className="overflow-hidden pt-45 pb-25 lg:pt-50 lg:pb-32.5 xl:pt-55 xl:pb-37.5">
             <div className="mx-auto max-w-129.5 text-center">
-              <Img
+              <img
                 alt="404"
                 className="mx-auto mb-8"
                 height={400}
@@ -40,7 +39,7 @@ export function ErrorBoundary() {
               <h2 className="mb-5 font-semibold text-2xl md:text-4xl">
                 This Page {location.pathname} Does Not Exist
               </h2>
-              <p className="mb-8">
+              <p className="mb-8 text-lg">
                 The page you were looking for appears to have been moved,
                 deleted or does not exist.
               </p>

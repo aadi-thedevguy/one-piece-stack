@@ -1598,6 +1598,7 @@ export const ConnectionScalarFieldEnum = {
   providerId: 'providerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  displayName: 'displayName',
   userId: 'userId'
 } as const
 
