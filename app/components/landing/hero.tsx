@@ -50,7 +50,7 @@ const Hero = () => {
           <SectionTitle
             highlighted="SaaS"
             paragraph="Solid Pro - Packed with all the key integrations you need for swift SaaS startup launch, including - Auth, Database,Components, Pages and More. 
-						Built-with - ExpressJS, React Router and TypeScript."
+						Built with React Router and TypeScript."
             title="Production Ready Remix Template for"
           />
 

@@ -39,7 +39,6 @@ export const epicLogger = (logger?: { logName?: string }) =>
     const duration = performance.now() - start;
     const status = c.res.status;
 
-    // Générer une émotion basée sur le statut http
     const getEmotion = (status: number) => {
       if (status >= 200 && status < 300) return `🚀 ${name} 🚀`;
       if (status >= 400 && status < 500) return "😢 CLIENT ERROR 😢";
@@ -47,13 +46,11 @@ export const epicLogger = (logger?: { logName?: string }) =>
       return "🔄 OTHER 🔄";
     };
 
-    // Style des methodes HTTP
     const methodStyled = `${colors.bold}${method === "GET" ? colors.green : colors.yellow}${method}${colors.reset}`;
     const statusStyled = `${status >= 200 && status < 300 ? colors.green : status >= 400 && status < 500 ? colors.yellow : status >= 500 ? colors.red : colors.cyan}${status}${colors.reset}`;
     const emotion = getEmotion(status);
     const formattedDuration = formatDuration(duration);
 
-    // Affichage final du log
     console.log(
       `${colors.magenta}[${emotion}]${colors.reset} ${methodStyled} ${url} ${statusStyled} (${formattedDuration})`
     );

@@ -9,11 +9,11 @@ const secureHeadersConfig = secureHeaders({
     frameSrc: ["'self'"],
     mediaSrc: ["'self'", "data:"],
     // imgSrc: ["'self'", "data:"],
-    // scriptSrc: [
-    //   "'strict-dynamic'",
-    //   "'self'",
-    //   (c, _) => `'nonce-${c.get("cspNonce")}'`,
-    // ],
+    scriptSrc: [
+      "'strict-dynamic'",
+      "'self'",
+      (c, _) => `'nonce-${c.get("cspNonce")}'`,
+    ],
     scriptSrcAttr: [(c, _) => `'nonce-${c.get("cspNonce")}'`],
   },
 });
