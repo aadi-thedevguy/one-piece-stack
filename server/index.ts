@@ -5,16 +5,16 @@ import { Hono } from "hono/quick";
 import { createHonoServer } from "react-router-hono-server/node";
 import { cspNonceMiddleware } from "./middleware/cspnonce";
 import { epicLogger } from "./middleware/epic-logger";
-import { ALLOW_INDEXING, IS_PROD } from "./middleware/misc";
+import { ALLOW_INDEXING } from "./middleware/misc";
 import { rateLimitMiddleware } from "./middleware/rate-limit";
 import { removeTrailingSlash } from "./middleware/remove-trailing-slash";
 import { secureHeadersMiddleware } from "./middleware/secure";
 
-const SENTRY_ENABLED = IS_PROD && process.env.SENTRY_DSN;
+// const SENTRY_ENABLED = IS_PROD && process.env.SENTRY_DSN;
 
-if (SENTRY_ENABLED) {
-  void import("./monitoring").then(({ init }) => init());
-}
+// if (SENTRY_ENABLED) {
+//   void import("./monitoring").then(({ init }) => init());
+// }
 
 export default await createHonoServer({
   app: new Hono(),
@@ -59,10 +59,10 @@ export default await createHonoServer({
     }
     server.onError(async (err, c) => {
       console.error(`${err}`);
-      if (SENTRY_ENABLED) {
-        Sentry.captureException(err);
-        await Sentry.flush(500);
-      }
+      // if (SENTRY_ENABLED) {
+      //   Sentry.captureException(err);
+      //   await Sentry.flush(500);
+      // }
       return c.text("Internal Server Error", 500);
     });
   },

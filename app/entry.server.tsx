@@ -1,8 +1,7 @@
-import crypto from "node:crypto";
 import { PassThrough } from "node:stream";
 import { styleText } from "node:util";
 import { createReadableStreamFromReadable } from "@react-router/node";
-import * as Sentry from "@sentry/react-router";
+// import * as Sentry from "@sentry/react-router";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import {
@@ -22,18 +21,25 @@ global.ENV = getEnv();
 type DocRequestArgs = Parameters<HandleDocumentRequestFunction>;
 
 export default async function handleRequest(...args: DocRequestArgs) {
-  const [request, responseStatusCode, responseHeaders, reactRouterContext] =
-    args;
+  const [
+    request,
+    responseStatusCode,
+    responseHeaders,
+    reactRouterContext,
+    loadContext,
+  ] = args;
 
-  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
-    responseHeaders.append("Document-Policy", "js-profiling");
-  }
+  // if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
+  //   responseHeaders.append("Document-Policy", "js-profiling");
+  // }
 
   const callbackName = isbot(request.headers.get("user-agent"))
     ? "onAllReady"
     : "onShellReady";
 
-  const nonce = crypto.randomBytes(16).toString("hex");
+  // const nonce = crypto.randomBytes(16).toString("hex");
+  const nonce = loadContext.cspNonce?.toString() ?? "";
+
   return new Promise((resolve, reject) => {
     let didError = false;
 
@@ -85,5 +91,5 @@ export function handleError(
   } else {
     console.error(error);
   }
-  Sentry.captureException(error);
+  // Sentry.captureException(error);
 }
