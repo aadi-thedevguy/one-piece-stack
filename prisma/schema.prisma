@@ -182,21 +182,20 @@ model Plan {
   name        String     @unique
   description String?
   active      Boolean?   @default(true)
-  limits      PlanLimit?
+  isPopular   Boolean?   @default(false)
+  features    PlanFeatures[]
   prices      Price[]
   subscriptions Subscription[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
 
-// Plan limits are used to describe the limits available to a plan.
-model PlanLimit {
+model PlanFeatures {
   id           String @id @default(cuid())
-  plan     Plan   @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  planId String @unique
-  // Here you can define your own limits.
-  // For example, you could have a limit on the number of items a user can create.
-  maxItems Int    @default(0)
+  description  String
+  planId      String
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
 }
 
 // Prices are used to identify our plan prices.

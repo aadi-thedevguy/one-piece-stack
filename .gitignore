@@ -42,6 +42,7 @@ next-env.d.ts
 # generated files
 /build
 /server-build
+/prisma/generated
 /prisma/data.db
 /prisma/data.db-journal
 /tests/prisma

@@ -1,11 +1,10 @@
-// import { PlanId, PRICING_PLANS } from "~/constants/index";
 import { Img } from "openimg/react";
 import { data, type LoaderFunctionArgs, useLoaderData } from "react-router";
 import { placeholderAvatar } from "~/constants/keys";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
 import { getUserImgSrc } from "~/lib/utils";
-// import { getSubscriptionByUserId } from "~/models/subscription";
+import { getSubscriptionByUserId } from "~/models/subscription";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -23,19 +22,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { id: userId },
   });
 
-  //   const subscription = await getSubscriptionByUserId(user.id);
-
-  //   // Redirect with the intent to setup user customer.
-  //   if (!user.customerId) return redirect("/resources/stripe/create-customer");
-
-  //   // Redirect with the intent to setup a free user subscription.
-  //   if (!subscription) return redirect("/resources/stripe/create-subscription");
-  const subscription = "";
+  const subscription = await getSubscriptionByUserId(user.id);
   return data({ user, subscription });
 }
 
 export default function Account() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, subscription } = useLoaderData<typeof loader>();
   const userDisplayName = user.name ?? user.username;
 
   return (
@@ -86,69 +78,43 @@ export default function Account() {
 
         {/* Subscription. */}
         <div className="flex h-full w-full flex-col items-center">
-          {/* Images. */}
-          <div className="flex flex-col items-center">
-            {/* {subscription.planId === PlanId.FREE && (
-							<img
-								src="https://raw.githubusercontent.com/dev-xo/dev-xo/main/assets/images/star_1.png"
-								alt=""
-								className="h-36 w-36 select-none transition hover:scale-105 hover:brightness-110"
-							/>
-						)} */}
-            {/* {subscription.planId === PlanId.STARTER && (
-              <img
-                alt=""
-                className="h-36 w-36 select-none hue-rotate-60 transition hover:scale-105 hover:brightness-110"
-                src="https://raw.githubusercontent.com/dev-xo/dev-xo/main/assets/images/star_1.png"
-              />
-            )}
-            {subscription.planId === PlanId.PRO && (
-              <img
-                alt=""
-                className="h-36 w-36 select-none hue-rotate-[200deg] transition hover:scale-105 hover:brightness-110"
-                src="https://raw.githubusercontent.com/dev-xo/dev-xo/main/assets/images/star_2.png"
-              />
-            )} */}
-          </div>
-          <div className="my-3" />
+          {subscription ? (
+            <>
+              <div className="flex flex-col items-center">
+                <h5 className="text-center font-bold text-2xl text-gray-200">
+                  {subscription.plan.name} Plan
+                </h5>
 
-          {/* Info. */}
-          {/* <div className="flex flex-col items-center">
-            <h5 className="text-center font-bold text-2xl text-gray-200">
-              {String(subscription.planId).charAt(0).toUpperCase() +
-                subscription.planId.slice(1)}{" "}
-              Plan
-            </h5>
+                <span className="text-center font-semibold text-gray-400 text-lg">
+                  {subscription.plan.description}
+                </span>
+              </div>
+              <div className="my-3" />
 
-            <span className="text-center font-semibold text-gray-400 text-lg">
-              {subscription.planId === PlanId.STARTER &&
-                PRICING_PLANS[PlanId.STARTER].description}
-
-              {subscription.planId === PlanId.PRO &&
-                PRICING_PLANS[PlanId.PRO].description}
-            </span>
-          </div> */}
-          <div className="my-3" />
-
-          {/* Customer Portal. */}
-          {/* {user.customerId && <></>} */}
-
-          {/* Expire / Renew Date. */}
-          {/* <div className="max-w-[200px]">
-            <div className="my-6" />
-            <p className="text-center font-semibold text-gray-400 text-sm">
-              Your subscription{" "}
-              {subscription.cancelAtPeriodEnd === true ? (
-                <span className="text-red-500">expires</span>
-              ) : (
-                <span className="text-green-500">renews</span>
-              )}{" "}
-              on:{" "}
-              <span className="text-gray-200">
-                {subscription && subscription.currentPeriodEnd}
-              </span>
-            </p>
-          </div> */}
+              {/* Expire / Renew Date. */}
+              <div className="max-w-50">
+                <div className="my-6" />
+                <p className="text-center font-semibold text-gray-400 text-sm">
+                  Your subscription{" "}
+                  {subscription.cancelAtPeriodEnd === true ? (
+                    <span className="text-red-500">expires</span>
+                  ) : (
+                    <span className="text-green-500">renews</span>
+                  )}{" "}
+                  on:{" "}
+                  <span className="text-gray-200">
+                    {new Date(
+                      subscription.currentPeriodEnd * 1000
+                    ).toLocaleDateString()}
+                  </span>
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center">
+              <p className="text-gray-400">No active subscription.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import type { PricingPlan } from "~/types/index";
+import type { Price } from "prisma/generated/client";
 
 export const PRIVACY_POLICY = `
 **Last updated: January 16, 2024**
@@ -51,36 +51,49 @@ export const TERMS_OF_SERVICE = `
 `;
 
 /**
- * Defines our plans IDs.
+ * Enumerates subscription plan names.
+ * These are used as unique identifiers in both the database and Stripe dashboard.
  */
-export enum PlanId {
-  STARTER = "starter",
-  PRO = "pro",
-}
+export const PLANS = {
+  STARTER: "starter",
+  PRO: "pro",
+} as const;
+
+export type Plan = (typeof PLANS)[keyof typeof PLANS];
 
 /**
- * Defines our plan pricing intervals.
+ * Enumerates billing intervals for subscription plans.
  */
-export enum Interval {
-  MONTH = "month",
-  YEAR = "year",
-}
+export const INTERVALS = {
+  MONTH: "Month",
+  YEAR: "Year",
+} as const;
+
+export type Interval = (typeof INTERVALS)[keyof typeof INTERVALS];
 
 /**
- * Defines our plan pricing currencies.
+ * Enumerates supported currencies for billing.
  */
-export enum Currency {
-  // DEFAULT_CURRENCY = 'inr',
-  USD = "usd",
-  EUR = "eur",
-}
+export const CURRENCIES = {
+  DEFAULT: "USD",
+  USD: "USD",
+  EUR: "EUR",
+} as const;
+
+export type Currency = (typeof CURRENCIES)[keyof typeof CURRENCIES];
 
 /**
- * Defines our plans structure.
+ * Defines the structure for each subscription plan.
+ *
+ * Note:
+ * - Running the Prisma seed will create these plans in your Stripe Dashboard and populate the database.
+ * - Each plan includes pricing details for each interval and currency.
+ * - Plan IDs correspond to the Stripe plan IDs for easy identification.
+ * - 'name' and 'description' fields are used in Stripe Checkout and client UI.
  */
 export const PRICING_PLANS = {
-  [PlanId.STARTER]: {
-    planID: PlanId.STARTER,
+  [PLANS.STARTER]: {
+    id: PLANS.STARTER,
     isPopular: false,
     name: "Starter",
     description: "Best option for personal use & for your next project.",
@@ -90,20 +103,19 @@ export const PRICING_PLANS = {
       "Help center access",
       "Email support",
     ],
-    limits: { maxItems: 99 },
     prices: {
-      [Interval.MONTH]: {
-        [Currency.USD]: 990,
-        [Currency.EUR]: 990,
+      [INTERVALS.MONTH]: {
+        [CURRENCIES.USD]: 99,
+        [CURRENCIES.EUR]: 99,
       },
-      [Interval.YEAR]: {
-        [Currency.USD]: 9990,
-        [Currency.EUR]: 9990,
+      [INTERVALS.YEAR]: {
+        [CURRENCIES.USD]: 1990,
+        [CURRENCIES.EUR]: 1990,
       },
     },
   },
-  [PlanId.PRO]: {
-    planID: PlanId.PRO,
+  [PLANS.PRO]: {
+    id: PLANS.PRO,
     name: "Premium",
     description: "Best for large scale uses and extended rights.",
     features: [
@@ -113,16 +125,41 @@ export const PRICING_PLANS = {
       "Unlimited email support",
     ],
     isPopular: true,
-    limits: { maxItems: 999 },
     prices: {
-      [Interval.MONTH]: {
-        [Currency.USD]: 1990,
-        [Currency.EUR]: 1990,
+      [INTERVALS.MONTH]: {
+        [CURRENCIES.USD]: 199,
+        [CURRENCIES.EUR]: 199,
       },
-      [Interval.YEAR]: {
-        [Currency.USD]: 19_990,
-        [Currency.EUR]: 19_990,
+      [INTERVALS.YEAR]: {
+        [CURRENCIES.USD]: 19_990,
+        [CURRENCIES.EUR]: 19_990,
       },
     },
   },
 } satisfies PricingPlan;
+
+/**
+ * A type helper defining prices for each billing interval and currency.
+ */
+type PriceInterval<
+  I extends Interval = Interval,
+  C extends Currency = Currency,
+> = {
+  [interval in I]: {
+    [currency in C]: Price["amount"];
+  };
+};
+
+/**
+ * A type helper defining the structure for subscription pricing plans.
+ */
+type PricingPlan<T extends Plan = Plan> = {
+  [key in T]: {
+    id: string;
+    name: string;
+    prices: PriceInterval;
+    description: string;
+    isPopular: boolean;
+    features: string[];
+  };
+};
