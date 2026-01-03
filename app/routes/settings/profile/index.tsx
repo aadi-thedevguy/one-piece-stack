@@ -26,6 +26,7 @@ import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
 import { getUserImgSrc, useDoubleCheck } from "~/lib/utils";
 import { NameSchema, UsernameSchema } from "~/lib/validations/user-validation";
+import { getSubscriptionByUserId } from "~/models/subscription";
 import type { Route } from "./+types";
 import { twoFAVerificationType } from "./two-factor/_layout";
 
@@ -62,18 +63,21 @@ export async function loader({ request }: Route.LoaderArgs) {
     },
   });
 
-  const twoFactorVerification = await prisma.verification.findUnique({
-    select: { id: true },
-    where: { target_type: { type: twoFAVerificationType, target: userId } },
-  });
-
-  const password = await prisma.password.findUnique({
-    select: { userId: true },
-    where: { userId },
-  });
+  const [twoFactorVerification, password, subscription] = await Promise.all([
+    prisma.verification.findUnique({
+      select: { id: true },
+      where: { target_type: { type: twoFAVerificationType, target: userId } },
+    }),
+    prisma.password.findUnique({
+      select: { userId: true },
+      where: { userId },
+    }),
+    getSubscriptionByUserId(userId),
+  ]);
 
   return {
     user,
+    subscription,
     hasPassword: Boolean(password),
     isTwoFactorEnabled: Boolean(twoFactorVerification),
   };
@@ -141,6 +145,58 @@ export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
 
       <div className="col-span-6 my-6 h-1 border-foreground border-b-[1.5px]" />
       <div className="col-span-full flex flex-col gap-6">
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center gap-4">
+            {loaderData.subscription ? (
+              <div className="grid gap-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-lg">
+                    {loaderData.subscription.plan.name}
+                  </h3>
+                  <span className="rounded-full bg-primary/10 px-2 py-1 text-primary text-xs">
+                    {loaderData.subscription.status}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  {loaderData.subscription.plan.description}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  {loaderData.subscription.cancelAtPeriodEnd
+                    ? `Cancels on ${new Date(
+                        loaderData.subscription.currentPeriodEnd * 1000
+                      ).toLocaleDateString()}`
+                    : `Renews on ${new Date(
+                        loaderData.subscription.currentPeriodEnd * 1000
+                      ).toLocaleDateString()}`}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  {(loaderData.subscription.price.amount / 100).toLocaleString(
+                    "en-US",
+                    {
+                      style: "currency",
+                      currency: loaderData.subscription.price.currency,
+                    }
+                  )}{" "}
+                  / {loaderData.subscription.price.interval}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h3 className="font-semibold text-lg">
+                  No active subscription
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  You are currently on the free plan.
+                </p>
+              </div>
+            )}
+          </div>
+          <Button asChild variant="outline">
+            <Link to="/plans">
+              {loaderData.subscription ? "Manage Subscription" : "View Plans"}
+            </Link>
+          </Button>
+        </div>
         <div>
           <Link className="flex items-center gap-2" to="change-email">
             <Mail />

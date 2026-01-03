@@ -53,9 +53,6 @@ export function ThemeSwitch({
     mode === "system" ? "light" : mode === "light" ? "dark" : "system";
   const modeLabel = {
     light: (
-      // <Icon name="sun">
-      // 	<span className="sr-only">Light</span>
-      // </Icon>
       <div>
         <span className="sr-only">Light</span>
         <SunIcon className="h-6 w-6" />

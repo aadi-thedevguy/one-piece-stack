@@ -105,8 +105,8 @@ export const PRICING_PLANS = {
     ],
     prices: {
       [INTERVALS.MONTH]: {
-        [CURRENCIES.USD]: 99,
-        [CURRENCIES.EUR]: 99,
+        [CURRENCIES.USD]: 199,
+        [CURRENCIES.EUR]: 199,
       },
       [INTERVALS.YEAR]: {
         [CURRENCIES.USD]: 1990,
@@ -127,8 +127,8 @@ export const PRICING_PLANS = {
     isPopular: true,
     prices: {
       [INTERVALS.MONTH]: {
-        [CURRENCIES.USD]: 199,
-        [CURRENCIES.EUR]: 199,
+        [CURRENCIES.USD]: 299,
+        [CURRENCIES.EUR]: 299,
       },
       [INTERVALS.YEAR]: {
         [CURRENCIES.USD]: 19_990,

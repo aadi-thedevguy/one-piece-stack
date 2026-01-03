@@ -71,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
         quantity: 1,
       },
     ],
-    return_url: `${process.env.ORIGIN ?? "http://localhost:3000"}/account`,
+    return_url: `${process.env.SERVER_URL}`,
   });
 
   if (!session.checkout_url) {
@@ -170,7 +170,7 @@ export default function Plans() {
                 key={plan.planID}
               >
                 {plan.isPopular && (
-                  <div className="-right-3.5 -rotate-90 absolute top-5 rounded-tl-full rounded-bl-full bg-yellow-500 px-3 py-2 font-medium text-xs uppercase dark:bg-yellow-300">
+                  <div className="-right-3.5 -rotate-90 absolute top-5 rounded-tl-full rounded-bl-full bg-yellow-500 px-3 py-2 font-medium text-black text-xs uppercase dark:bg-yellow-300">
                     popular
                   </div>
                 )}
