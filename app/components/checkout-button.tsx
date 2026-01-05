@@ -7,6 +7,7 @@ type CheckoutButtonProps = {
   planInterval: string | Interval;
   currentPlanId: string | null;
   planName: string;
+  disabled?: boolean;
 };
 
 export function CheckoutButton({
@@ -14,6 +15,7 @@ export function CheckoutButton({
   planInterval,
   currentPlanId,
   planName,
+  disabled,
 }: CheckoutButtonProps) {
   const navigation = useNavigation();
   const isCurrentPlan = currentPlanId === planId;
@@ -33,7 +35,11 @@ export function CheckoutButton({
     <Form action="/plans" method="post">
       <input name="planId" type="hidden" value={planId} />
       <input name="interval" type="hidden" value={planInterval} />
-      <Button className="w-full" disabled={isSubmitting} type="submit">
+      <Button
+        className="w-full"
+        disabled={disabled || isSubmitting}
+        type="submit"
+      >
         {isSubmitting ? "Loading..." : `Subscribe to ${planName}`}
       </Button>
     </Form>

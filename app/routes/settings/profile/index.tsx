@@ -23,10 +23,10 @@ import { sessionKey } from "~/constants/keys";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { prisma } from "~/lib/db.server";
+import { getSubscriptionByUserId } from "~/lib/payment.server";
 import { redirectWithToast } from "~/lib/toast.server";
 import { getUserImgSrc, useDoubleCheck } from "~/lib/utils";
 import { NameSchema, UsernameSchema } from "~/lib/validations/user-validation";
-import { getSubscriptionByUserId } from "~/models/subscription";
 import type { Route } from "./+types";
 import { twoFAVerificationType } from "./two-factor/_layout";
 
@@ -192,7 +192,7 @@ export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
             )}
           </div>
           <Button asChild variant="outline">
-            <Link to="/plans">
+            <Link to="/plans?redirectTo=settings/profile">
               {loaderData.subscription ? "Manage Subscription" : "View Plans"}
             </Link>
           </Button>

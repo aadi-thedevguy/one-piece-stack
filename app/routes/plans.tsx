@@ -3,36 +3,38 @@ import { useState } from "react";
 import {
   type ActionFunctionArgs,
   data,
+  Link,
   type LoaderFunctionArgs,
   redirect,
   useLoaderData,
 } from "react-router";
 import { CheckoutButton } from "~/components/checkout-button";
+import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
 import { CURRENCIES, INTERVALS, type Interval } from "~/constants/index";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { getUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
 import { getDefaultCurrency } from "~/lib/locales";
-import { dodoClient } from "~/lib/payment.server";
+import { dodoClient, getSubscriptionByUserId } from "~/lib/payment.server";
 import { cn } from "~/lib/utils";
-import { getSubscriptionByUserId } from "~/models/subscription";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const userId = await requireUserId(request);
+  const userId = await getUserId(request);
+  if (!userId) {
+    return redirect("/login?redirectTo=/plans");
+  }
   const formData = await request.formData();
-  const planSlug = formData.get("planId") as string; // planId here refers to the plan's slug (e.g., "starter")
+  const planSlug = formData.get("planId") as string;
   const interval = formData.get("interval") as string;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
-    select: { email: true, name: true, id: true }, // Added id to select
+    select: { email: true, name: true, id: true },
   });
 
-  // Determine the default currency for the request
   const defaultCurrency = getDefaultCurrency(request);
 
-  // Find the specific Price record in the DB based on plan slug, interval, and currency
   const price = await prisma.price.findFirst({
     where: {
       plan: {
@@ -42,7 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
       currency: defaultCurrency,
     },
     select: {
-      priceID: true, // This is the Dodo Product ID
+      priceID: true,
     },
   });
 
@@ -52,14 +54,13 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  // Use the Dodo Product ID (from price.priceID) for the checkout session
   const session = await dodoClient.checkoutSessions.create({
     customer: {
       email: user.email,
       name: user.name ?? undefined,
     },
     billing_address: {
-      street: "123 Main St", // Placeholder or fetch from user profile if available
+      street: "123 Main St",
       city: "New York",
       country: "US",
       state: "NY",
@@ -67,11 +68,11 @@ export async function action({ request }: ActionFunctionArgs) {
     },
     product_cart: [
       {
-        product_id: price.priceID, // Use the Dodo Product ID from the DB Price record
+        product_id: price.priceID,
         quantity: 1,
       },
     ],
-    return_url: `${process.env.SERVER_URL}`,
+    return_url: `${process.env.SERVER_URL}/payment/success`,
   });
 
   if (!session.checkout_url) {
@@ -82,18 +83,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
-
-  // get user details from prisma
-  const user = await prisma.user.findUniqueOrThrow({
-    select: {
-      id: true,
-      customerId: true,
-    },
-    where: { id: userId },
-  });
-
-  const subscription = user.id ? await getSubscriptionByUserId(user.id) : null;
+  const userId = await getUserId(request);
   const plans = await prisma.plan.findMany({
     include: {
       prices: true,
@@ -106,8 +96,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   });
 
-  // Get client's currency.
   const defaultCurrency = getDefaultCurrency(request);
+
+  if (!userId) {
+    return data({
+      user: null,
+      subscription: null,
+      defaultCurrency,
+      plans,
+    });
+  }
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+  const subscription = await getSubscriptionByUserId(userId);
 
   return data({
     user,
@@ -158,6 +160,9 @@ export default function Plans() {
                 p.interval === planInterval && p.currency === defaultCurrency
             );
             const priceAmount = price ? price.amount / 100 : 0;
+            const isActive =
+              subscription?.planId === plan.planID &&
+              subscription?.interval === planInterval;
 
             return (
               <div
@@ -165,13 +170,19 @@ export default function Plans() {
                   "relative mx-auto flex min-w-2xs max-w-lg flex-col rounded-xl border border-border p-6 text-center shadow-sm xl:p-8",
                   {
                     "border-yellow-500 dark:border-yellow-300": plan.isPopular,
+                    "border-green-500 dark:border-green-400": isActive,
                   }
                 )}
                 key={plan.planID}
               >
-                {plan.isPopular && (
+                {plan.isPopular && !isActive && (
                   <div className="-right-3.5 -rotate-90 absolute top-5 rounded-tl-full rounded-bl-full bg-yellow-500 px-3 py-2 font-medium text-black text-xs uppercase dark:bg-yellow-300">
                     popular
+                  </div>
+                )}
+                {isActive && (
+                  <div className="-right-3.5 -rotate-90 absolute top-5 rounded-tl-full rounded-bl-full bg-green-500 px-3 py-2 font-medium text-white text-xs uppercase dark:bg-green-400">
+                    Active
                   </div>
                 )}
                 <h3 className="mb-4 font-semibold text-2xl">{plan.name}</h3>
@@ -197,14 +208,20 @@ export default function Plans() {
                     </li>
                   ))}
                 </ul>
-                {/* Checkout Component. */}
-                {user && (
+                {user ? (
                   <CheckoutButton
                     currentPlanId={subscription?.planId ?? null}
+                    disabled={isActive}
                     planId={plan.planID}
                     planInterval={planInterval}
                     planName={plan.name}
                   />
+                ) : (
+                  <Button asChild>
+                    <Link to="/login?redirectTo=/plans">
+                      Login to Subscribe
+                    </Link>
+                  </Button>
                 )}
               </div>
             );

@@ -32,6 +32,15 @@ export const ThemeFormSchema = z.object({
   redirectTo: z.string().optional(),
 });
 
+export const DodoSubscriptionWebhookSchema = z.object({
+  customer: z.object({ customer_id: z.string() }),
+  subscription_id: z.string(),
+});
+
+export const DodoSubscriptionCancelledSchema = z.object({
+  subscription_id: z.string(),
+});
+
 export type Toast = z.infer<typeof ToastSchema>;
 export type ToastInput = z.input<typeof ToastSchema>;
 export type ProviderName = z.infer<typeof ProviderNameSchema>;

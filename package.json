@@ -82,6 +82,7 @@
     "sonner": "^2.0.7",
     "source-map-support": "^0.5.21",
     "spin-delay": "^2.0.1",
+    "standardwebhooks": "^1.0.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "vite-env-only": "^3.0.3",
