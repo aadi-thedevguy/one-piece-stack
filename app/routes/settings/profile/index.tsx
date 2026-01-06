@@ -162,12 +162,18 @@ export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
                 </p>
                 <p className="text-muted-foreground text-sm">
                   {loaderData.subscription.cancelAtPeriodEnd
-                    ? `Cancels on ${new Date(
-                        loaderData.subscription.currentPeriodEnd * 1000
-                      ).toLocaleDateString()}`
-                    : `Renews on ${new Date(
-                        loaderData.subscription.currentPeriodEnd * 1000
-                      ).toLocaleDateString()}`}
+                    ? `Cancels on ${new Date(loaderData.subscription.currentPeriodEnd).toLocaleDateString()}`
+                    : `Renews on ${new Date(loaderData.subscription.currentPeriodEnd).toLocaleDateString()}`}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  Current Period:{" "}
+                  {new Date(
+                    loaderData.subscription.currentPeriodStart
+                  ).toLocaleDateString()}{" "}
+                  -{" "}
+                  {new Date(
+                    loaderData.subscription.currentPeriodEnd
+                  ).toLocaleDateString()}
                 </p>
                 <p className="text-muted-foreground text-sm">
                   {(loaderData.subscription.price.amount / 100).toLocaleString(

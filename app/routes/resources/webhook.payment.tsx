@@ -45,70 +45,9 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     switch (event.type) {
       /**
-       * Occurs when a subscription is created.
+       * Occurs when a subscription is created, updated, or plan changed.
        */
-      case "subscription.created": {
-        const { data: subscriptionData, error } =
-          DodoSubscriptionWebhookSchema.safeParse(event.data);
-        if (error) {
-          return data(
-            { message: "Invalid payload", errors: error.errors },
-            400
-          );
-        }
-        const { customer, subscription_id: subscriptionId } = subscriptionData;
-
-        const user = await prisma.user.findFirst({
-          where: { customerId: customer.customer_id },
-          select: { id: true, email: true, name: true },
-        });
-        if (!user) throw new Error("User not found for customer ID.");
-
-        const dodoSubscription =
-          await dodoClient.subscriptions.retrieve(subscriptionId);
-        const plan = await prisma.plan.findFirst({
-          where: { prices: { some: { priceID: dodoSubscription.product_id } } },
-        });
-
-        await prisma.subscription.update({
-          where: { userId: user.id },
-          data: {
-            id: dodoSubscription.subscription_id,
-            planId: plan?.id,
-            priceId: dodoSubscription.product_id,
-            status: dodoSubscription.status,
-            currentPeriodStart: new Date(dodoSubscription.created_at).getTime(),
-            currentPeriodEnd: new Date(
-              dodoSubscription.next_billing_date
-            ).getTime(),
-            cancelAtPeriodEnd: dodoSubscription.cancel_at_next_billing_date,
-          },
-        });
-
-        await sendEmail({
-          to: user.email,
-          subject: "Subscription Confirmation",
-          // text: "Your subscription has been confirmed.",
-          // html: await SubscriptionEmailHtml({
-          //   action: "created",
-          //   planName: plan?.name,
-          //   userFirstName: user.name ?? "there",
-          // }),
-          react: (
-            <SubscriptionEmail
-              action="created"
-              planName={plan?.name}
-              userFirstName={user.name ?? "there"}
-            />
-          ),
-        });
-
-        return data({ message: "Success" });
-      }
-
-      /**
-       * Occurs when a subscription has been updated.
-       */
+      case "subscription.created":
       case "subscription.updated":
       case "subscription.plan_changed": {
         const { data: subscriptionData, error } =
@@ -129,42 +68,70 @@ export async function action({ request }: ActionFunctionArgs) {
 
         const dodoSubscription =
           await dodoClient.subscriptions.retrieve(subscriptionId);
-        const plan = await prisma.plan.findFirst({
-          where: { prices: { some: { priceID: dodoSubscription.product_id } } },
+
+        // Fetch Price and Plan to get internal IDs and interval
+        const price = await prisma.price.findUnique({
+          where: { priceID: dodoSubscription.product_id },
+          include: { plan: true },
         });
 
-        await prisma.subscription.update({
+        if (!price?.plan) {
+          throw new Error(
+            "Price or Plan not found for the subscription product."
+          );
+        }
+
+        await prisma.subscription.upsert({
           where: { userId: user.id },
-          data: {
+          create: {
             id: dodoSubscription.subscription_id,
-            planId: plan?.id,
-            priceId: dodoSubscription.product_id,
+            planId: price.plan.id,
+            userId: user.id,
+            interval: price.interval,
+            priceId: price.id,
             status: dodoSubscription.status,
-            currentPeriodStart: new Date(dodoSubscription.created_at).getTime(),
-            currentPeriodEnd: new Date(
-              dodoSubscription.next_billing_date
-            ).getTime(),
+            currentPeriodStart: new Date(dodoSubscription.created_at),
+            currentPeriodEnd: new Date(dodoSubscription.next_billing_date),
+            cancelAtPeriodEnd: dodoSubscription.cancel_at_next_billing_date,
+          },
+          update: {
+            id: dodoSubscription.subscription_id,
+            planId: price.plan.id,
+            interval: price.interval,
+            priceId: price.id,
+            status: dodoSubscription.status,
+            currentPeriodStart: new Date(dodoSubscription.created_at),
+            currentPeriodEnd: new Date(dodoSubscription.next_billing_date),
             cancelAtPeriodEnd: dodoSubscription.cancel_at_next_billing_date,
           },
         });
 
-        await sendEmail({
-          to: user.email,
-          subject: "Your Subscription Has Been Updated",
-          // text: "Your subscription has been updated.",
-          // html: await SubscriptionEmailHtml({
-          //   action: "updated",
-          //   planName: plan?.name,
-          //   userFirstName: user.name ?? "there",
-          // }),
-          react: (
-            <SubscriptionEmail
-              action="updated"
-              planName={plan?.name}
-              userFirstName={user.name ?? "there"}
-            />
-          ),
-        });
+        // Send appropriate email based on event type
+        if (event.type === "subscription.created") {
+          await sendEmail({
+            to: user.email,
+            subject: "Subscription Confirmation",
+            react: (
+              <SubscriptionEmail
+                action="created"
+                planName={price.plan?.name}
+                userFirstName={user.name ?? "there"}
+              />
+            ),
+          });
+        } else {
+          await sendEmail({
+            to: user.email,
+            subject: "Your Subscription Has Been Updated",
+            react: (
+              <SubscriptionEmail
+                action="updated"
+                planName={price.plan?.name}
+                userFirstName={user.name ?? "there"}
+              />
+            ),
+          });
+        }
 
         return data({ message: "Success" });
       }
@@ -191,7 +158,8 @@ export async function action({ request }: ActionFunctionArgs) {
         if (dbSubscription?.user) {
           await prisma.subscription.delete({ where: { id: subscriptionId } });
 
-          await sendEmail({
+          // biome-ignore lint/complexity/noVoid: <explanation>
+          void sendEmail({
             to: dbSubscription.user.email,
             subject: "Your Subscription Has Been Cancelled",
             // text: "Your subscription has been cancelled.",

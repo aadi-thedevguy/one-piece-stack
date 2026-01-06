@@ -56,7 +56,7 @@ export const SubscriptionEmail = ({
     userFirstName,
     planName
   );
-  const actionLink = `${baseUrl}/profile`;
+  const actionLink = `${baseUrl}/settings/profile`;
 
   return (
     <E.Html>
@@ -67,7 +67,7 @@ export const SubscriptionEmail = ({
           <E.Img
             alt="One Piece Stack"
             height="50"
-            src={`${baseUrl}/logo-mark-dark.png`}
+            src={`${baseUrl}/mail-sent.png`}
             style={logo}
             width="170"
           />
@@ -117,7 +117,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: "#5F51E8",
+  backgroundColor: "#333",
   borderRadius: "3px",
   color: "#fff",
   fontSize: "16px",
