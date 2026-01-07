@@ -1,7 +1,12 @@
 import { invariant } from "@epic-web/invariant";
 import { redirect } from "react-router";
 import { safeRedirect } from "remix-utils/safe-redirect";
-import { sessionKey } from "~/constants/keys";
+import {
+  rememberKey,
+  sessionKey,
+  unverifiedSessionIdKey,
+  verifiedTimeKey,
+} from "~/constants/keys";
 import { getUserId } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
@@ -10,10 +15,6 @@ import { redirectWithToast } from "~/lib/toast.server";
 import { combineResponseInits } from "~/lib/utils";
 import { twoFAVerificationType } from "~/routes/settings/profile/two-factor/_layout";
 import { getRedirectToUrl, type VerifyFunctionArgs } from "./verify.server";
-
-const verifiedTimeKey = "verified-time";
-const unverifiedSessionIdKey = "unverified-session-id";
-const rememberKey = "remember";
 
 export async function handleNewSession(
   {

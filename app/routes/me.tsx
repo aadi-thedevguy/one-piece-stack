@@ -14,5 +14,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     await logout({ request, redirectTo });
     return redirect(redirectTo);
   }
-  return redirect(`/users/${user.username}`);
+  return redirect("/profile");
 }

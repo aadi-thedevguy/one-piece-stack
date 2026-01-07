@@ -16,7 +16,7 @@ import { CURRENCIES, INTERVALS, type Interval } from "~/constants/index";
 import { getUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
 import { getDefaultCurrency } from "~/lib/locales";
-import { dodoClient, getSubscriptionByUserId } from "~/lib/payment.server";
+import { dodoClient } from "~/lib/payment.server";
 import { cn } from "~/lib/utils";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -108,22 +108,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
+    select: {
+      subscription: {
+        include: {
+          plan: true,
+          price: true,
+        },
+      },
+    },
   });
-  const subscription = await getSubscriptionByUserId(userId);
 
   return data({
     user,
-    subscription,
     defaultCurrency,
     plans,
   });
 }
 
 export default function Plans() {
-  const { user, subscription, defaultCurrency, plans } =
-    useLoaderData<typeof loader>();
+  const { user, defaultCurrency, plans } = useLoaderData<typeof loader>();
   const [planInterval, setPlanInterval] = useState<Interval | string>(
-    subscription?.interval || INTERVALS.MONTH
+    user?.subscription?.interval || INTERVALS.MONTH
   );
 
   return (
@@ -161,8 +166,8 @@ export default function Plans() {
             );
             const priceAmount = price ? price.amount / 100 : 0;
             const isActive =
-              subscription?.planId === plan.planID &&
-              subscription?.interval === planInterval;
+              user?.subscription?.planId === plan.id &&
+              user?.subscription?.interval === planInterval;
 
             return (
               <div
@@ -209,13 +214,19 @@ export default function Plans() {
                   ))}
                 </ul>
                 {user ? (
-                  <CheckoutButton
-                    currentPlanId={subscription?.planId ?? null}
-                    disabled={isActive}
-                    planId={plan.planID}
-                    planInterval={planInterval}
-                    planName={plan.name}
-                  />
+                  isActive ? (
+                    <Button className="w-full" disabled>
+                      Current Plan
+                    </Button>
+                  ) : (
+                    <CheckoutButton
+                      currentPlanId={user.subscription?.planId ?? null}
+                      disabled={isActive}
+                      planId={plan.planID}
+                      planInterval={planInterval}
+                      planName={plan.name}
+                    />
+                  )
                 ) : (
                   <Button asChild>
                     <Link to="/login?redirectTo=/plans">

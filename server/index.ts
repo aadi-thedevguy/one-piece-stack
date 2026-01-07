@@ -16,6 +16,12 @@ import { secureHeadersMiddleware } from "./middleware/secure";
 //   void import("./monitoring").then(({ init }) => init());
 // }
 
+// getLoadContext: () => {
+// 		const ctx = new RouterContextProvider()
+// 		ctx.set(serverBuildContext, getBuild())
+// 		return ctx
+// 	},
+
 export default await createHonoServer({
   app: new Hono(),
   defaultLogger: false,

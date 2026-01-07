@@ -48,7 +48,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       "https://google.com",
       "https://s3.amazonaws.com",
       "https://thedevguy.in",
-      "https://api.dicebar.com",
+      "https://api.dicebear.com",
     ].filter(Boolean),
     // cacheFolder: await getCacheDir(),
     getImgSource: () => {

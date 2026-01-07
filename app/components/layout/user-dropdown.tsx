@@ -24,7 +24,7 @@ export function UserDropdown() {
             className="flex items-center gap-2"
             // this is for progressive enhancement
             onClick={(e: FormEvent) => e.preventDefault()}
-            to={`/users/${user.username}`}
+            to="profile"
           >
             <img
               alt={user.name ?? user.username}
@@ -45,7 +45,7 @@ export function UserDropdown() {
             <Link
               className="flex items-center gap-2"
               prefetch="intent"
-              to={`/users/${user.username}`}
+              to="profile"
             >
               <User2Icon className="h-4 w-4" />
               <span>Profile</span>

@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Spacer } from "~/components/layout/spacer";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
-import { cn, useUser } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 import type { Route } from "./+types/_layout";
 
 export const BreadcrumbHandle = z.object({ breadcrumb: z.any() });
@@ -38,7 +38,6 @@ const BreadcrumbHandleMatch = z.object({
 });
 
 export default function EditUserProfile() {
-  const user = useUser();
   const matches = useMatches();
   const breadcrumbs = matches
     .map((m) => {
@@ -57,10 +56,7 @@ export default function EditUserProfile() {
       <div className="container">
         <ul className="flex gap-3">
           <li>
-            <Link
-              className="text-muted-foreground"
-              to={`/users/${user.username}`}
-            >
+            <Link className="text-muted-foreground" to="/profile">
               Profile
             </Link>
           </li>
