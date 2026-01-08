@@ -10,7 +10,6 @@ import {
   Lock,
   Mail,
   MoreHorizontal,
-  Trash2,
   Unlock,
 } from "lucide-react";
 import { Img } from "openimg/react";
@@ -19,11 +18,14 @@ import { z } from "zod";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
-import { sessionKey } from "~/constants/keys";
+import {
+  profileUpdateActionIntent,
+  sessionKey,
+  signOutOfSessionsActionIntent,
+} from "~/constants/keys";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { prisma } from "~/lib/db.server";
-import { redirectWithToast } from "~/lib/toast.server";
 import { getUserImgSrc, useDoubleCheck } from "~/lib/utils";
 import { NameSchema, UsernameSchema } from "~/lib/validations/user-validation";
 import type { Route } from "./+types";
@@ -90,9 +92,6 @@ type ProfileActionArgs = {
   userId: string;
   formData: FormData;
 };
-const profileUpdateActionIntent = "update-profile";
-const signOutOfSessionsActionIntent = "sign-out-of-sessions";
-const deleteDataActionIntent = "delete-data";
 
 export async function action({ request }: Route.ActionArgs) {
   const userId = await requireUserId(request);
@@ -104,9 +103,6 @@ export async function action({ request }: Route.ActionArgs) {
     }
     case signOutOfSessionsActionIntent: {
       return signOutOfSessionsAction({ request, userId, formData });
-    }
-    case deleteDataActionIntent: {
-      return deleteDataAction({ request, userId, formData });
     }
     default: {
       throw new Response(`Invalid intent "${intent}"`, { status: 400 });
@@ -203,7 +199,6 @@ export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
           </Link>
         </div>
         <SignOutOfSessions loaderData={loaderData} />
-        <DeleteData />
       </div>
     </div>
   );
@@ -368,43 +363,6 @@ function SignOutOfSessions({
           <span>This is your only session</span>
         </div>
       )}
-    </div>
-  );
-}
-
-async function deleteDataAction({ userId }: ProfileActionArgs) {
-  await prisma.user.delete({ where: { id: userId } });
-  return redirectWithToast("/", {
-    type: "success",
-    title: "Data Deleted",
-    description: "All of your data has been deleted",
-  });
-}
-
-function DeleteData() {
-  const dc = useDoubleCheck();
-
-  const fetcher = useFetcher<typeof deleteDataAction>();
-  return (
-    <div>
-      <fetcher.Form method="POST">
-        <StatusButton
-          {...dc.getButtonProps({
-            type: "submit",
-            name: "intent",
-            value: deleteDataActionIntent,
-          })}
-          status={fetcher.state !== "idle" ? "pending" : "idle"}
-          variant={dc.doubleCheck ? "destructive" : "default"}
-        >
-          <div className="flex items-center gap-2">
-            <Trash2 />
-            <span>
-              {dc.doubleCheck ? "Are you sure?" : "Delete all your data"}
-            </span>
-          </div>
-        </StatusButton>
-      </fetcher.Form>
     </div>
   );
 }

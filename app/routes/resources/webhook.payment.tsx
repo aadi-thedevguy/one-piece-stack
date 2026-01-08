@@ -156,17 +156,17 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (dbSubscription?.user) {
-          await prisma.subscription.delete({ where: { id: subscriptionId } });
+          await prisma.subscription.update({
+            where: { id: subscriptionId },
+            data: {
+              status: "cancelled",
+              cancelledAt: new Date(),
+            },
+          });
 
-          // biome-ignore lint/complexity/noVoid: <explanation>
-          void sendEmail({
+          await sendEmail({
             to: dbSubscription.user.email,
             subject: "Your Subscription Has Been Cancelled",
-            // text: "Your subscription has been cancelled.",
-            // html: await SubscriptionEmailHtml({
-            //   action: "cancelled",
-            //   userFirstName: dbSubscription.user.name ?? "there",
-            // }),
             react: (
               <SubscriptionEmail
                 action="cancelled"
@@ -187,7 +187,3 @@ export async function action({ request }: ActionFunctionArgs) {
     return data({ message: "An error occurred" }, 500);
   }
 }
-
-// export default function Route() {
-//   return null;
-// }

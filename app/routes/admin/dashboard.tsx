@@ -1,9 +1,13 @@
+import { Ban, CheckCircle, XCircle } from "lucide-react";
 import {
   data,
   type LoaderFunctionArgs,
   redirect,
+  useFetcher,
   useLoaderData,
 } from "react-router";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import {
   Table,
   TableBody,
@@ -14,6 +18,7 @@ import {
 } from "~/components/ui/table";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
+import { useDoubleCheck } from "~/lib/utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -31,11 +36,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const users = await prisma.user.findMany({
+    where: {
+      id: { not: userId },
+    },
     select: {
       id: true,
       name: true,
       email: true,
       username: true,
+      active: true,
       createdAt: true,
       password: { select: { userId: true } },
       connections: { select: { providerName: true } },
@@ -71,11 +80,13 @@ export default function AdminUsersRoute() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User Details</TableHead>
-              <TableHead>Authentication</TableHead>
-              <TableHead>Joined Date</TableHead>
-              <TableHead>Subscription Plan</TableHead>
+              <TableHead>User</TableHead>
+              <TableHead>Sign In Method</TableHead>
+              <TableHead>Joined On</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Plan</TableHead>
+              <TableHead>Subscription</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -100,6 +111,13 @@ export default function AdminUsersRoute() {
                 </TableCell>
                 <TableCell>
                   {new Date(user.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  {user.active ? (
+                    <Badge variant="default">Active</Badge>
+                  ) : (
+                    <Badge variant="secondary">Inactive</Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   {user.subscription ? (
@@ -129,8 +147,8 @@ export default function AdminUsersRoute() {
                     <Badge
                       variant={
                         user.subscription.status === "active"
-                          ? "success"
-                          : "warning"
+                          ? "default"
+                          : "secondary"
                       }
                     >
                       {user.subscription.status}
@@ -138,6 +156,9 @@ export default function AdminUsersRoute() {
                   ) : (
                     <Badge variant="secondary">Inactive</Badge>
                   )}
+                </TableCell>
+                <TableCell>
+                  <UserActions user={user} />
                 </TableCell>
               </TableRow>
             ))}
@@ -148,29 +169,69 @@ export default function AdminUsersRoute() {
   );
 }
 
-function Badge({
-  children,
-  variant = "default",
+function UserActions({
+  user,
 }: {
-  children: React.ReactNode;
-  variant?: "default" | "secondary" | "success" | "warning";
-}) {
-  const variants = {
-    default:
-      "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-    secondary:
-      "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    success:
-      "border-transparent bg-green-500/15 text-green-700 dark:text-green-400 hover:bg-green-500/25",
-    warning:
-      "border-transparent bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-500/25",
+  user: {
+    id: string;
+    active: boolean;
+    subscription: { status: string; plan: { name: string } } | null;
   };
+}) {
+  const cancelFetcher = useFetcher();
+  const banFetcher = useFetcher();
+  const unbanFetcher = useFetcher();
+  const dcCancel = useDoubleCheck();
+  const dcBan = useDoubleCheck();
 
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-semibold text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${variants[variant]}`}
-    >
-      {children}
-    </span>
+    <div className="flex flex-col gap-2">
+      {user.subscription?.status === "active" && (
+        <cancelFetcher.Form
+          action="/resources/subscription/cancel"
+          method="POST"
+        >
+          <input name="userId" type="hidden" value={user.id} />
+          <Button
+            size="sm"
+            variant={dcCancel.doubleCheck ? "destructive" : "ghost"}
+            {...dcCancel.getButtonProps({
+              className: "h-8 px-2",
+              title: "Cancel Subscription",
+            })}
+          >
+            <span>{dcCancel.doubleCheck ? "Are you sure?" : "Cancel Sub"}</span>
+            <XCircle className="ml-1 h-4 w-4" />
+          </Button>
+        </cancelFetcher.Form>
+      )}
+      {user.active && (
+        <banFetcher.Form action="/resources/admin/user-actions" method="POST">
+          <input name="intent" type="hidden" value="ban" />
+          <input name="userId" type="hidden" value={user.id} />
+          <Button
+            className="m-2"
+            size="sm"
+            variant={dcBan.doubleCheck ? "destructive" : "default"}
+            {...dcBan.getButtonProps({
+              title: "Ban User",
+            })}
+          >
+            <span>{dcBan.doubleCheck ? "Are you sure?" : "Ban User"}</span>
+            <Ban className="ml-1 h-4 w-4" />
+          </Button>
+        </banFetcher.Form>
+      )}
+      {!user.active && (
+        <unbanFetcher.Form action="/resources/admin/user-actions" method="POST">
+          <input name="intent" type="hidden" value="unban" />
+          <input name="userId" type="hidden" value={user.id} />
+          <Button className="m-2" size="sm">
+            <span>Unban User</span>
+            <CheckCircle className="ml-1 h-4 w-4" />
+          </Button>
+        </unbanFetcher.Form>
+      )}
+    </div>
   );
 }

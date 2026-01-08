@@ -1,10 +1,11 @@
 import { invariantResponse } from "@epic-web/invariant";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import { LayoutDashboard, LogOut, XCircle } from "lucide-react";
 import { Img } from "openimg/react";
 import {
   Form,
   Link,
   type LoaderFunctionArgs,
+  useFetcher,
   useLoaderData,
 } from "react-router";
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
@@ -12,7 +13,7 @@ import { Spacer } from "~/components/layout/spacer";
 import { Button } from "~/components/ui/button";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
-import { getUserImgSrc } from "~/lib/utils";
+import { getUserImgSrc, useDoubleCheck } from "~/lib/utils";
 import type { Route } from "./+types/profile";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -49,6 +50,8 @@ export default function ProfileRoute() {
   const user = data.user;
   const userDisplayName = user.name ?? user.username;
   const isAdmin = user.roles.some((role) => role.name === "admin");
+  const fetcher = useFetcher();
+  const dc = useDoubleCheck();
 
   return (
     <div className="container mt-36 mb-48 flex flex-col items-center justify-center">
@@ -143,11 +146,29 @@ export default function ProfileRoute() {
                   </div>
                 )}
               </div>
-              <Button asChild className="ml-4" size="sm" variant="outline">
-                <Link to={`/plans?redirectTo=users/${user.username}`}>
-                  {data.subscription ? "Manage" : "Upgrade"}
-                </Link>
-              </Button>
+              <div className="ml-4 flex flex-col gap-2 sm:flex-row">
+                <Button asChild size="sm" variant="outline">
+                  <Link to={`/plans?redirectTo=users/${user.username}`}>
+                    {data.subscription ? "Manage" : "Upgrade"}
+                  </Link>
+                </Button>
+                {data.subscription?.status === "active" && (
+                  <fetcher.Form
+                    action="/resources/subscription/cancel"
+                    method="POST"
+                  >
+                    <input name="userId" type="hidden" value={user.id} />
+                    <Button
+                      size="sm"
+                      variant={dc.doubleCheck ? "destructive" : "outline"}
+                      {...dc.getButtonProps({ type: "submit" })}
+                    >
+                      {dc.doubleCheck ? "Are you sure?" : "Cancel"}
+                      <XCircle className="ml-1 h-4 w-4" />
+                    </Button>
+                  </fetcher.Form>
+                )}
+              </div>
             </div>
           </div>
         </div>

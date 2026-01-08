@@ -26,10 +26,10 @@ export async function getUserId(request: Request) {
   const sessionId = authSession.get(sessionKey);
   if (!sessionId) return null;
   const session = await prisma.session.findUnique({
-    select: { userId: true },
+    select: { userId: true, user: { select: { active: true } } },
     where: { id: sessionId, expirationDate: { gt: new Date() } },
   });
-  if (!session?.userId) {
+  if (!(session?.userId && session.user.active)) {
     throw redirect("/", {
       headers: {
         "set-cookie": await authSessionStorage.destroySession(authSession),
@@ -238,10 +238,10 @@ export async function verifyUserPassword(
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where,
-    select: { id: true, password: { select: { hash: true } } },
+    select: { id: true, active: true, password: { select: { hash: true } } },
   });
 
-  if (!userWithPassword?.password) {
+  if (!(userWithPassword?.password && userWithPassword.active)) {
     return null;
   }
 

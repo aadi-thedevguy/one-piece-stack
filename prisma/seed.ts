@@ -147,6 +147,7 @@ async function seed() {
       email: "thedevguy99@gmail.com",
       username: "thedevguy",
       name: "Aditya",
+      active: true,
       password: { create: createPassword("password") },
       roles: { connect: [{ name: "admin" }, { name: "user" }] },
     },

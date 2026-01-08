@@ -19,7 +19,7 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  active      Boolean @default(true)
   image       UserImage?
   password    Password?
   notes       Note[]
@@ -226,6 +226,8 @@ model Subscription {
   cancelAtPeriodEnd  Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  cancelledAt        DateTime?
+  cancelledBy        String?
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan                Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
   price               Price   @relation(fields: [priceId], references: [id], onDelete: Cascade)
