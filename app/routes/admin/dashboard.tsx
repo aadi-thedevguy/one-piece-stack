@@ -182,10 +182,9 @@ function UserActions({
   const banFetcher = useFetcher();
   const unbanFetcher = useFetcher();
   const dcCancel = useDoubleCheck();
-  const dcBan = useDoubleCheck();
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="m-2 flex flex-col gap-2">
       {user.subscription?.status === "active" && (
         <cancelFetcher.Form
           action="/resources/subscription/cancel"
@@ -194,9 +193,8 @@ function UserActions({
           <input name="userId" type="hidden" value={user.id} />
           <Button
             size="sm"
-            variant={dcCancel.doubleCheck ? "destructive" : "ghost"}
+            variant={dcCancel.doubleCheck ? "destructive" : "outline"}
             {...dcCancel.getButtonProps({
-              className: "h-8 px-2",
               title: "Cancel Subscription",
             })}
           >
@@ -206,27 +204,20 @@ function UserActions({
         </cancelFetcher.Form>
       )}
       {user.active && (
-        <banFetcher.Form action="/resources/admin/user-actions" method="POST">
+        <banFetcher.Form action="/admin/user-actions" method="POST">
           <input name="intent" type="hidden" value="ban" />
           <input name="userId" type="hidden" value={user.id} />
-          <Button
-            className="m-2"
-            size="sm"
-            variant={dcBan.doubleCheck ? "destructive" : "default"}
-            {...dcBan.getButtonProps({
-              title: "Ban User",
-            })}
-          >
-            <span>{dcBan.doubleCheck ? "Are you sure?" : "Ban User"}</span>
+          <Button size="sm">
+            <span>Ban User</span>
             <Ban className="ml-1 h-4 w-4" />
           </Button>
         </banFetcher.Form>
       )}
       {!user.active && (
-        <unbanFetcher.Form action="/resources/admin/user-actions" method="POST">
+        <unbanFetcher.Form action="/admin/user-actions" method="POST">
           <input name="intent" type="hidden" value="unban" />
           <input name="userId" type="hidden" value={user.id} />
-          <Button className="m-2" size="sm">
+          <Button size="sm">
             <span>Unban User</span>
             <CheckCircle className="ml-1 h-4 w-4" />
           </Button>
