@@ -1,5 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { MoreHorizontal } from "lucide-react";
 import { data, Form, Link, redirect } from "react-router";
@@ -7,10 +8,10 @@ import { z } from "zod";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
+import { userIdContext } from "~/context";
 import {
   checkIsCommonPassword,
   getPasswordHash,
-  requireUserId,
   verifyUserPassword,
 } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
@@ -56,14 +57,17 @@ async function requirePassword(userId: string) {
   }
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   await requirePassword(userId);
   return {};
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ request, context }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   await requirePassword(userId);
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {

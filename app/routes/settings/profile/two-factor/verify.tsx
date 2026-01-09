@@ -1,5 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { Check } from "lucide-react";
 import * as QRCode from "qrcode";
@@ -7,7 +8,7 @@ import { data, Form, redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { ErrorList, OTPField } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { getTOTPAuthUri } from "~/lib/auth/totp.server";
 import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
@@ -40,8 +41,9 @@ const ActionSchema = z.discriminatedUnion("intent", [
 
 export const twoFAVerifyVerificationType = "2fa-verify";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   const verification = await prisma.verification.findUnique({
     where: {
       target_type: { type: twoFAVerifyVerificationType, target: userId },
@@ -71,8 +73,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { otpUri, qrCode };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ context, request }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   const formData = await request.formData();
 
   const submission = await parseWithZod(formData, {

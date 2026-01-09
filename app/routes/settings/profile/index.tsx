@@ -23,6 +23,7 @@ import {
   sessionKey,
   signOutOfSessionsActionIntent,
 } from "~/constants/keys";
+import { userIdContext } from "~/context";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { prisma } from "~/lib/db.server";
@@ -40,8 +41,9 @@ const ProfileFormSchema = z.object({
   username: UsernameSchema,
 });
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
     select: {

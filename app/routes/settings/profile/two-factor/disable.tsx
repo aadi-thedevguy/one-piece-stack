@@ -1,8 +1,9 @@
+import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { ShieldBan } from "lucide-react";
 import { useFetcher } from "react-router";
 import { StatusButton } from "~/components/layout/status-button";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
 import { useDoubleCheck } from "~/lib/utils";
@@ -26,9 +27,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   return {};
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request, context }: Route.ActionArgs) {
   await requireRecentVerification(request);
-  const userId = await requireUserId(request);
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   await prisma.verification.delete({
     where: { target_type: { target: userId, type: twoFAVerificationType } },
   });

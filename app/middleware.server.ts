@@ -7,6 +7,7 @@ export const requireUserMiddleware: MiddlewareFunction = async ({
   request,
   context,
 }) => {
+  console.log("User middleware triggered...🙋‍♂️🙋‍♂️");
   const cookie = request.headers.get("cookie");
   const session = await authSessionStorage.getSession(cookie);
   const sessionId = session.get("sessionId") as string | undefined;
@@ -32,6 +33,7 @@ export const requireUserMiddleware: MiddlewareFunction = async ({
 export const requireAnonymousMiddleware: MiddlewareFunction = async ({
   request,
 }) => {
+  console.log("Anonymous Middleware triggered...🥷🥷");
   const cookie = request.headers.get("cookie");
   const session = await authSessionStorage.getSession(cookie);
   const sessionId = session.get("sessionId") as string | undefined;

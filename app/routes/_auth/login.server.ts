@@ -13,8 +13,11 @@ import { verifySessionStorage } from "~/lib/auth/verification.server";
 import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
 import { combineResponseInits } from "~/lib/utils";
+import { requireAnonymousMiddleware } from "~/middleware.server";
 import { twoFAVerificationType } from "~/routes/settings/profile/two-factor/_layout";
 import { getRedirectToUrl, type VerifyFunctionArgs } from "./verify.server";
+
+export const middleware = [requireAnonymousMiddleware];
 
 export async function handleNewSession(
   {

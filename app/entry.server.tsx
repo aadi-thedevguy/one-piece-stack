@@ -10,6 +10,7 @@ import {
   type LoaderFunctionArgs,
   ServerRouter,
 } from "react-router";
+import { serverBuildContext } from "server";
 import { NonceProvider } from "./lib/client/nonce-provider";
 import { getEnv, init } from "./lib/env.server";
 
@@ -38,7 +39,8 @@ export default async function handleRequest(...args: DocRequestArgs) {
     : "onShellReady";
 
   // const nonce = crypto.randomBytes(16).toString("hex");
-  const nonce = loadContext.cspNonce?.toString() ?? "";
+  const context = loadContext.get(serverBuildContext);
+  const nonce = context?.nonce as string;
 
   return new Promise((resolve, reject) => {
     let didError = false;

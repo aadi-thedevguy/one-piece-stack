@@ -2,6 +2,7 @@ import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { ShieldCheck } from "lucide-react";
 import { Outlet } from "react-router";
 import type { VerificationTypes } from "~/lib/validations";
+import { requireUserMiddleware } from "~/middleware.server";
 import type { BreadcrumbHandle } from "../../profile/_layout";
 
 export const handle: BreadcrumbHandle & SEOHandle = {
@@ -13,6 +14,8 @@ export const handle: BreadcrumbHandle & SEOHandle = {
   ),
   getSitemapEntries: () => null,
 };
+
+export const middleware = [requireUserMiddleware];
 
 export const twoFAVerificationType = "2fa" satisfies VerificationTypes;
 

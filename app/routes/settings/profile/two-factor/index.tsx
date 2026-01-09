@@ -1,8 +1,9 @@
+import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { CheckCheck, LockOpen, ShieldBan } from "lucide-react";
 import { Link, redirect, useFetcher } from "react-router";
 import { StatusButton } from "~/components/layout/status-button";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { generateTOTP } from "~/lib/auth/totp.server";
 import { prisma } from "~/lib/db.server";
 import { twoFAVerificationType } from "./_layout";
@@ -13,8 +14,9 @@ export const handle: SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   const verification = await prisma.verification.findUnique({
     where: { target_type: { type: twoFAVerificationType, target: userId } },
     select: { id: true },
@@ -22,8 +24,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { is2FAEnabled: Boolean(verification) };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ context }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   const { otp: _otp, ...config } = await generateTOTP();
   const verificationData = {
     ...config,

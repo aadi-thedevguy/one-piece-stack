@@ -2,6 +2,12 @@ import { compress } from "hono/compress";
 import { createMiddleware } from "hono/factory";
 import { poweredBy } from "hono/powered-by";
 import { Hono } from "hono/quick";
+import {
+  createContext,
+  RouterContextProvider,
+  type ServerBuild,
+} from "react-router";
+
 import { createHonoServer } from "react-router-hono-server/node";
 import { cspNonceMiddleware } from "./middleware/cspnonce";
 import { epicLogger } from "./middleware/epic-logger";
@@ -16,20 +22,24 @@ import { secureHeadersMiddleware } from "./middleware/secure";
 //   void import("./monitoring").then(({ init }) => init());
 // }
 
-// getLoadContext: () => {
-// 		const ctx = new RouterContextProvider()
-// 		ctx.set(serverBuildContext, getBuild())
-// 		return ctx
-// 	},
+// Shared context key for passing the built routes into loaders (e.g. sitemap)
+export const serverBuildContext = createContext<{
+  build: ServerBuild;
+  nonce: string;
+} | null>(null);
 
 export default await createHonoServer({
   app: new Hono(),
   defaultLogger: false,
-  getLoadContext: (c, { build }) => ({
-    cspNonce: c.get("cspNonce" as never),
-    serverBuild: build,
-  }),
 
+  getLoadContext: (_c, { build }) => {
+    const ctx = new RouterContextProvider();
+    ctx.set(serverBuildContext, {
+      build,
+      nonce: _c.get("cspNonce") as string,
+    });
+    return ctx;
+  },
   configure: (server) => {
     server.use("*", epicLogger());
     server.use(removeTrailingSlash);

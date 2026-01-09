@@ -5,9 +5,10 @@ import { Edit3 } from "lucide-react";
 import { Link, Outlet, useMatches } from "react-router";
 import { z } from "zod";
 import { Spacer } from "~/components/layout/spacer";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { prisma } from "~/lib/db.server";
 import { cn } from "~/lib/utils";
+import { requireUserMiddleware } from "~/middleware.server";
 import type { Route } from "./+types/_layout";
 
 export const BreadcrumbHandle = z.object({ breadcrumb: z.any() });
@@ -23,10 +24,14 @@ export const handle: BreadcrumbHandle & SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export const middleware = [requireUserMiddleware];
+
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string | null;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: userId as string },
     select: { username: true },
   });
   invariantResponse(user, "User not found", { status: 404 });

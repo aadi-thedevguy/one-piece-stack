@@ -11,7 +11,7 @@ export default {
 
   future: {
     unstable_optimizeDeps: true,
-    // v8_middleware: true,
+    v8_middleware: true,
   },
 
   // buildEnd: async ({ viteConfig, reactRouterConfig, buildManifest }) => {

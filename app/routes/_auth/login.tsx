@@ -12,7 +12,7 @@ import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
 import { CheckboxField, ErrorList, Field } from "~/components/layout/forms";
 import { Spacer } from "~/components/layout/spacer";
 import { StatusButton } from "~/components/layout/status-button";
-import { login, requireAnonymous } from "~/lib/auth/auth.server";
+import { login } from "~/lib/auth/auth.server";
 import { ProviderConnectionForm } from "~/lib/auth/connections";
 import { validateCSRF } from "~/lib/csrf.server.js";
 import { checkHoneypot } from "~/lib/honeypot.server";
@@ -40,13 +40,11 @@ const AuthenticationOptionsSchema = z.object({
   options: z.object({ challenge: z.string() }),
 }) satisfies z.ZodType<{ options: PublicKeyCredentialRequestOptionsJSON }>;
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAnonymous(request);
+export async function loader() {
   return {};
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireAnonymous(request);
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);
   checkHoneypot(formData);

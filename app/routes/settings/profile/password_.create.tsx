@@ -1,5 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { data, Form, Link, redirect } from "react-router";
@@ -7,11 +8,8 @@ import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
-import {
-  checkIsCommonPassword,
-  getPasswordHash,
-  requireUserId,
-} from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
+import { checkIsCommonPassword, getPasswordHash } from "~/lib/auth/auth.server";
 import { validateCSRF } from "~/lib/csrf.server";
 import { prisma } from "~/lib/db.server";
 import { useIsPending } from "~/lib/utils";
@@ -41,14 +39,17 @@ async function requireNoPassword(userId: string) {
   }
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   await requireNoPassword(userId);
   return {};
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ request, context }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   await requireNoPassword(userId);
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);

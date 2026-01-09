@@ -22,7 +22,7 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 ## Features
 
-- Email/Password Auth with Email OTP, Google/Twitter Providers and Admin Support.
+- Email/Password Auth with Email OTP, Google/Twitter Providers and Admin Dashboard with User Management.
 - Customizable Copy Writing Components and Pages like Privacy Policy, Terms of Service, Cookie Policy, Testimonials, Product Demo, Pricing, FAQ etc.
 - Health check route
 - Dark Mode Support
@@ -120,26 +120,25 @@ We use [Biome](https://biomejs.dev/) for auto-formatting in this project. It's r
 
 - **CTA**: Every Call to action should be a card-like component consisting of:
 
-    1. A strong Subject line to grab the user's attention
-    1. Subtitle to explain the benefits of using the product
-    1. Button text which sparks powerful emotion, like "join 1000s of people", "save money" etc.
-    1. A socially relevant "lovedBy" number which shows how many people love the product, it can be GitHub stars, testimonials, Twitter replies etc.
-    1. A link to the product's dashboard page
+  1. A strong Subject line to grab the user's attention
+  1. Subtitle to explain the benefits of using the product
+  1. Button text which sparks powerful emotion, like "join 1000s of people", "save money" etc.
+  1. A socially relevant "lovedBy" number which shows how many people love the product, it can be GitHub stars, testimonials, Twitter replies etc.
+  1. A link to the product's dashboard page
 
 - **Why this:** Why would the customer want to use this product?
 
-    1. It should explain that the problem is real and people can pay for the solution
-    2. It should compare what the currently available solutions aren't solving for and what your product does better than the competition
-    3. The component can be two lists of problems and solutions Or a single-line bulleted list featuring the best of the product
+  1. It should explain that the problem is real and people can pay for the solution
+  2. It should compare what the currently available solutions aren't solving for and what your product does better than the competition
+  3. The component can be two lists of problems and solutions Or a single-line bulleted list featuring the best of the product
 
 - **Demo steps:** Give interactive Definition list type components so that when a user clicks on a step, it expands and shows the next step while side by side it shows the UI of the app navigation structure so he knows if he clicks on "generate invoice", he will see the UI of the invoice generation page
 
 - **Value Prop:** What is the value proposition of the product?
 
-    1. A Visual Interactive image-type component which shows the problem and solution in linked cards
-    1. Give screenshots of people's tweets, Reddit posts, other forums, or blog articles on how a certain problem is expensive and a solution is needed.
+  1. A Visual Interactive image-type component which shows the problem and solution in linked cards
+  1. Give screenshots of people's tweets, Reddit posts, other forums, or blog articles on how a certain problem is expensive and a solution is needed.
 
 - **Pricing:** NO Free Planss. Only give free credits or 7-day trials. Price accordingly if the product is a _Vitamin_ or _Painkiller_
 
 - **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best
-

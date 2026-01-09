@@ -1,5 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { invariantResponse } from "@epic-web/invariant";
 import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import { Mail } from "lucide-react";
 import { data, Form, redirect } from "react-router";
@@ -8,7 +9,7 @@ import { z } from "zod";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { EmailChangeEmail } from "~/components/mails/EmailChangeEmail";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
 import { validateCSRF } from "~/lib/csrf.server.js";
 import { prisma } from "~/lib/db.server";
@@ -38,9 +39,11 @@ const ChangeEmailSchema = z.object({
   email: EmailSchema,
 });
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
   await requireRecentVerification(request);
-  const userId = await requireUserId(request);
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { email: true },
@@ -52,8 +55,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { user };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ context, request }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);
   const submission = await parseWithZod(formData, {

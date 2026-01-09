@@ -1,3 +1,4 @@
+import { invariantResponse } from "@epic-web/invariant";
 import { LockClosedIcon } from "@radix-ui/react-icons";
 import { startRegistration } from "@simplewebauthn/browser";
 import { formatDistanceToNow } from "date-fns";
@@ -6,7 +7,7 @@ import { useState } from "react";
 import { Form, useRevalidator } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context.js";
 import { prisma } from "~/lib/db.server";
 import type { Route } from "./+types/passkeys.ts";
 
@@ -19,8 +20,10 @@ export const handle = {
   ),
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const passkeys = await prisma.passkey.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
@@ -33,8 +36,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { passkeys };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ request, context }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const formData = await request.formData();
   const intent = formData.get("intent");
 

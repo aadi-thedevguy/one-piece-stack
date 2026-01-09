@@ -11,7 +11,7 @@ import { z } from "zod";
 import { ErrorList } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { prisma } from "~/lib/db.server";
 import { uploadProfileImage } from "~/lib/upload.server";
 import { getUserImgSrc, useDoubleCheck, useIsPending } from "~/lib/utils";
@@ -50,8 +50,10 @@ const PhotoFormSchema = z.discriminatedUnion("intent", [
   NewImageSchema,
 ]);
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -65,8 +67,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { user };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ request, context }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
 
   const formData = await parseFormData(request, { maxFileSize: MAX_SIZE });
   const submission = await parseWithZod(formData, {

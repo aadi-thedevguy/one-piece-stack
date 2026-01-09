@@ -11,7 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { ProviderConnectionForm, providerIcons } from "~/lib/auth/connections";
 import { prisma } from "~/lib/db.server";
 import { makeTimings } from "~/lib/timing.server";
@@ -49,8 +49,10 @@ async function userCanDeleteConnections(userId: string) {
   return Boolean(user?._count.connections && user?._count.connections > 1);
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export async function loader({ context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const timings = makeTimings("profile connections loader");
   const rawConnections = await prisma.connection.findMany({
     select: {
@@ -92,8 +94,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export const headers: Route.HeadersFunction = pipeHeaders;
 
-export async function action({ request }: Route.ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ request, context }: Route.ActionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const formData = await request.formData();
   invariantResponse(
     formData.get("intent") === "delete-connection",
