@@ -27,7 +27,7 @@ const LINKS = [
   },
   {
     label: "Profile",
-    href: "/settings/profile",
+    href: "/my-profile",
   },
 ];
 const LEGAL = [

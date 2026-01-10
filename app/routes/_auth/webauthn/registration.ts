@@ -1,11 +1,13 @@
+import { invariantResponse } from "@epic-web/invariant";
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context.js";
 import { prisma } from "~/lib/db.server";
 import { getDomainUrl, getErrorMessage } from "~/lib/utils";
-import type { Route } from "./+types/registration.ts";
+import { requireUserMiddleware } from "~/middleware.server";
+import type { Route } from "./+types/registration";
 import {
   getWebAuthnConfig,
   PasskeyCookieSchema,
@@ -13,8 +15,12 @@ import {
   RegistrationResponseSchema,
 } from "./utils.server";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const userId = await requireUserId(request);
+export const middleware = [requireUserMiddleware];
+
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
   const passkeys = await prisma.passkey.findMany({
     where: { userId },
     select: { id: true },
@@ -54,10 +60,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request, context }: Route.ActionArgs) {
   try {
-    const userId = await requireUserId(request);
-
+    const userId = context.get(userIdContext) as string;
+    invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
     const body = await request.json();
     const result = RegistrationResponseSchema.safeParse(body);
     if (!result.success) {

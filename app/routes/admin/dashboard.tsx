@@ -1,5 +1,7 @@
+import { invariantResponse } from "@epic-web/invariant";
 import { Ban, CheckCircle, XCircle } from "lucide-react";
 import {
+  type ActionFunctionArgs,
   data,
   type LoaderFunctionArgs,
   redirect,
@@ -16,12 +18,18 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { requireUserId } from "~/lib/auth/auth.server";
+import { userIdContext } from "~/context";
 import { prisma } from "~/lib/db.server";
+import { cancelSubscription } from "~/lib/payment.server";
+import { redirectWithToast } from "~/lib/toast.server";
 import { useDoubleCheck } from "~/lib/utils";
+import { requireUserMiddleware } from "~/middleware.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+export const middleware = [requireUserMiddleware];
+
+export async function loader({ context }: LoaderFunctionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
 
   // Verify admin privileges
   const user = await prisma.user.findUnique({
@@ -63,6 +71,69 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return data({ users });
 }
 
+export async function action({ request, context }: ActionFunctionArgs) {
+  const userId = context.get(userIdContext) as string;
+  invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
+
+  // Verify admin
+  const adminUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { roles: { select: { name: true } } },
+  });
+  const isAdmin = adminUser?.roles.some((role) => role.name === "admin");
+  invariantResponse(isAdmin, "Unauthorized", { status: 401 });
+
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  const targetUserId = formData.get("userId") as string;
+
+  invariantResponse(targetUserId, "Unauthorized", { status: 401 });
+
+  if (intent === "ban") {
+    // 1. Set user as inactive
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: { active: false },
+    });
+
+    // 2. Cancel subscription if exists
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId: targetUserId },
+    });
+
+    if (subscription && subscription.status === "active") {
+      await cancelSubscription(subscription.id);
+    }
+
+    return redirectWithToast(
+      request.headers.get("Referer") || "/admin/dashboard",
+      {
+        type: "success",
+        title: "User Banned",
+        description: "User has been deactivated and subscription cancelled.",
+      }
+    );
+  }
+
+  if (intent === "unban") {
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: { active: true },
+    });
+
+    return redirectWithToast(
+      request.headers.get("Referer") || "/admin/dashboard",
+      {
+        type: "success",
+        title: "User Unbanned",
+        description: "User has been reactivated.",
+      }
+    );
+  }
+
+  return redirect(request.headers.get("Referer") || "/admin/dashboard");
+}
+
 export default function AdminUsersRoute() {
   const { users } = useLoaderData<typeof loader>();
 
@@ -84,7 +155,7 @@ export default function AdminUsersRoute() {
               <TableHead>Sign In Method</TableHead>
               <TableHead>Joined On</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Plan</TableHead>
+              <TableHead>Current Plan</TableHead>
               <TableHead>Subscription</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -137,9 +208,7 @@ export default function AdminUsersRoute() {
                       </span>
                     </div>
                   ) : (
-                    <span className="text-muted-foreground text-sm">
-                      Free Plan
-                    </span>
+                    <span className="text-muted-foreground text-sm">None</span>
                   )}
                 </TableCell>
                 <TableCell>

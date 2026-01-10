@@ -9,11 +9,7 @@ import { CheckboxField, ErrorList, Field } from "~/components/layout/forms";
 import { Spacer } from "~/components/layout/spacer";
 import { StatusButton } from "~/components/layout/status-button";
 import { onboardingEmailSessionKey, sessionKey } from "~/constants/keys.js";
-import {
-  checkIsCommonPassword,
-  requireAnonymous,
-  signup,
-} from "~/lib/auth/auth.server";
+import { checkIsCommonPassword, signup } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
 import { validateCSRF } from "~/lib/csrf.server";
@@ -26,6 +22,7 @@ import {
   PasswordAndConfirmPasswordSchema,
   UsernameSchema,
 } from "~/lib/validations/user-validation";
+import { requireAnonymousMiddleware } from "~/middleware.server";
 import type { Route } from "./+types/$provider";
 
 const SignupFormSchema = z
@@ -42,7 +39,6 @@ const SignupFormSchema = z
   .and(PasswordAndConfirmPasswordSchema);
 
 async function requireOnboardingEmail(request: Request) {
-  await requireAnonymous(request);
   const verifySession = await verifySessionStorage.getSession(
     request.headers.get("cookie")
   );
@@ -52,6 +48,8 @@ async function requireOnboardingEmail(request: Request) {
   }
   return email;
 }
+
+export const middleware = [requireAnonymousMiddleware];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const email = await requireOnboardingEmail(request);

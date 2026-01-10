@@ -1,8 +1,8 @@
 import { reactRouter } from "@react-router/dev/vite";
-// import {
-// type SentryReactRouterBuildOptions,
-//   sentryReactRouter,
-// } from "@sentry/react-router";
+import {
+  type SentryReactRouterBuildOptions,
+  sentryReactRouter,
+} from "@sentry/react-router";
 import tailwindcss from "@tailwindcss/vite";
 import { reactRouterDevTools } from "react-router-devtools";
 import { reactRouterHonoServer } from "react-router-hono-server/dev";
@@ -12,18 +12,12 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 const MODE = process.env.NODE_ENV;
 
-export default defineConfig(() => ({
+export default defineConfig((config) => ({
   build: {
     target: "es2022",
     cssMinify: MODE === "production",
-
-    // rollupOptions: {
-    //   input: config.isSsrBuild ? "./server/app.ts" : undefined,
-    //   external: [/node:.*/, "fsevents"],
-    // },
     sourcemap: true,
   },
-  // sentryConfig,
   server: {
     port: 3000,
   },
@@ -34,14 +28,16 @@ export default defineConfig(() => ({
     reactRouterDevTools(),
     reactRouterHonoServer({ serverEntryPoint: "./server" }),
     MODE === "test" ? null : reactRouter(),
-    // MODE === "production" && process.env.SENTRY_AUTH_TOKEN
-    // ? sentryReactRouter(sentryConfig, config)
-    //   : null,
+    MODE === "production" && process.env.SENTRY_AUTH_TOKEN
+      ? sentryReactRouter(sentryConfig, config)
+      : null,
   ],
 }));
 
-// const sentryConfig: SentryReactRouterBuildOptions = {
-//   authToken: process.env.SENTRY_AUTH_TOKEN,
-//   org: process.env.SENTRY_ORG,
-//   project: process.env.SENTRY_PROJECT,
-// };
+const sentryConfig: SentryReactRouterBuildOptions = {
+  reactComponentAnnotation: { enabled: true },
+  release: {
+    name: process.env.COMMIT_SHA,
+    inject: true,
+  },
+};

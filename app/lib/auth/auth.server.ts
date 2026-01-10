@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
-import { redirect } from "react-router";
+import { data, redirect } from "react-router";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { sessionKey } from "~/constants/keys";
 import { combineHeaders, downloadFile } from "~/lib/utils";
@@ -59,11 +59,23 @@ export async function requireUserId(
   return userId;
 }
 
-export async function requireAnonymous(request: Request) {
-  const userId = await getUserId(request);
-  if (userId) {
-    throw redirect("/");
+export async function requireUserWithRole(request: Request, name: string) {
+  const userId = await requireUserId(request);
+  const user = await prisma.user.findFirst({
+    select: { id: true },
+    where: { id: userId, roles: { some: { name } } },
+  });
+  if (!user) {
+    throw data(
+      {
+        error: "Unauthorized",
+        requiredRole: name,
+        message: `Unauthorized: required role: ${name}`,
+      },
+      { status: 403 }
+    );
   }
+  return user.id;
 }
 
 export async function login({

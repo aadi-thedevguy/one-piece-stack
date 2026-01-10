@@ -19,6 +19,7 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Ultra Fast Code formatting and linting with [Biome](https://biomejs.dev/) and [Oxlint](https://oxc.rs)
 - Git hooks for code quality - [Husky](https://typicode.github.io/husky/)
 - Payment and Subscriptions with [Dodo Payments](https://dodopayments.com/)
+- Error Tracking with [Sentry](https://sentry.io)
 
 ## Features
 
@@ -31,7 +32,6 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 
 ## Upcoming Tech in the Stack
 
-- Error Tracking with [Sentry](https://sentry.io)
 - Analytics - [Posthog](https://posthog.com)
 - Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/)
 
@@ -139,6 +139,6 @@ We use [Biome](https://biomejs.dev/) for auto-formatting in this project. It's r
   1. A Visual Interactive image-type component which shows the problem and solution in linked cards
   1. Give screenshots of people's tweets, Reddit posts, other forums, or blog articles on how a certain problem is expensive and a solution is needed.
 
-- **Pricing:** NO Free Planss. Only give free credits or 7-day trials. Price accordingly if the product is a _Vitamin_ or _Painkiller_
+- **Pricing:** NO Free Plans. Only give free credits or 7-day trials. Price accordingly if the product is a _Vitamin_ or _Painkiller_
 
 - **NO Fancy animations maybe Dark mode:** If not necessary, don't ship, minimal is best

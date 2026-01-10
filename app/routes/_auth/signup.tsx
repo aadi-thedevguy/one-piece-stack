@@ -10,7 +10,6 @@ import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { SignupEmail } from "~/components/mails/SignupEmail.js";
-import { requireAnonymous } from "~/lib/auth/auth.server";
 import { ProviderConnectionForm } from "~/lib/auth/connections";
 import { validateCSRF } from "~/lib/csrf.server";
 import { prisma } from "~/lib/db.server";
@@ -19,6 +18,7 @@ import { checkHoneypot } from "~/lib/honeypot.server";
 import { useIsPending } from "~/lib/utils";
 import { providerNames } from "~/lib/validations";
 import { EmailSchema } from "~/lib/validations/user-validation";
+import { requireAnonymousMiddleware } from "~/middleware.server.js";
 import type { Route } from "./+types/signup.ts";
 import { prepareVerification } from "./verify.server";
 
@@ -30,10 +30,7 @@ const SignupSchema = z.object({
   email: EmailSchema,
 });
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAnonymous(request);
-  return null;
-}
+export const middleware = [requireAnonymousMiddleware];
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();

@@ -56,7 +56,7 @@ export const SubscriptionEmail = ({
     userFirstName,
     planName
   );
-  const actionLink = `${baseUrl}/settings/profile`;
+  const actionLink = `${baseUrl}/my-profile`;
 
   return (
     <E.Html>

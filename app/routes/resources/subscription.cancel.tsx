@@ -1,3 +1,4 @@
+import { invariantResponse } from "@epic-web/invariant";
 import type { ActionFunctionArgs } from "react-router";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
@@ -16,9 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
       select: { roles: { select: { name: true } } },
     });
     const isAdmin = user?.roles.some((role) => role.name === "admin");
-    if (!isAdmin) {
-      throw new Response("Unauthorized", { status: 403 });
-    }
+    invariantResponse(isAdmin, "Forbidden", { status: 403 });
   }
 
   const subscription = await prisma.subscription.findUnique({

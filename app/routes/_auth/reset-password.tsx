@@ -8,25 +8,26 @@ import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import {
   checkIsCommonPassword,
-  requireAnonymous,
   resetUserPassword,
 } from "~/lib/auth/auth.server";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
 import { validateCSRF } from "~/lib/csrf.server.js";
 import { useIsPending } from "~/lib/utils";
 import { PasswordAndConfirmPasswordSchema } from "~/lib/validations/user-validation";
+import { requireAnonymousMiddleware } from "~/middleware.server.js";
 import type { Route } from "./+types/reset-password.ts";
 
 export const handle: SEOHandle = {
   getSitemapEntries: () => null,
 };
 
+export const middleware = [requireAnonymousMiddleware];
+
 export const resetPasswordUsernameSessionKey = "resetPasswordUsername";
 
 const ResetPasswordSchema = PasswordAndConfirmPasswordSchema;
 
 async function requireResetPasswordUsername(request: Request) {
-  await requireAnonymous(request);
   const verifySession = await verifySessionStorage.getSession(
     request.headers.get("cookie")
   );

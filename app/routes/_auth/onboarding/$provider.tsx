@@ -24,7 +24,7 @@ import {
   providerIdKey,
   sessionKey,
 } from "~/constants/keys";
-import { requireAnonymous, signupWithConnection } from "~/lib/auth/auth.server";
+import { signupWithConnection } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
 import { validateCSRF } from "~/lib/csrf.server";
@@ -33,6 +33,7 @@ import { redirectWithToast } from "~/lib/toast.server";
 import { useIsPending } from "~/lib/utils";
 import { ProviderNameSchema } from "~/lib/validations/index.js";
 import { SignupFormSchema } from "~/lib/validations/user-validation";
+import { requireAnonymousMiddleware } from "~/middleware.server";
 import type { Route } from "./+types/$provider";
 
 async function requireData({
@@ -42,7 +43,6 @@ async function requireData({
   request: Request;
   params: Params;
 }) {
-  await requireAnonymous(request);
   const verifySession = await verifySessionStorage.getSession(
     request.headers.get("cookie")
   );
@@ -61,6 +61,8 @@ async function requireData({
   console.error(result.error);
   throw redirect("/signup");
 }
+
+export const middleware = [requireAnonymousMiddleware];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { email } = await requireData({ request, params });

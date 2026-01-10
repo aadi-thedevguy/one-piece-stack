@@ -1,15 +1,9 @@
 import { PassThrough } from "node:stream";
-import { styleText } from "node:util";
 import { createReadableStreamFromReadable } from "@react-router/node";
-// import * as Sentry from "@sentry/react-router";
+import * as Sentry from "@sentry/react-router";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import {
-  type ActionFunctionArgs,
-  type HandleDocumentRequestFunction,
-  type LoaderFunctionArgs,
-  ServerRouter,
-} from "react-router";
+import { type HandleDocumentRequestFunction, ServerRouter } from "react-router";
 import { serverBuildContext } from "server";
 import { NonceProvider } from "./lib/client/nonce-provider";
 import { getEnv, init } from "./lib/env.server";
@@ -21,7 +15,7 @@ global.ENV = getEnv();
 
 type DocRequestArgs = Parameters<HandleDocumentRequestFunction>;
 
-export default async function handleRequest(...args: DocRequestArgs) {
+async function handleRequest(...args: DocRequestArgs) {
   const [
     request,
     responseStatusCode,
@@ -30,15 +24,14 @@ export default async function handleRequest(...args: DocRequestArgs) {
     loadContext,
   ] = args;
 
-  // if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
-  //   responseHeaders.append("Document-Policy", "js-profiling");
-  // }
+  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
+    responseHeaders.append("Document-Policy", "js-profiling");
+  }
 
   const callbackName = isbot(request.headers.get("user-agent"))
     ? "onAllReady"
     : "onShellReady";
 
-  // const nonce = crypto.randomBytes(16).toString("hex");
   const context = loadContext.get(serverBuildContext);
   const nonce = context?.nonce as string;
 
@@ -63,7 +56,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
               status: didError ? 500 : responseStatusCode,
             })
           );
-          pipe(body);
+          pipe(Sentry.getMetaTagTransformer(body));
         },
         onShellError: (err: unknown) => {
           reject(err);
@@ -79,19 +72,6 @@ export default async function handleRequest(...args: DocRequestArgs) {
   });
 }
 
-export function handleError(
-  error: unknown,
-  { request }: LoaderFunctionArgs | ActionFunctionArgs
-): void {
-  // Skip capturing if the request is aborted as Remix docs suggest
-  // Ref: https://remix.run/docs/en/main/file-conventions/entry.server#handleerror
-  if (request.signal.aborted) {
-    return;
-  }
-  if (error instanceof Error) {
-    console.error(styleText("red", String(error.stack)));
-  } else {
-    console.error(error);
-  }
-  // Sentry.captureException(error);
-}
+export const handleError = Sentry.createSentryHandleError({ logErrors: true });
+
+export default Sentry.wrapSentryHandleRequest(handleRequest);

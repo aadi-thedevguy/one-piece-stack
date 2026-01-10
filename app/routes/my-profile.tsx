@@ -14,7 +14,7 @@ import { Button } from "~/components/ui/button";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
 import { getUserImgSrc, useDoubleCheck } from "~/lib/utils";
-import type { Route } from "./+types/profile";
+import type { Route } from "./+types/my-profile";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -147,7 +147,7 @@ export default function ProfileRoute() {
                 )}
               </div>
               <div className="ml-4 flex flex-col gap-2 sm:flex-row">
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm">
                   <Link to={`/plans?redirectTo=users/${user.username}`}>
                     {data.subscription ? "Manage" : "Upgrade"}
                   </Link>
@@ -160,7 +160,7 @@ export default function ProfileRoute() {
                     <input name="userId" type="hidden" value={user.id} />
                     <Button
                       size="sm"
-                      variant={dc.doubleCheck ? "destructive" : "outline"}
+                      variant={dc.doubleCheck ? "destructive" : "secondary"}
                       {...dc.getButtonProps({ type: "submit" })}
                     >
                       {dc.doubleCheck ? "Are you sure?" : "Cancel"}

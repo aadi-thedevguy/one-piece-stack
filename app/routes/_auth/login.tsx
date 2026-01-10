@@ -22,6 +22,7 @@ import {
   PasswordSchema,
   UsernameSchema,
 } from "~/lib/validations/user-validation";
+import { requireAnonymousMiddleware } from "~/middleware.server.js";
 import type { Route } from "./+types/login.ts";
 import { handleNewSession } from "./login.server";
 
@@ -40,9 +41,7 @@ const AuthenticationOptionsSchema = z.object({
   options: z.object({ challenge: z.string() }),
 }) satisfies z.ZodType<{ options: PublicKeyCredentialRequestOptionsJSON }>;
 
-export async function loader() {
-  return {};
-}
+export const middleware = [requireAnonymousMiddleware];
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
