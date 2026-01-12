@@ -31,15 +31,11 @@ import { getEnv } from "~/lib/env.server";
 import { honeypot } from "~/lib/honeypot.server";
 import { getTheme, type Theme } from "~/lib/theme.server";
 import { getToast } from "~/lib/toast.server";
-import {
-  combineHeaders,
-  getDomainUrl,
-  getImgSrc,
-  pipeHeaders,
-} from "~/lib/utils";
+import { combineHeaders, getDomainUrl, getImgSrc } from "~/lib/utils";
 import type { Route } from "./+types/root";
 import tailwindStyleSheetUrl from "./app.css?url";
 import { prisma } from "./lib/db.server";
+import { pipeHeaders } from "./lib/headers.server";
 import { makeTimings, time } from "./lib/timing.server";
 import { ThemeSwitch, useTheme } from "./routes/resources/theme-switch";
 

@@ -1,12 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { defaultGetSrc, type GetSrcArgs } from "openimg/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  type HeadersArgs,
-  useFormAction,
-  useNavigation,
-  useRouteLoaderData,
-} from "react-router";
+import { useFormAction, useNavigation, useRouteLoaderData } from "react-router";
 import { useSpinDelay } from "spin-delay";
 import { twMerge } from "tailwind-merge";
 import { placeholderAvatar } from "~/constants/keys";
@@ -72,56 +67,6 @@ export function getImgSrc({
     return `${endpoint}?${searchParams.toString()}`;
   }
   return defaultGetSrc({ height, optimizerEndpoint, src, width, fit, format });
-}
-
-/**
- * A utility for handling route headers, merging common use-case headers.
- *
- * This function combines headers by:
- * 1. Forwarding headers from the route's loader or action.
- * 2. Inheriting headers from the parent.
- * 3. Falling back to parent headers (if any) when headers are missing.
- */
-export function pipeHeaders({
-  parentHeaders,
-  loaderHeaders,
-  actionHeaders,
-  errorHeaders,
-}: HeadersArgs) {
-  const headers = new Headers();
-
-  // get the one that's actually in use
-  let currentHeaders: Headers;
-  if (errorHeaders !== undefined) {
-    currentHeaders = errorHeaders;
-  } else if (loaderHeaders.entries().next().done) {
-    currentHeaders = actionHeaders;
-  } else {
-    currentHeaders = loaderHeaders;
-  }
-
-  // append useful parent headers
-  const inheritHeaders = ["Vary", "Server-Timing"];
-  for (const headerName of inheritHeaders) {
-    const header = parentHeaders.get(headerName);
-    if (header) {
-      headers.append(headerName, header);
-    }
-  }
-
-  // fallback to parent headers if loader don't have
-  const fallbackHeaders = ["Cache-Control", "Vary"];
-  for (const headerName of fallbackHeaders) {
-    if (headers.has(headerName)) {
-      continue;
-    }
-    const fallbackHeader = parentHeaders.get(headerName);
-    if (fallbackHeader) {
-      headers.set(headerName, fallbackHeader);
-    }
-  }
-
-  return headers;
 }
 
 export function getErrorMessage(error: unknown) {

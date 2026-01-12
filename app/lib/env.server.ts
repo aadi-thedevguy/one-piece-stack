@@ -10,8 +10,7 @@ const schema = z.object({
   CORS_ORIGIN: z.string(),
   SESSION_SECRET: z.string(),
   HONEYPOT_SECRET: z.string(),
-  // Uncomment below if you are using Redis
-  // REDIS_URL: z.string(),
+  REDIS_URL: z.string().optional(),
   SENTRY_DSN: z.string(),
   RESEND_API_KEY: z.string(),
 

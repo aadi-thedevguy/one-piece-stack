@@ -41,6 +41,15 @@ export const DodoSubscriptionCancelledSchema = z.object({
   subscription_id: z.string(),
 });
 
+export const cacheEntrySchema = z.object({
+  metadata: z.object({
+    createdTime: z.number(),
+    ttl: z.number().nullable().optional(),
+    swr: z.number().nullable().optional(),
+  }),
+  value: z.unknown(),
+});
+
 export type Toast = z.infer<typeof ToastSchema>;
 export type ToastInput = z.input<typeof ToastSchema>;
 export type ProviderName = z.infer<typeof ProviderNameSchema>;

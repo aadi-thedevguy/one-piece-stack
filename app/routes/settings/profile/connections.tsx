@@ -14,9 +14,10 @@ import {
 import { userIdContext } from "~/context";
 import { ProviderConnectionForm, providerIcons } from "~/lib/auth/connections";
 import { prisma } from "~/lib/db.server";
+import { pipeHeaders } from "~/lib/headers.server";
 import { makeTimings } from "~/lib/timing.server";
 import { createToastHeaders } from "~/lib/toast.server";
-import { pipeHeaders } from "~/lib/utils";
+
 import {
   type ProviderName,
   ProviderNameSchema,
