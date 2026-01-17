@@ -9,12 +9,6 @@ import type { loader as rootLoader } from "~/root";
 
 export function getUserImgSrc(objectKey?: string | null) {
   if (!objectKey) return placeholderAvatar;
-  if (
-    process.env.NODE_ENV === "development" &&
-    objectKey.includes("icon.png")
-  ) {
-    return `https://thedevguy.in/images/${objectKey}`;
-  }
   return `/resources/images?objectKey=${encodeURIComponent(objectKey)}`;
 }
 

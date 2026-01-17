@@ -61,7 +61,7 @@ export default function EditUserProfile() {
       <div className="container">
         <ul className="flex gap-3">
           <li>
-            <Link className="text-muted-foreground" to="/profile">
+            <Link className="text-muted-foreground" to="/my-profile">
               Profile
             </Link>
           </li>

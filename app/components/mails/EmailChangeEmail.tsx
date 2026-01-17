@@ -36,7 +36,7 @@ export function EmailChangeNoticeEmail({ userId }: { userId: string }) {
             <E.Text>Your One Piece App email has been changed</E.Text>
           </h1>
           <E.Text style={paragraph}>
-            We're writing to let you know that your Epic Notes email has been
+            We're writing to let you know that your One Piece App email has been
             changed.
           </E.Text>
           <E.Text style={paragraph}>

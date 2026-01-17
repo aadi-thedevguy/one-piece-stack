@@ -5,7 +5,6 @@ import type { SEOHandle } from "@nasa-gcn/remix-seo";
 import {
   Camera,
   CircleUser,
-  Download,
   Link2,
   Lock,
   Mail,
@@ -19,6 +18,7 @@ import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
 import {
+  adminPlaceholderAvatar,
   profileUpdateActionIntent,
   sessionKey,
   signOutOfSessionsActionIntent,
@@ -70,6 +70,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       },
     },
   });
+  const isAdmin = user.roles.some((role) => role.name === "admin");
 
   const [twoFactorVerification, password] = await Promise.all([
     prisma.verification.findUnique({
@@ -84,6 +85,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 
   return {
     user,
+    isAdmin,
     hasPassword: Boolean(password),
     isTwoFactorEnabled: Boolean(twoFactorVerification),
   };
@@ -117,14 +119,24 @@ export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col gap-12">
       <div className="flex justify-center">
         <div className="relative size-52">
-          <Img
-            alt={loaderData.user.name ?? loaderData.user.username}
-            className="h-full w-full rounded-full object-cover"
-            height={832}
-            isAboveFold
-            src={getUserImgSrc(loaderData.user.image?.objectKey)}
-            width={832}
-          />
+          {loaderData.isAdmin && !loaderData.user.image ? (
+            <img
+              alt={loaderData.user.name ?? loaderData.user.username}
+              className="h-full w-full rounded-full object-cover"
+              height={832}
+              src={adminPlaceholderAvatar}
+              width={832}
+            />
+          ) : (
+            <Img
+              alt={loaderData.user.name ?? loaderData.user.username}
+              className="h-full w-full rounded-full object-cover"
+              height={832}
+              isAboveFold
+              src={getUserImgSrc(loaderData.user.image?.objectKey)}
+              width={832}
+            />
+          )}
           <Button
             asChild
             className="-right-3 absolute top-3 flex size-10 items-center justify-center rounded-full p-0"
@@ -187,17 +199,6 @@ export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
           <Link className="flex items-center gap-2" to="passkeys">
             <Unlock />
             <span>Manage passkeys</span>
-          </Link>
-        </div>
-        <div>
-          <Link
-            className="flex items-center gap-2"
-            download="my-epic-notes-data.json"
-            reloadDocument
-            to="/resources/download-user-data"
-          >
-            <Download />
-            <span>Download your data</span>
           </Link>
         </div>
         <SignOutOfSessions loaderData={loaderData} />

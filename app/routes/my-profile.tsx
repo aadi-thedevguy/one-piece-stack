@@ -11,6 +11,7 @@ import {
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
 import { Spacer } from "~/components/layout/spacer";
 import { Button } from "~/components/ui/button";
+import { adminPlaceholderAvatar } from "~/constants/keys";
 import { requireUserId } from "~/lib/auth/auth.server";
 import { prisma } from "~/lib/db.server";
 import { getUserImgSrc, useDoubleCheck } from "~/lib/utils";
@@ -61,13 +62,23 @@ export default function ProfileRoute() {
         <div className="relative w-52">
           <div className="-top-40 absolute">
             <div className="relative">
-              <Img
-                alt={userDisplayName}
-                className="size-52 rounded-full object-cover"
-                height={832}
-                src={getUserImgSrc(data.user.image?.objectKey)}
-                width={832}
-              />
+              {isAdmin && !user.image ? (
+                <img
+                  alt={userDisplayName}
+                  className="size-52 rounded-full object-cover"
+                  height={832}
+                  src={adminPlaceholderAvatar}
+                  width={832}
+                />
+              ) : (
+                <Img
+                  alt={userDisplayName}
+                  className="size-52 rounded-full object-cover"
+                  height={832}
+                  src={getUserImgSrc(data.user.image?.objectKey)}
+                  width={832}
+                />
+              )}
             </div>
           </div>
         </div>

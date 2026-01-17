@@ -1,29 +1,29 @@
-// import { constants, promises as fs } from "node:fs";
+import { constants, promises as fs } from "node:fs";
 import { invariantResponse } from "@epic-web/invariant";
 import { getImgResponse } from "openimg/node";
 import { getSignedGetRequestInfo } from "~/lib/upload.server";
 import { getDomainUrl } from "~/lib/utils";
 import type { Route } from "./+types/images";
 
-// let cacheDir: string | null = null;
+let cacheDir: string | null = null;
 
-// async function getCacheDir() {
-//   if (cacheDir) return cacheDir;
+async function getCacheDir() {
+  if (cacheDir) return cacheDir;
 
-//   let dir = "./tests/fixtures/openimg";
-//   if (process.env.NODE_ENV === "production") {
-//     const isAccessible = await fs
-//       .access("/data", constants.W_OK)
-//       .then(() => true)
-//       .catch(() => false);
+  let dir = "./tests/fixtures/openimg";
+  if (process.env.NODE_ENV === "production") {
+    const isAccessible = await fs
+      .access("/data", constants.W_OK)
+      .then(() => true)
+      .catch(() => false);
 
-//     if (isAccessible) {
-//       dir = "/data/images";
-//     }
-//   }
-//   cacheDir = dir;
-//   return cacheDir;
-// }
+    if (isAccessible) {
+      dir = "/data/images";
+    }
+  }
+  cacheDir = dir;
+  return cacheDir;
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -34,31 +34,20 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const objectKey = searchParams.get("objectKey");
 
-  if (objectKey?.includes("icon.png")) {
-    return {
-      type: "fetch",
-      url: "https://thedevguy.in/images/icon.png",
-    };
-  }
-
   return getImgResponse(request, {
     headers,
     allowlistedOrigins: [
       getDomainUrl(request),
-      "https://google.com",
-      "https://s3.amazonaws.com",
-      "https://thedevguy.in",
+      process.env.AWS_ENDPOINT_URL_S3,
       "https://api.dicebear.com",
     ].filter(Boolean),
-    // cacheFolder: await getCacheDir(),
-    getImgSource: () => {
+    cacheFolder: await getCacheDir(),
+    getImgSource: async () => {
       if (objectKey) {
-        const { url: signedUrl, headers: signedHeaders } =
-          getSignedGetRequestInfo(objectKey);
+        const { url } = await getSignedGetRequestInfo(objectKey);
         return {
           type: "fetch",
-          url: signedUrl,
-          headers: signedHeaders,
+          url,
         };
       }
 

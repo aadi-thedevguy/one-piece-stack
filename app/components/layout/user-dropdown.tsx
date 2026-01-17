@@ -1,5 +1,6 @@
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { LogOutIcon, User2Icon } from "lucide-react";
+import { Img } from "openimg/react";
 import { type FormEvent, useRef } from "react";
 import { Form, Link, useSubmit } from "react-router";
 import {
@@ -8,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuPortal,
 } from "~/components/ui/dropdown-menu";
-import { placeholderAvatar } from "~/constants/keys";
+import { adminPlaceholderAvatar } from "~/constants/keys";
 import { getUserImgSrc, useUser } from "~/lib/utils";
 import { Button } from "../ui/button";
 
@@ -16,6 +17,7 @@ export function UserDropdown() {
   const user = useUser();
   const submit = useSubmit();
   const formRef = useRef<HTMLFormElement>(null);
+  const isAdmin = user.roles.some((role) => role.name === "admin");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,11 +28,15 @@ export function UserDropdown() {
             onClick={(e: FormEvent) => e.preventDefault()}
             to="my-profile"
           >
-            <img
+            <Img
               alt={user.name ?? user.username}
               className="h-8 w-8 rounded-full object-cover"
               height={32}
-              src={getUserImgSrc(user.image?.objectKey) || placeholderAvatar}
+              src={
+                isAdmin && !user.image
+                  ? adminPlaceholderAvatar
+                  : getUserImgSrc(user.image?.objectKey)
+              }
               width={32}
             />
             <span className="hidden font-bold text-body-sm sm:inline">

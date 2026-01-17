@@ -22,7 +22,7 @@ export const serverBuildContext = createContext<{
   nonce: string;
 } | null>(null);
 
-export default await createHonoServer({
+export default createHonoServer({
   app: new Hono(),
   defaultLogger: false,
 
@@ -35,7 +35,7 @@ export default await createHonoServer({
     return ctx;
   },
   configure: (server) => {
-    server.use("*", epicLogger());
+    server.use("*", epicLogger({ logName: "One Piece Stack" }));
     server.use(removeTrailingSlash);
 
     server.use("*", async (c, next) => {
@@ -51,7 +51,7 @@ export default await createHonoServer({
     server.use(cspNonceMiddleware);
     server.use("*", secureHeadersMiddleware);
     server.use("*", rateLimitMiddleware);
-    server.use("*", poweredBy({ serverName: "EPIC STACK" }));
+    server.use("*", poweredBy({ serverName: "One Piece Stack" }));
 
     server.on("GET", ["/favicons/*", "/img/*"], (c) =>
       c.text("Not found", 404)

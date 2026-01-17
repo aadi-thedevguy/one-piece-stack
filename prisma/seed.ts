@@ -152,9 +152,6 @@ async function seed() {
       roles: { connect: [{ name: "admin" }, { name: "user" }] },
     },
   });
-  await prisma.userImage.create({
-    data: { userId: adminUser.id, objectKey: "icon.png" },
-  });
   console.timeEnd("🐨 Created admin user");
 
   const { starterPriceId, starterPlanDbId, starterPriceDbId } =

@@ -12,4 +12,4 @@ export const profileUpdateActionIntent = "update-profile";
 export const signOutOfSessionsActionIntent = "sign-out-of-sessions";
 export const placeholderAvatar =
   "https://api.dicebear.com/9.x/adventurer/svg?seed=Oliver";
-// export const placeholderAvatar = '/placeholder.jpg'
+export const adminPlaceholderAvatar = "https://thedevguy.in/images/icon.png";

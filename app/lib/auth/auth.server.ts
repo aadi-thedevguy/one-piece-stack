@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { data, redirect } from "react-router";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { sessionKey } from "~/constants/keys";
-import { combineHeaders, downloadFile } from "~/lib/utils";
+import { combineHeaders } from "~/lib/utils";
 import type {
   Connection,
   Password,
@@ -180,17 +180,22 @@ export async function signupWithConnection({
   });
 
   if (imageUrl) {
-    const imageFile = await downloadFile(imageUrl);
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        image: {
-          create: {
-            objectKey: await uploadProfileImage(user.id, imageFile),
-          },
-        },
-      },
-    });
+    try {
+      const response = await fetch(imageUrl);
+      if (response.ok && response.body) {
+        const objectKey = await uploadProfileImage(user.id, {
+          type: response.headers.get("content-type") || "image/jpeg",
+          stream: () => response.body,
+        });
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { image: { create: { objectKey } } },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to upload profile image during signup:", error);
+    }
   }
 
   // Create and return the session

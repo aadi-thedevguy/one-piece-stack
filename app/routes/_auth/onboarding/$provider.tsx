@@ -12,7 +12,7 @@ import {
   redirect,
   useSearchParams,
 } from "react-router";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+// import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import { CheckboxField, ErrorList, Field } from "~/components/layout/forms";
@@ -27,7 +27,7 @@ import {
 import { signupWithConnection } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
-import { validateCSRF } from "~/lib/csrf.server";
+// import { validateCSRF } from "~/lib/csrf.server";
 import { prisma } from "~/lib/db.server";
 import { redirectWithToast } from "~/lib/toast.server";
 import { useIsPending } from "~/lib/utils";
@@ -90,7 +90,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const verifySession = await verifySessionStorage.getSession(
     request.headers.get("cookie")
   );
-  await validateCSRF(formData, request.headers);
+  // await validateCSRF(formData, request.headers);
   const submission = await parseWithZod(formData, {
     schema: SignupFormSchema.superRefine(async (data, ctx) => {
       const existingUser = await prisma.user.findUnique({
@@ -150,7 +150,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export const meta: Route.MetaFunction = () => [
-  { title: "Setup Epic Notes Account" },
+  { title: "Setup One Piece App Account" },
 ];
 
 export default function OnboardingProviderRoute({
@@ -186,7 +186,7 @@ export default function OnboardingProviderRoute({
           method="POST"
           {...getFormProps(form)}
         >
-          <AuthenticityTokenInput />
+          {/* <AuthenticityTokenInput /> */}
           {fields.imageUrl.initialValue ? (
             <div className="mb-4 flex flex-col items-center justify-center gap-4">
               <img

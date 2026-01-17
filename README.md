@@ -12,7 +12,7 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Lightweight, performant server framework - [Hono](https://hono.dev)
 - ORM - [Prisma v7](https://prisma.io)
 - Send Transactional emails with [Resend](https://resend.com/)
-- Storing Assets in [AWS S3](https://https://aws.amazon.com/s3/)
+- Storing Assets in [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - Styling with [TailwindCSS](https://tailwindcss.com)
 - Component Library - [ShadCN UI](https://ui.shadcn.com/)
 - Deploys anywhere with [Docker](https://docker.com)
@@ -119,7 +119,6 @@ We use [Biome](https://biomejs.dev/) for auto-formatting in this project. It's r
 ## Guidelines for Copy Writing
 
 - **CTA**: Every Call to action should be a card-like component consisting of:
-
   1. A strong Subject line to grab the user's attention
   1. Subtitle to explain the benefits of using the product
   1. Button text which sparks powerful emotion, like "join 1000s of people", "save money" etc.
@@ -127,7 +126,6 @@ We use [Biome](https://biomejs.dev/) for auto-formatting in this project. It's r
   1. A link to the product's dashboard page
 
 - **Why this:** Why would the customer want to use this product?
-
   1. It should explain that the problem is real and people can pay for the solution
   2. It should compare what the currently available solutions aren't solving for and what your product does better than the competition
   3. The component can be two lists of problems and solutions Or a single-line bulleted list featuring the best of the product
@@ -135,7 +133,6 @@ We use [Biome](https://biomejs.dev/) for auto-formatting in this project. It's r
 - **Demo steps:** Give interactive Definition list type components so that when a user clicks on a step, it expands and shows the next step while side by side it shows the UI of the app navigation structure so he knows if he clicks on "generate invoice", he will see the UI of the invoice generation page
 
 - **Value Prop:** What is the value proposition of the product?
-
   1. A Visual Interactive image-type component which shows the problem and solution in linked cards
   1. Give screenshots of people's tweets, Reddit posts, other forums, or blog articles on how a certain problem is expensive and a solution is needed.
 

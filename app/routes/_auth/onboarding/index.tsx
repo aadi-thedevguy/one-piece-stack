@@ -1,7 +1,8 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { data, Form, redirect, useSearchParams } from "react-router";
-import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+// import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+// import { validateCSRF } from "~/lib/csrf.server";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
@@ -12,7 +13,6 @@ import { onboardingEmailSessionKey, sessionKey } from "~/constants/keys.js";
 import { checkIsCommonPassword, signup } from "~/lib/auth/auth.server";
 import { authSessionStorage } from "~/lib/auth/session.server";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
-import { validateCSRF } from "~/lib/csrf.server";
 import { prisma } from "~/lib/db.server";
 import { checkHoneypot } from "~/lib/honeypot.server";
 import { redirectWithToast } from "~/lib/toast.server";
@@ -59,7 +59,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const email = await requireOnboardingEmail(request);
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
+  // await validateCSRF(formData, request.headers);
   checkHoneypot(formData);
   const submission = await parseWithZod(formData, {
     schema: (intent) =>
@@ -127,7 +127,7 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export const meta: Route.MetaFunction = () => [
-  { title: "Setup Epic Notes Account" },
+  { title: "Setup One Piece App Account" },
 ];
 
 export default function OnboardingRoute({
@@ -164,7 +164,7 @@ export default function OnboardingRoute({
           method="POST"
           {...getFormProps(form)}
         >
-          <AuthenticityTokenInput />
+          {/* <AuthenticityTokenInput /> */}
           <HoneypotInputs />
           <Field
             errors={fields.username.errors}

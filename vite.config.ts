@@ -16,7 +16,7 @@ export default defineConfig((config) => ({
   build: {
     target: "es2022",
     cssMinify: MODE === "production",
-    sourcemap: true,
+    sourcemap: false,
   },
   server: {
     port: 3000,

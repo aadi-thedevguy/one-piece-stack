@@ -43,7 +43,7 @@ auth.use(
         });
       }
       const username = profile.displayName;
-      const imageUrl = profile.photos[0].value;
+      const imageUrl = profile.photos?.[0]?.value;
       return {
         email,
         id: profile.id,
