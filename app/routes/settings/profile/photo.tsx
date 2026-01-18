@@ -11,10 +11,12 @@ import { z } from "zod";
 import { ErrorList } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
 import { Button } from "~/components/ui/button";
+import { adminPlaceholderAvatar, placeholderAvatar } from "~/constants/keys";
 import { userIdContext } from "~/context";
 import { prisma } from "~/lib/db.server";
-import { uploadProfileImage } from "~/lib/upload.server";
+import { deleteProfileImage, uploadProfileImage } from "~/lib/upload.server";
 import { getUserImgSrc, useDoubleCheck, useIsPending } from "~/lib/utils";
+import { MAX_SIZE, PhotoFormSchema } from "~/lib/validations";
 import type { BreadcrumbHandle } from "./_layout";
 import type { Route } from "./+types/photo.ts";
 
@@ -28,28 +30,6 @@ export const handle: BreadcrumbHandle & SEOHandle = {
   getSitemapEntries: () => null,
 };
 
-const MAX_SIZE = 1024 * 1024 * 3; // 3MB
-
-const DeleteImageSchema = z.object({
-  intent: z.literal("delete"),
-});
-
-const NewImageSchema = z.object({
-  intent: z.literal("submit"),
-  photoFile: z
-    .instanceof(File)
-    .refine((file) => file.size > 0, "Image is required")
-    .refine(
-      (file) => file.size <= MAX_SIZE,
-      "Image size must be less than 3MB"
-    ),
-});
-
-const PhotoFormSchema = z.discriminatedUnion("intent", [
-  DeleteImageSchema,
-  NewImageSchema,
-]);
-
 export async function loader({ context }: Route.LoaderArgs) {
   const userId = context.get(userIdContext) as string;
   invariantResponse(Boolean(userId), "Unauthorized", { status: 401 });
@@ -61,6 +41,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       name: true,
       username: true,
       image: { select: { objectKey: true } },
+      roles: { select: { name: true } },
     },
   });
   invariantResponse(user, "User not found", { status: 404 });
@@ -93,20 +74,50 @@ export async function action({ request, context }: Route.ActionArgs) {
     );
   }
 
-  const { image, intent } = submission.value;
+  const existingUserImage = await prisma.userImage.findFirst({
+    where: { userId },
+    select: { objectKey: true },
+  });
 
-  if (intent === "delete") {
+  const isPlaceholder = (key: string) =>
+    key === placeholderAvatar || key === adminPlaceholderAvatar;
+
+  if (submission.value.intent === "delete") {
     await prisma.userImage.deleteMany({ where: { userId } });
+    if (
+      existingUserImage?.objectKey &&
+      !isPlaceholder(existingUserImage.objectKey)
+    ) {
+      await deleteProfileImage(existingUserImage.objectKey);
+    }
     return redirect("/settings/profile");
   }
 
-  await prisma.$transaction(async ($prisma) => {
-    await $prisma.userImage.deleteMany({ where: { userId } });
-    await $prisma.user.update({
-      where: { id: userId },
-      data: { image: { create: image } },
+  const { image } = submission.value;
+
+  try {
+    await prisma.$transaction(async ($prisma) => {
+      await $prisma.userImage.deleteMany({ where: { userId } });
+      await $prisma.user.update({
+        where: { id: userId },
+        data: { image: { create: image } },
+      });
     });
-  });
+  } catch (error) {
+    // If the DB transaction fails, we must delete the NEW image we just uploaded
+    // to prevent it from becoming an orphan.
+    if (image?.objectKey) {
+      await deleteProfileImage(image.objectKey);
+    }
+    throw error;
+  }
+
+  if (
+    existingUserImage?.objectKey &&
+    !isPlaceholder(existingUserImage.objectKey)
+  ) {
+    await deleteProfileImage(existingUserImage.objectKey);
+  }
 
   return redirect("/settings/profile");
 }
@@ -135,6 +146,8 @@ export default function PhotoRoute({
 
   const [newImageSrc, setNewImageSrc] = useState<string | null>(null);
 
+  const isAdmin = loaderData.user.roles.some((role) => role.name === "admin");
+
   return (
     <div>
       <Form
@@ -150,9 +163,9 @@ export default function PhotoRoute({
           height={200}
           src={
             newImageSrc ??
-            (loaderData.user
-              ? getUserImgSrc(loaderData.user.image?.objectKey)
-              : "")
+            (isAdmin && !loaderData.user.image
+              ? adminPlaceholderAvatar
+              : getUserImgSrc(loaderData.user.image?.objectKey))
           }
           width={200}
         />
@@ -216,7 +229,9 @@ export default function PhotoRoute({
             <Trash2 className="h-4 w-4" />
             <span>Reset</span>
           </Button>
-          {loaderData.user.image ? (
+          {loaderData.user.image?.objectKey &&
+          loaderData.user.image.objectKey !== placeholderAvatar &&
+          loaderData.user.image.objectKey !== adminPlaceholderAvatar ? (
             <StatusButton
               className="peer-valid:hidden"
               variant="destructive"

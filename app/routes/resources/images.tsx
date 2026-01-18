@@ -33,21 +33,25 @@ export async function loader({ request }: Route.LoaderArgs) {
   headers.set("Cache-Control", "public, max-age=31536000, immutable");
 
   const objectKey = searchParams.get("objectKey");
+  let signedUrl: string | null = null;
+  if (objectKey) {
+    const { url } = await getSignedGetRequestInfo(objectKey);
+    signedUrl = url;
+  }
 
   return getImgResponse(request, {
     headers,
     allowlistedOrigins: [
       getDomainUrl(request),
-      process.env.AWS_ENDPOINT_URL_S3,
       "https://api.dicebear.com",
+      signedUrl ? new URL(signedUrl).origin : process.env.AWS_ENDPOINT_URL_S3,
     ].filter(Boolean),
     cacheFolder: await getCacheDir(),
     getImgSource: async () => {
-      if (objectKey) {
-        const { url } = await getSignedGetRequestInfo(objectKey);
+      if (signedUrl) {
         return {
           type: "fetch",
-          url,
+          url: signedUrl,
         };
       }
 

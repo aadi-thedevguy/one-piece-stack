@@ -1,6 +1,5 @@
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { LogOutIcon, User2Icon } from "lucide-react";
-import { Img } from "openimg/react";
 import { type FormEvent, useRef } from "react";
 import { Form, Link, useSubmit } from "react-router";
 import {
@@ -28,7 +27,7 @@ export function UserDropdown() {
             onClick={(e: FormEvent) => e.preventDefault()}
             to="my-profile"
           >
-            <Img
+            <img
               alt={user.name ?? user.username}
               className="h-8 w-8 rounded-full object-cover"
               height={32}

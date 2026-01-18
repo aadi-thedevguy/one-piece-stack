@@ -50,6 +50,28 @@ export const cacheEntrySchema = z.object({
   value: z.unknown(),
 });
 
+export const MAX_SIZE = 1024 * 1024 * 3; // 3MB
+
+const DeleteImageSchema = z.object({
+  intent: z.literal("delete"),
+});
+
+const NewImageSchema = z.object({
+  intent: z.literal("submit"),
+  photoFile: z
+    .instanceof(File)
+    .refine((file) => file.size > 0, "Image is required")
+    .refine(
+      (file) => file.size <= MAX_SIZE,
+      "Image size must be less than 3MB"
+    ),
+});
+
+export const PhotoFormSchema = z.discriminatedUnion("intent", [
+  DeleteImageSchema,
+  NewImageSchema,
+]);
+
 export type Toast = z.infer<typeof ToastSchema>;
 export type ToastInput = z.input<typeof ToastSchema>;
 export type ProviderName = z.infer<typeof ProviderNameSchema>;

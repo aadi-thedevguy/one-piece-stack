@@ -1,4 +1,8 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { FileUpload } from "@mjackson/form-data-parser";
@@ -59,6 +63,23 @@ export async function uploadProfileImage(userId: string, file: Uploadable) {
   const timestamp = Date.now();
   const key = `users/${userId}/profile-images/${timestamp}-${fileId}.${fileExtension}`;
   return uploadToStorage(file, key);
+}
+
+export async function deleteProfileImage(objectKey: string) {
+  if (!objectKey) return;
+  console.log("Deleting profile image from S3:", objectKey);
+  console.log("bucket name:", STORAGE_BUCKET);
+  try {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: STORAGE_BUCKET,
+        Key: objectKey,
+      })
+    );
+  } catch (error) {
+    console.error("Error deleting profile image from S3:", error);
+    throw error;
+  }
 }
 
 export async function getSignedGetRequestInfo(key: string) {
