@@ -1,83 +1,88 @@
+
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client"
+  output          = "./generated"
+  moduleFormat    = "esm"
+  runtime         = "nodejs"
+  previewFeatures = ["typedSql"]
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 
 model User {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  id       String  @id @default(cuid())
   email    String  @unique
   username String  @unique
   name     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  image        UserImage?
-  password     Password?
-  notes        Note[]
-  roleIDs      String[]      @db.ObjectId
-  roles        Role[]        @relation(fields: [roleIDs], references: [id])
-  sessions     Session[]
-  connections  Connection[]
-  // Added for Payment Provider 
+  active      Boolean @default(true)
+  image       UserImage?
+  password    Password?
+  notes       Note[]
+  roles       Role[]
+  sessions    Session[]
+  connections Connection[]
+  passkey     Passkey[]
   customerId   String?       @unique
   subscription Subscription?
 }
 
 model Note {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  id      String @id @default(cuid())
   title   String
   content String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  ownerId   String   @db.ObjectId
 
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ownerId String
+
+  // non-unique foreign key
   @@index([ownerId])
+  // This helps our order by in the user search a LOT
   @@index([ownerId, updatedAt])
 }
 
 model UserImage {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  altText     String?
-  filename    String
-  contentType String
-  url         String
+  id        String  @id @default(cuid())
+  altText   String?
+  objectKey String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique @db.ObjectId
+  userId String @unique
 }
 
 model Password {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  hash   String
+  hash String
+
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique @db.ObjectId
+  userId String @unique
 }
 
 model Session {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  id             String   @id @default(cuid())
   expirationDate DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @db.ObjectId
+  userId String
 
+  // non-unique foreign key
   @@index([userId])
 }
 
 model Permission {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(cuid())
   action      String // e.g. create, read, update, delete
   entity      String // e.g. note, user, etc.
   access      String // e.g. own or any
@@ -85,27 +90,26 @@ model Permission {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  roleIDs   String[] @db.ObjectId
-  roles     Role[]   @relation(fields: [roleIDs], references: [id])
+
+  roles Role[]
 
   @@unique([action, entity, access])
 }
 
 model Role {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(cuid())
   name        String @unique
   description String @default("")
 
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  userIDs       String[]     @db.ObjectId
-  permissionIDs String[]     @db.ObjectId
-  users         User[]       @relation(fields: [userIDs], references: [id])
-  permissions   Permission[] @relation(fields: [permissionIDs], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  permissions Permission[]
 }
 
 model Verification {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
   /// The type of verification, e.g. "email" or "phone"
@@ -136,18 +140,36 @@ model Verification {
 }
 
 model Connection {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String @id @default(cuid())
   providerName String
   providerId   String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  displayName String?
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @db.ObjectId
+  userId String
 
   @@unique([providerName, providerId])
 }
+
+model Passkey {
+  id             String   @id
+  aaguid         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  publicKey      Bytes
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  webauthnUserId String
+  counter        BigInt
+  deviceType     String // 'singleDevice' or 'multiDevice'
+  backedUp       Boolean
+  transports     String? // Stored as comma-separated values
+
+  @@index(userId)
+}
+
 
 // ...
 // Subscription Related Models.
@@ -155,58 +177,58 @@ model Connection {
 
 // Plans are used to describe and group our Products.
 model Plan {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  id           String @id @default(cuid())
   planID      String     @unique // Managed by your Payment Provider - (Plan ID)
   name        String     @unique
   description String?
   active      Boolean?   @default(true)
-  limits      PlanLimit?
+  isPopular   Boolean?   @default(false)
+  features    PlanFeatures[]
   prices      Price[]
-  // subscriptions Subscription[]
+  subscriptions Subscription[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
 
-// Plan limits are used to describe the limits available to a plan.
-model PlanLimit {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  plan     Plan   @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  planId   String @unique @db.ObjectId
-  // Here you can define your own limits.
-  // For example, you could have a limit on the number of items a user can create.
-  maxItems Int    @default(0)
+model PlanFeatures {
+  id           String @id @default(cuid())
+  description  String
+  planId      String
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
 }
 
 // Prices are used to identify our plan prices.
 model Price {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String @id @default(cuid())
   priceID   String   @unique // Managed by your Payment Provider - (Price ID)
   plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  planId    String   @db.ObjectId
+  planId    String 
   amount    Int
   currency  String
   interval  String
   active    Boolean  @default(true)
-  // subscriptions Subscription[]
+  subscriptions Subscription[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 // Subscriptions are used to identify our customers subscriptions.
 model Subscription {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  subscriptionID     String   @unique // Managed by your Payment Provider - (Subscription ID)
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId             String   @unique @db.ObjectId
-  // plan               Plan     @relation(fields: [planId], references: [id])
-  planId             String   @unique
-  // price              Price    @relation(fields: [priceId], references: [id])
-  priceId            String   @unique
-  interval           String
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  planId             String
+  priceId            String
   status             String
-  currentPeriodStart Int
-  currentPeriodEnd   Int
+  interval           String
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
   cancelAtPeriodEnd  Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  cancelledAt        DateTime?
+  cancelledBy        String?
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+  price               Price   @relation(fields: [priceId], references: [id], onDelete: Cascade)
 }

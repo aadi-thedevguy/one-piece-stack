@@ -1,7 +1,5 @@
-import React from 'react'
-
 function Whythis() {
-	return <div>Whythis</div>
+  return <div>Whythis</div>;
 }
 
-export default Whythis
+export default Whythis;

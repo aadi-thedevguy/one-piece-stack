@@ -1,71 +1,98 @@
-import { v2 as cloudinary } from 'cloudinary'
-import { array } from 'zod'
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import type { FileUpload } from "@mjackson/form-data-parser";
+import { createId } from "@paralleldrive/cuid2";
 
-cloudinary.config({
-	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-	api_key: process.env.CLOUDINARY_API_KEY,
-	api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+const STORAGE_ENDPOINT = process.env.AWS_ENDPOINT_URL_S3;
+const STORAGE_BUCKET = process.env.BUCKET_NAME;
+const STORAGE_ACCESS_KEY = process.env.AWS_ACCESS_KEY_ID;
+const STORAGE_SECRET_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const STORAGE_REGION = process.env.AWS_REGION;
 
-const bucket = process.env.CLOUDINARY_BUCKET
+const s3 = new S3Client({
+  region: STORAGE_REGION,
+  endpoint: STORAGE_ENDPOINT,
+  credentials: {
+    accessKeyId: STORAGE_ACCESS_KEY,
+    secretAccessKey: STORAGE_SECRET_KEY,
+  },
+});
 
-export async function uploadFile(file: File | undefined) {
-	if (!file) {
-		return {
-			error: 'No file selected',
-			url: '',
-		}
-	}
+export type Uploadable =
+  | File
+  | FileUpload
+  | { name?: string; type: string; stream: () => any };
 
-	try {
-		// Convert the file to a buffer
-		const fileBuffer = await file.arrayBuffer()
-		const base64String = Buffer.from(fileBuffer).toString('base64')
+async function uploadToStorage(file: Uploadable, key: string) {
+  const body = file.stream();
 
-		const mimeType = file.type || 'application/octet-stream' // Default to binary if type unknown
-		const dataUrl = `data:${mimeType};base64,${base64String}`
+  try {
+    const upload = new Upload({
+      client: s3,
+      params: {
+        Bucket: STORAGE_BUCKET,
+        Key: key,
+        Body: body,
+        ContentType: file.type,
+      },
+    });
 
-		const { secure_url } = await cloudinary.uploader.upload(dataUrl, {
-			folder: bucket,
-			public_id: file.name,
-		})
+    await upload.done();
+  } catch (error) {
+    console.error("Failed to upload file to storage:", error);
+    throw new Error(`Failed to upload object: ${key}`);
+  }
 
-		return {
-			url: secure_url,
-			error: '',
-		}
-	} catch (error) {
-		if (error instanceof Error) {
-			console.error('Error uploading file to Cloudinary:', error.message)
-			return {
-				error: 'Error uploading file to Cloudinary: ' + error.message,
-				url: '',
-			}
-		} else {
-			return {
-				error: 'An unknown error occurred during file upload.',
-				url: '',
-			}
-		}
-	}
+  return key;
 }
 
-export async function deleteFile(filename?: string): Promise<boolean> {
-	if (!filename) {
-		return false
-	}
-	try {
-		await cloudinary.uploader.destroy(
-			process.env.CLOUDINARY_BUCKET + '/' + filename
-		)
+export async function uploadProfileImage(userId: string, file: Uploadable) {
+  const fileId = createId();
+  let fileExtension = "";
+  if (file.name?.includes(".")) {
+    fileExtension = file.name.split(".").pop() || "";
+  } else if (file.type) {
+    const ext = file.type.split("/")[1];
+    if (ext) fileExtension = ext;
+  }
+  const timestamp = Date.now();
+  const key = `users/${userId}/profile-images/${timestamp}-${fileId}.${fileExtension}`;
+  return uploadToStorage(file, key);
+}
 
-		return true
-	} catch (error) {
-		// Handle any errors during the deletion process
-		if (error instanceof Error) {
-			console.error('Error deleting file from S3:', error.message)
-		}
-		console.error('An unknown error occurred during file deletion.')
-		return false
-	}
+export async function deleteProfileImage(objectKey: string) {
+  if (!objectKey) return;
+  console.log("Deleting profile image from S3:", objectKey);
+  console.log("bucket name:", STORAGE_BUCKET);
+  try {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: STORAGE_BUCKET,
+        Key: objectKey,
+      })
+    );
+  } catch (error) {
+    console.error("Error deleting profile image from S3:", error);
+    throw error;
+  }
+}
+
+export async function getSignedGetRequestInfo(key: string) {
+  const command = new GetObjectCommand({
+    Bucket: STORAGE_BUCKET,
+    Key: key,
+  });
+
+  // Generate a presigned URL valid for 1 hour
+  const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+  return {
+    url,
+    error: null,
+  };
 }

@@ -1,39 +1,79 @@
-import { z } from 'zod'
-import { v4 as cuid } from 'uuid'
+import { createId as cuid } from "@paralleldrive/cuid2";
+import { z } from "zod";
 
 export const providerNames = [
-	'google',
-	// 'twitter',
-] as const
-const types = ['onboarding', 'reset-password', 'change-email'] as const
-export const codeQueryParam = 'code'
-export const targetQueryParam = 'target'
-export const typeQueryParam = 'type'
-export const redirectToQueryParam = 'redirectTo'
+  "google",
+  // 'twitter',
+] as const;
+const types = ["onboarding", "reset-password", "change-email", "2fa"] as const;
+export const codeQueryParam = "code";
+export const targetQueryParam = "target";
+export const typeQueryParam = "type";
+export const redirectToQueryParam = "redirectTo";
 
-export const BreadcrumbHandle = z.object({ breadcrumb: z.any() })
+export const BreadcrumbHandle = z.object({ breadcrumb: z.any() });
 export const ToastSchema = z.object({
-	description: z.string(),
-	id: z.string().default(() => cuid()),
-	title: z.string().optional(),
-	type: z.enum(['message', 'success', 'error']).default('message'),
-})
-export const VerificationTypeSchema = z.enum(types)
-export const ProviderNameSchema = z.enum(providerNames)
+  description: z.string(),
+  id: z.string().default(() => cuid()),
+  title: z.string().optional(),
+  type: z.enum(["message", "success", "error"]).default("message"),
+});
+export const VerificationTypeSchema = z.enum(types);
+export const ProviderNameSchema = z.enum(providerNames);
 export const VerifySchema = z.object({
-	[codeQueryParam]: z.string().min(6).max(6),
-	[typeQueryParam]: VerificationTypeSchema,
-	[targetQueryParam]: z.string(),
-	[redirectToQueryParam]: z.string().optional(),
-})
+  [codeQueryParam]: z.string().min(6).max(6),
+  [typeQueryParam]: VerificationTypeSchema,
+  [targetQueryParam]: z.string(),
+  [redirectToQueryParam]: z.string().optional(),
+});
 export const ThemeFormSchema = z.object({
-	theme: z.enum(['system', 'light', 'dark']),
-	// this is useful for progressive enhancement
-	redirectTo: z.string().optional(),
-})
+  theme: z.enum(["system", "light", "dark"]),
+  // this is useful for progressive enhancement
+  redirectTo: z.string().optional(),
+});
 
-export type Toast = z.infer<typeof ToastSchema>
-export type ToastInput = z.input<typeof ToastSchema>
-export type ProviderName = z.infer<typeof ProviderNameSchema>
-export type VerificationTypes = z.infer<typeof VerificationTypeSchema>
-export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>
+export const DodoSubscriptionWebhookSchema = z.object({
+  customer: z.object({ customer_id: z.string() }),
+  subscription_id: z.string(),
+});
+
+export const DodoSubscriptionCancelledSchema = z.object({
+  subscription_id: z.string(),
+});
+
+export const cacheEntrySchema = z.object({
+  metadata: z.object({
+    createdTime: z.number(),
+    ttl: z.number().nullable().optional(),
+    swr: z.number().nullable().optional(),
+  }),
+  value: z.unknown(),
+});
+
+export const MAX_SIZE = 1024 * 1024 * 3; // 3MB
+
+const DeleteImageSchema = z.object({
+  intent: z.literal("delete"),
+});
+
+const NewImageSchema = z.object({
+  intent: z.literal("submit"),
+  photoFile: z
+    .instanceof(File)
+    .refine((file) => file.size > 0, "Image is required")
+    .refine(
+      (file) => file.size <= MAX_SIZE,
+      "Image size must be less than 3MB"
+    ),
+});
+
+export const PhotoFormSchema = z.discriminatedUnion("intent", [
+  DeleteImageSchema,
+  NewImageSchema,
+]);
+
+export type Toast = z.infer<typeof ToastSchema>;
+export type ToastInput = z.input<typeof ToastSchema>;
+export type ProviderName = z.infer<typeof ProviderNameSchema>;
+export type VerificationTypes = z.infer<typeof VerificationTypeSchema>;
+export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>;

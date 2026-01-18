@@ -1,42 +1,47 @@
-import { type Plan } from '@prisma/client'
-import { useFetcher } from 'react-router'
-import { type Interval, PlanId } from '~/constants/index'
-import { Button } from './ui/button'
+import { Form, useNavigation } from "react-router";
+import type { Interval } from "~/constants/index";
+import { Button } from "./ui/button";
 
 type CheckoutButtonProps = {
-	currentPlanId: Plan['id'] | null
-	planId: Plan['id']
-	planName: Plan['name']
-	planInterval: Interval | string
-}
+  planId: string;
+  planInterval: string | Interval;
+  currentPlanId: string | null;
+  planName: string;
+  disabled?: boolean;
+};
 
 export function CheckoutButton({
-	currentPlanId,
-	planId,
-	planName,
-	planInterval,
+  planId,
+  planInterval,
+  currentPlanId,
+  planName,
+  disabled,
 }: CheckoutButtonProps) {
-	const fetcher = useFetcher()
-	const isLoading = fetcher.state !== 'idle'
+  const navigation = useNavigation();
+  const isCurrentPlan = currentPlanId === planId;
+  const isSubmitting =
+    navigation.state === "submitting" &&
+    navigation.formData?.get("planId") === planId;
 
-	if (planId === currentPlanId) {
-		return (
-			<Button disabled>
-				<span>Current</span>
-			</Button>
-		)
-	}
+  if (isCurrentPlan) {
+    return (
+      <Button className="w-full" disabled variant="outline">
+        Current Plan
+      </Button>
+    );
+  }
 
-	return (
-		<fetcher.Form action='/resources/stripe/create-checkout' method='post'>
-			<Button
-				size='lg'
-				value={JSON.stringify({ planId, planInterval })}
-				disabled={currentPlanId !== PlanId.STARTER}
-				// variant={currentPlanId !== PlanId.STARTER ? 'default' : 'ghost'}
-			>
-				<span>{isLoading ? 'Redirecting ...' : `Get ${planName}`}</span>
-			</Button>
-		</fetcher.Form>
-	)
+  return (
+    <Form action="/plans" method="post">
+      <input name="planId" type="hidden" value={planId} />
+      <input name="interval" type="hidden" value={planInterval} />
+      <Button
+        className="w-full"
+        disabled={disabled || isSubmitting}
+        type="submit"
+      >
+        {isSubmitting ? "Loading..." : `Subscribe to ${planName}`}
+      </Button>
+    </Form>
+  );
 }
