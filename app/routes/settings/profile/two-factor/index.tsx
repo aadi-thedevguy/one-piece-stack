@@ -54,7 +54,7 @@ export default function TwoFactorRoute({ loaderData }: Route.ComponentProps) {
             <CheckCheck className="h-4 w-4" />
             <span>You have enabled two-factor authentication.</span>
           </p>
-          <Link to="disable">
+          <Link className="flex items-center gap-2" to="disable">
             <ShieldBan className="h-4 w-4" />
             <span>Disable 2FA</span>
           </Link>

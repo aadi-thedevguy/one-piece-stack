@@ -1,20 +1,16 @@
 # Adjust NODE_VERSION as desired
-ARG NODE_VERSION=21.7.3
-# ARG NODE_VERSION=20.13.1
+ARG NODE_VERSION=24.13.0
 
-FROM node:${NODE_VERSION}-bookworm-slim AS base
-
-# if you want to use fly.io, uncomment the line below
-# LABEL fly_launch_runtime="Remix"
+FROM --platform=linux/amd64 node:${NODE_VERSION}-bookworm-slim AS base
 
 # Remix app lives here 
 WORKDIR /app
 
 # Set production environment variables
-# ENV NODE_ENV="production"
+# ENV NODE_ENV=production
 
 # Install pnpm
-# ARG PNPM_VERSION=9.1.1
+# ARG PNPM_VERSION=.10.19.0
 RUN npm install -g pnpm
 
 # Install OpenSSL
@@ -29,7 +25,7 @@ RUN pnpm install --frozen-lockfile --prod=false
 
 # Add Prisma and Generate Prisma client
 ADD prisma .
-RUN pnpm dlx prisma generate
+RUN pnpm run db:generate
 
 # Copy application code
 ADD . .
@@ -44,7 +40,7 @@ ADD . .
 RUN pnpm run build
 
 # Remove development dependencies
-RUN pnpm prune --prod
+RUN CI=true pnpm prune --prod
 
 # Final stage for app image
 FROM base

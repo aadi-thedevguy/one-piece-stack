@@ -22,7 +22,11 @@
       "!**/.source"
     ]
   },
-  "extends": ["ultracite"],
+  "extends": [
+    "ultracite",
+    "ultracite/biome/core",
+    "ultracite/biome/remix"
+  ],
   "linter": {
     "rules": {
       "style": {

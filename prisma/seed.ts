@@ -4,9 +4,37 @@ import bcrypt from "bcryptjs";
 import { CURRENCIES, INTERVALS, PLANS, PRICING_PLANS } from "~/constants/index";
 import { prisma } from "~/lib/db.server";
 import { getOrCreateCustomer, getOrCreateProduct } from "~/lib/payment.server";
+import { UniqueEnforcer } from 'enforce-unique'
+
+const uniqueUsernameEnforcer = new UniqueEnforcer()
+
+function createUser() {
+  const firstName = faker.person.firstName()
+  const lastName = faker.person.lastName()
+
+  const username = uniqueUsernameEnforcer
+    .enforce(() => {
+      return (
+        faker.string.alphanumeric({ length: 2 }) +
+        '_' +
+        faker.internet.username({
+          firstName: firstName.toLowerCase(),
+          lastName: lastName.toLowerCase(),
+        })
+      )
+    })
+    .slice(0, 20)
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, '_')
+  return {
+    username,
+    name: `${firstName} ${lastName}`,
+    email: `${username}@example.com`,
+  }
+}
 
 // Helper function to create a password hash
-function createPassword(password: string = faker.internet.password()) {
+export function createPassword(password: string = faker.internet.password()) {
   return {
     hash: bcrypt.hashSync(password, 10),
   };
@@ -170,7 +198,41 @@ async function seed() {
       where: { id: adminUser.id },
       data: { customerId: customer.customer_id },
     });
+    console.timeEnd("✨ Created admin subscription...");
   }
+
+  console.time("🌱 Creating users...");
+
+  const plan = await prisma.plan.findFirst();
+  const price = await prisma.price.findFirst({ where: { planId: plan?.id } });
+
+    for (let i = 0; i < 10; i++) {
+    const userData = createUser()
+		 const user = await prisma.user.create({
+			select: { id: true },
+			data: {
+				...userData,
+				password: { create: createPassword(userData.username) },
+                active: i % 2 === 0 ? true : false,
+				roles: { connect: { name: 'user' } },
+			},
+		})
+
+    if (i % 2 === 0 && plan && price) {
+      await prisma.subscription.create({
+        data: {
+          userId: user.id,
+          planId: plan.id,
+          priceId: price.id,
+          interval: "month",
+          status: "active",
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      });
+    }
+  }
+  console.timeEnd("✅ Created 10 users.");
 
   console.timeEnd("🌱 Database has been seeded");
 }
