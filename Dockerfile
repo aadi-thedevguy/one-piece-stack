@@ -1,7 +1,7 @@
 # Adjust NODE_VERSION as desired
 ARG NODE_VERSION=24.13.0
 
-FROM --platform=linux/amd64 node:${NODE_VERSION}-bookworm-slim AS base
+FROM node:${NODE_VERSION}-bookworm-slim AS base
 
 # Remix app lives here 
 WORKDIR /app

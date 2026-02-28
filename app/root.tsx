@@ -38,6 +38,7 @@ import { prisma } from "./lib/db.server";
 import { pipeHeaders } from "./lib/headers.server";
 import { makeTimings, time } from "./lib/timing.server";
 import { ThemeSwitch, useTheme } from "./routes/resources/theme-switch";
+import {PlausibleScript} from "~/lib/client/analytics"
 
 export const links: Route.LinksFunction = () =>
   [
@@ -201,6 +202,11 @@ function Document({
         />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
+        <PlausibleScript
+          domain={ENV.SERVER_URL}
+          src="https://plausible.devvault.cloud/js/script.file-downloads.outbound-links.js"
+          nonce={nonce} // if you are using a nonce
+        />
       </body>
     </html>
   );

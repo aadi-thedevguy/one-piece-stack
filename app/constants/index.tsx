@@ -31,7 +31,7 @@ In addition to the ways described above, we also process your Personal Data as f
 3. Your rights and choices
 Depending on your location and subject to applicable law, you may have choices regarding our collection, use, and disclosure of your Personal Data:
 
-If you wish to stop receiving marketing-related emails from us, or you want to know more about what data we have on you and want to remove it entirely, you can message us at <a href="mailto:support@thedevguy.in">support@thedevguy.in</a>
+If you wish to stop receiving marketing-related emails from us, or you want to know more about what data we have on you and want to remove it entirely, you can message us at <a href="mailto:email@adityakhare.com">email@adityakhare.com</a>
 
 4. Security and Retention
 We make reasonable efforts to provide a level of security appropriate to the risk associated with the processing of your Personal Data. We maintain organizational, technical, and administrative measures designed to protect the Personal Data covered by this Policy from unauthorized access, destruction, loss, alteration, or misuse. Unfortunately, no data transmission or storage system can be guaranteed to be 100% secure.
@@ -43,7 +43,7 @@ We may change this Policy from time to time to reflect new services, changes in 
 We may provide you with disclosures and alerts regarding the Policy or Personal Data collected by posting them on our website and, if you are an End User or Representative, by contacting you through your email address.
 
 6. Contact us
-If you have any questions or complaints about this Policy, please contact us at <a href="mailto:support@thedevguy.in">support@thedevguy.in</a>
+If you have any questions or complaints about this Policy, please contact us at <a href="mailto:email@adityakhare.com">email@adityakhare.com</a>
 		`;
 
 export const TERMS_OF_SERVICE = `

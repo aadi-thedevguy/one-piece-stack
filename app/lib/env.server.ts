@@ -13,9 +13,8 @@ const schema = z.object({
   REDIS_URL: z.string().optional(),
   SENTRY_DSN: z.string(),
   RESEND_API_KEY: z.string(),
+  EMAIL_FROM: z.string(),
 
-  // TWITTER_CLIENT_ID: z.string().default('TWITTER_CLIENT_ID'),
-  // TWITTER_CLIENT_SECRET: z.string().default('TWITTER_CLIENT_SECRET'),
   GOOGLE_CLIENT_ID: z.string().default("GOOGLE_CLIENT_ID"),
   GOOGLE_CLIENT_SECRET: z.string().default("GOOGLE_CLIENT_SECRET"),
   DODO_PAYMENTS_API_KEY: z.string(),

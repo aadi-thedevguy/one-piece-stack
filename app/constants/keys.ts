@@ -12,6 +12,6 @@ export const profileUpdateActionIntent = "update-profile";
 export const signOutOfSessionsActionIntent = "sign-out-of-sessions";
 export const placeholderAvatar =
   "https://api.dicebear.com/9.x/adventurer/svg?seed=Oliver";
-export const adminPlaceholderAvatar = "https://thedevguy.in/images/icon.png";
+export const adminPlaceholderAvatar = "https://adityakhare.com/images/icon.png";
 export const floatingToolbarClassName =
   "absolute bottom-3 inset-x-3 flex items-center gap-2 rounded-lg bg-muted/80 p-4 pl-5 shadow-xl shadow-accent backdrop-blur-xs md:gap-4 md:pl-7 justify-end";

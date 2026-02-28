@@ -55,7 +55,8 @@ function Footer({ children }: { children: React.ReactNode }) {
             &copy; {new Date().getFullYear()}{" "}
             <a
               className={cn(buttonVariants({ variant: "link" }), "mx-0 px-0")}
-              href="https://thedevguy.in"
+              href="https://aditykhare.com"
+              target="_blank"
               rel="noreferrer noopener"
             >
               One Piece Stack.
@@ -68,9 +69,9 @@ function Footer({ children }: { children: React.ReactNode }) {
           </p>
           <a
             className={buttonVariants({ variant: "link" })}
-            href="mailto:support@thedevguy.in"
+            href="mailto:email@aditykhare.com"
           >
-            <span className="text-xl">support@thedevguy.in</span>
+            <span className="text-xl">email@aditykhare.com</span>
           </a>
         </div>
 
