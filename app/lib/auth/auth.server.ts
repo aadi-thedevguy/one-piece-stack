@@ -12,7 +12,7 @@ import type {
   Connection,
   Password,
   User,
-} from "../../../prisma/generated/client";
+} from "prisma/generated/client";
 import { prisma } from "../db.server";
 import { uploadProfileImage } from "../upload.server";
 import { authSessionStorage } from "./session.server";

@@ -1,4 +1,4 @@
-import type { Prisma, User } from "../../../prisma/generated/client";
+import type { Prisma, User } from "prisma/generated/client";
 import { invariantResponse } from "@epic-web/invariant";
 import {
   ArrowUpDown,

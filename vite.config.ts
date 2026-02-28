@@ -36,8 +36,8 @@ export default defineConfig((config) => ({
 
 const sentryConfig: SentryReactRouterBuildOptions = {
   reactComponentAnnotation: { enabled: true },
-  release: {
-    name: process.env.COMMIT_SHA,
-    inject: true,
-  },
+  // release: {
+  //   name: process.env.COMMIT_SHA,
+  //   inject: true,
+  // },
 };
