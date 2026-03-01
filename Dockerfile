@@ -24,7 +24,7 @@ COPY --link package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod=false
 
 # Add Prisma and Generate Prisma client
-ADD prisma .
+COPY prisma ./prisma
 RUN pnpm run db:generate
 
 # Copy application code
