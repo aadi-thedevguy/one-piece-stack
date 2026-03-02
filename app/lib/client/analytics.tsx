@@ -19,9 +19,11 @@ export function PlausibleScript({
  src,
  ...props
 }: PlausibleScriptProps) {
+
+  const strippedDomain = domain.replace(/^https?:\/\//, "");
  return (
    <>
-     <script defer data-domain={domain} src={src} {...props} />
+     <script defer data-domain={strippedDomain} src={src} {...props} />
      <script
        {...props}
        src={undefined}
