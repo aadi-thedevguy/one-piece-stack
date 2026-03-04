@@ -20,6 +20,8 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Git hooks for code quality - [Husky](https://typicode.github.io/husky/)
 - Payment and Subscriptions with [Dodo Payments](https://dodopayments.com/)
 - Error Tracking with [Sentry](https://sentry.io)
+- Analytics - [Plausible](https://plausible.io)
+- Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/)
 
 ## Features
 
@@ -29,11 +31,6 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Dark Mode Support
 - CSRF Protection and Honeypot
 - Caching and Rate-Limiting
-
-## Upcoming Tech in the Stack
-
-- Analytics - [Posthog](https://posthog.com)
-- Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/)
 
 ## Development
 
