@@ -1,9 +1,9 @@
 import * as E from "@react-email/components";
 
-type EmailTemplateProps = {
+interface EmailTemplateProps {
   onboardingUrl: string;
   otp: string;
-};
+}
 
 export function ForgotPasswordEmail({
   onboardingUrl,

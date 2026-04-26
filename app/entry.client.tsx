@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/correctness/noUndeclaredVariables: <explanation> */
+/** biome-ignore-all lint/correctness/noUndeclaredVariables: Globals provided by browser */
 import * as Sentry from "@sentry/react-router";
 import { startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";

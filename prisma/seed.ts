@@ -1,36 +1,35 @@
 import "dotenv/config";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
+import { UniqueEnforcer } from "enforce-unique";
 import { CURRENCIES, INTERVALS, PLANS, PRICING_PLANS } from "~/constants/index";
 import { prisma } from "~/lib/db.server";
 import { getOrCreateCustomer, getOrCreateProduct } from "~/lib/payment.server";
-import { UniqueEnforcer } from 'enforce-unique'
 
-const uniqueUsernameEnforcer = new UniqueEnforcer()
+const uniqueUsernameEnforcer = new UniqueEnforcer();
 
 function createUser() {
-  const firstName = faker.person.firstName()
-  const lastName = faker.person.lastName()
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
 
   const username = uniqueUsernameEnforcer
-    .enforce(() => {
-      return (
+    .enforce(
+      () =>
         faker.string.alphanumeric({ length: 2 }) +
-        '_' +
+        "_" +
         faker.internet.username({
           firstName: firstName.toLowerCase(),
           lastName: lastName.toLowerCase(),
         })
-      )
-    })
+    )
     .slice(0, 20)
     .toLowerCase()
-    .replace(/[^a-z0-9_]/g, '_')
+    .replace(/[^a-z0-9_]/g, "_");
   return {
     username,
     name: `${firstName} ${lastName}`,
     email: `${username}@example.com`,
-  }
+  };
 }
 
 // Helper function to create a password hash
@@ -40,6 +39,7 @@ export function createPassword(password: string = faker.internet.password()) {
   };
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Seed script logic is inherently linear and acceptable
 async function createPlansAndPrices() {
   console.time("💳 Creating plans...");
 
@@ -153,6 +153,19 @@ async function seed() {
   ]);
   console.timeEnd("🧹 Cleaned up the database...");
 
+  console.time("🔑 Creating permissions...");
+  const entities = ["user", "note"];
+  const actions = ["create", "read", "update", "delete"];
+  const accesses = ["own", "any"] as const;
+  for (const entity of entities) {
+    for (const action of actions) {
+      for (const access of accesses) {
+        await prisma.permission.create({ data: { entity, action, access } });
+      }
+    }
+  }
+  console.timeEnd("🔑 Created permissions...");
+
   console.time("👑 Creating roles...");
   await prisma.role.create({
     data: {
@@ -165,7 +178,17 @@ async function seed() {
       },
     },
   });
-  await prisma.role.create({ data: { name: "user" } });
+  await prisma.role.create({
+    data: {
+      name: "user",
+      permissions: {
+        connect: await prisma.permission.findMany({
+          select: { id: true },
+          where: { access: "own" },
+        }),
+      },
+    },
+  });
   console.timeEnd("👑 Created roles...");
 
   console.time("🐨 Creating admin user...");
@@ -206,17 +229,17 @@ async function seed() {
   const plan = await prisma.plan.findFirst();
   const price = await prisma.price.findFirst({ where: { planId: plan?.id } });
 
-    for (let i = 0; i < 10; i++) {
-    const userData = createUser()
-		 const user = await prisma.user.create({
-			select: { id: true },
-			data: {
-				...userData,
-				password: { create: createPassword(userData.username) },
-                active: i % 2 === 0 ? true : false,
-				roles: { connect: { name: 'user' } },
-			},
-		})
+  for (let i = 0; i < 10; i++) {
+    const userData = createUser();
+    const user = await prisma.user.create({
+      select: { id: true },
+      data: {
+        ...userData,
+        password: { create: createPassword(userData.username) },
+        active: i % 2 === 0,
+        roles: { connect: { name: "user" } },
+      },
+    });
 
     if (i % 2 === 0 && plan && price) {
       await prisma.subscription.create({

@@ -201,8 +201,8 @@
 }
 
 @utility container {
-  margin-inline: auto;
   padding-inline: 2rem;
+  margin-inline: auto;
 
   @media (width >= 1400px) {
     & {
@@ -231,8 +231,8 @@ html {
   /* Scrollbar thumb */
   ::-webkit-scrollbar-thumb {
     background-color: hsl(var(--primary));
-    border-radius: 10px;
     border: 3px solid hsl(var(--muted));
+    border-radius: 10px;
   }
 
   /* Scrollbar width and height */
@@ -251,15 +251,15 @@ html {
 }
 
 .prose ul > li::before {
-  content: "👉";
-  list-style-type: none;
   position: absolute;
   left: -1.5rem;
+  content: "👉";
+  list-style-type: none;
 }
 
 .prose blockquote {
-  border-left-color: var(--border);
   color: var(--foreground);
+  border-left-color: var(--border);
 }
 
 .prose em {

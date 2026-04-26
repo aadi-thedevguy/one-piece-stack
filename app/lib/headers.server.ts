@@ -40,8 +40,8 @@ export function pipeHeaders({
   headers.set(
     "Cache-Control",
     getConservativeCacheControl(
-      parentHeaders.get("Cache-Control"),
-      headers.get("Cache-Control")
+      parentHeaders.get("Cache-Control") as string,
+      headers.get("Cache-Control") as string
     )
   );
 
@@ -112,7 +112,7 @@ export function getConservativeCacheControl(
               break;
             }
             default: {
-              return;
+              return acc;
             }
           }
         }

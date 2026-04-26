@@ -91,11 +91,11 @@ export async function loader({ context }: Route.LoaderArgs) {
   };
 }
 
-type ProfileActionArgs = {
+interface ProfileActionArgs {
+  formData: FormData;
   request: Request;
   userId: string;
-  formData: FormData;
-};
+}
 
 export async function action({ request }: Route.ActionArgs) {
   const userId = await requireUserId(request);
@@ -139,7 +139,7 @@ export default function EditUserProfile({ loaderData }: Route.ComponentProps) {
           )}
           <Button
             asChild
-            className="-right-3 absolute top-3 flex size-10 items-center justify-center rounded-full p-0"
+            className="absolute top-3 -right-3 flex size-10 items-center justify-center rounded-full p-0"
             variant="outline"
           >
             <Link
@@ -294,7 +294,7 @@ function UpdateProfile({
           name="intent"
           size="wide"
           status={
-            fetcher.state !== "idle" ? "pending" : (form.status ?? "idle")
+            fetcher.state === "idle" ? (form.status ?? "idle") : "pending"
           }
           type="submit"
           value={profileUpdateActionIntent}
@@ -344,9 +344,9 @@ function SignOutOfSessions({
               value: signOutOfSessionsActionIntent,
             })}
             status={
-              fetcher.state !== "idle"
-                ? "pending"
-                : (fetcher.data?.status ?? "idle")
+              fetcher.state === "idle"
+                ? (fetcher.data?.status ?? "idle")
+                : "pending"
             }
             variant={dc.doubleCheck ? "destructive" : "default"}
           >

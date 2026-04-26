@@ -21,7 +21,7 @@ const SectionTitle = ({
       {subtitle && <span className="font-lg uppercase">{subtitle}</span>}
       <h2 className="relative isolate mb-6 font-bold text-4xl italic">
         {title}
-        <span className="before:-bottom-0.5 before:-z-10 relative ml-1 inline-block before:absolute before:left-0 before:h-3 before:w-full before:bg-yellow-100 dark:before:bg-yellow-700">
+        <span className="relative ml-1 inline-block before:absolute before:-bottom-0.5 before:left-0 before:-z-10 before:h-3 before:w-full before:bg-yellow-100 dark:before:bg-yellow-700">
           {highlighted}
         </span>
       </h2>

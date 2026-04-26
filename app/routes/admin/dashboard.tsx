@@ -1,5 +1,16 @@
-import type { Prisma, User } from "prisma/generated/client";
 import { invariantResponse } from "@epic-web/invariant";
+import {
+  type ColumnDef,
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+  type VisibilityState,
+} from "@tanstack/react-table";
 import {
   ArrowUpDown,
   Ban,
@@ -9,28 +20,17 @@ import {
   ChevronRight,
   XCircle,
 } from "lucide-react";
-import {useState, useEffect} from "react";
+import type { Prisma, User } from "prisma/generated/client";
+import { useEffect, useState } from "react";
 import {
   type ActionFunctionArgs,
   data,
+  Form,
   type LoaderFunctionArgs,
   redirect,
   useLoaderData,
   useSearchParams,
-  Form,
 } from "react-router";
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  type SortingState,
-  type VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
 import { SearchBar } from "~/components/layout/search-bar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -95,18 +95,16 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
           ],
         }
       : {}),
-    ...(status !== "all"
-      ? { active: status === "active" }
-      : {}),
-    ...(plan !== "all"
-      ? {
+    ...(status === "all" ? {} : { active: status === "active" }),
+    ...(plan === "all"
+      ? {}
+      : {
           subscription: {
             plan: {
               name: plan,
             },
           },
-        }
-      : {}),
+        }),
   };
 
   // Fetch users, total count, and available plans for the filter
@@ -215,19 +213,19 @@ export const columns: ColumnDef<UserData>[] = [
     id: "select",
     header: ({ table }) => (
       <Checkbox
+        aria-label="Select all"
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
+        aria-label="Select row"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
       />
     ),
     enableSorting: false,
@@ -260,17 +258,15 @@ export const columns: ColumnDef<UserData>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Joined
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        variant="ghost"
+      >
+        Joined
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
   },
   {
@@ -287,7 +283,8 @@ export const columns: ColumnDef<UserData>[] = [
     header: "Current Plan",
     cell: ({ row }) => {
       const sub = row.original.subscription;
-      if (!sub) return <span className="text-muted-foreground text-sm">None</span>;
+      if (!sub)
+        return <span className="text-muted-foreground text-sm">None</span>;
       return (
         <div className="flex flex-col">
           <span className="font-medium">{sub.plan.name}</span>
@@ -318,14 +315,13 @@ export const columns: ColumnDef<UserData>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      return <UserActions user={row.original} />;
-    },
+    cell: ({ row }) => <UserActions user={row.original} />,
   },
 ];
 
 export default function AdminUsersRoute() {
-  const { users, total, page, limit, status, plan, plans } = useLoaderData<typeof loader>();
+  const { users, total, page, limit, status, plan, plans } =
+    useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const totalPages = Math.ceil(total / limit);
 
@@ -377,18 +373,19 @@ export default function AdminUsersRoute() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
+      <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <SearchBar
-          status="idle"
           action="/admin/dashboard"
-          autoSubmit
           autoFocus
+          autoSubmit
+          status="idle"
         />
         <div className="flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="capitalize">
-                Status: {status === "all" ? "All" : status} <ChevronDown className="ml-2 h-4 w-4" />
+              <Button className="capitalize" variant="outline">
+                Status: {status === "all" ? "All" : status}{" "}
+                <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -430,8 +427,9 @@ export default function AdminUsersRoute() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="capitalize">
-                Plan: {plan === "all" ? "All" : plan} <ChevronDown className="ml-2 h-4 w-4" />
+              <Button className="capitalize" variant="outline">
+                Plan: {plan === "all" ? "All" : plan}{" "}
+                <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -448,8 +446,8 @@ export default function AdminUsersRoute() {
               </DropdownMenuCheckboxItem>
               {plans.map((p) => (
                 <DropdownMenuCheckboxItem
-                  key={p.name}
                   checked={plan === p.name}
+                  key={p.name}
                   onCheckedChange={() => {
                     const newParams = new URLSearchParams(searchParams);
                     newParams.set("plan", p.name);
@@ -465,7 +463,7 @@ export default function AdminUsersRoute() {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button className="ml-auto" variant="outline">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -473,18 +471,16 @@ export default function AdminUsersRoute() {
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  checked={column.getIsVisible()}
+                  className="capitalize"
+                  key={column.id}
+                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -503,35 +499,42 @@ export default function AdminUsersRoute() {
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    key={row.id}
+                  >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell
+                    className="h-24 text-center"
+                    colSpan={columns.length}
+                  >
                     No results.
                   </TableCell>
                 </TableRow>
@@ -543,31 +546,31 @@ export default function AdminUsersRoute() {
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
-          variant="outline"
-          size="icon"
+          disabled={!table.getCanPreviousPage()}
           onClick={() => {
             const newParams = new URLSearchParams(searchParams);
             newParams.set("page", String(page - 1));
             setSearchParams(newParams);
           }}
-          disabled={!table.getCanPreviousPage()}
+          size="icon"
           title="Previous"
+          variant="outline"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           Page {page} of {totalPages || 1}
         </div>
         <Button
-          variant="outline"
-          size="icon"
+          disabled={!table.getCanNextPage()}
           onClick={() => {
             const newParams = new URLSearchParams(searchParams);
             newParams.set("page", String(page + 1));
             setSearchParams(newParams);
           }}
-          disabled={!table.getCanNextPage()}
+          size="icon"
           title="Next"
+          variant="outline"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -590,16 +593,15 @@ function UserActions({
   return (
     <div className="flex gap-2">
       {user.subscription?.status === "active" && (
-        <Form
-          action="/resources/subscription/cancel"
-          method="POST"
-        >
+        <Form action="/resources/subscription/cancel" method="POST">
           <input name="userId" type="hidden" value={user.id} />
           <Button
             size="icon"
             variant={dcCancel.doubleCheck ? "destructive" : "outline"}
             {...dcCancel.getButtonProps({
-              title: dcCancel.doubleCheck ? "Are you sure?" : "Cancel Subscription",
+              title: dcCancel.doubleCheck
+                ? "Are you sure?"
+                : "Cancel Subscription",
             })}
           >
             <XCircle className="h-4 w-4" />
@@ -610,7 +612,7 @@ function UserActions({
         <Form method="POST">
           <input name="intent" type="hidden" value="ban" />
           <input name="userId" type="hidden" value={user.id} />
-          <Button size="icon" variant="secondary" title="Ban User">
+          <Button size="icon" title="Ban User" variant="secondary">
             <Ban className="h-4 w-4" />
           </Button>
         </Form>

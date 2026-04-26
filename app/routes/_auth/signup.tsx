@@ -8,7 +8,7 @@ import { z } from "zod";
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
-import { SignupEmail } from "~/components/mails/SignupEmail.js";
+import { SignupEmail } from "~/components/mails/signup-email.js";
 import { ProviderConnectionForm } from "~/lib/auth/connections";
 import { prisma } from "~/lib/db.server";
 import { sendEmail } from "~/lib/email.server";

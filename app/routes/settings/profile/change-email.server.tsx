@@ -1,6 +1,6 @@
 import { invariant } from "@epic-web/invariant";
 import { data } from "react-router";
-import { EmailChangeNoticeEmail } from "~/components/mails/EmailChangeEmail";
+import { EmailChangeNoticeEmail } from "~/components/mails/email-change-email";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
 import { prisma } from "~/lib/db.server";
 import { sendEmail } from "~/lib/email.server";
@@ -47,7 +47,7 @@ export async function handleVerification({
     data: { email: newEmail },
   });
 
-  void sendEmail({
+  sendEmail({
     to: preUpdateUser.email,
     subject: "One Piece App - Email changed",
     react: <EmailChangeNoticeEmail userId={user.id} />,

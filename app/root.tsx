@@ -1,5 +1,5 @@
-/** biome-ignore-all lint/correctness/noUndeclaredVariables: <explanation> */
-/** biome-ignore-all lint/security/noDangerouslySetInnerHtml: <explanation> */
+/** biome-ignore-all lint/correctness/noUndeclaredVariables: Route component uses undeclared globals via context */
+/** biome-ignore-all lint/security/noDangerouslySetInnerHtml: Scripts inject HTML intentionally */
 
 import { OpenImgContextProvider } from "openimg/react";
 import type React from "react";
@@ -16,14 +16,15 @@ import {
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { GeneralErrorBoundary } from "~/components/layout/error-boundary";
-import Footer from "~/components/layout/Footer";
-import Navbar from "~/components/layout/Navbar";
+import Footer from "~/components/layout/footer";
+import Navbar from "~/components/layout/navbar";
 import { EpicProgress } from "~/components/layout/progress-bar";
 import { EpicToaster } from "~/components/layout/sonner";
 import { useToast } from "~/components/layout/toaster";
 import { UserDropdown } from "~/components/layout/user-dropdown";
 import { Button } from "~/components/ui/button";
 import { getUserId, logout } from "~/lib/auth/auth.server";
+import { PlausibleScript } from "~/lib/client/analytics";
 import { ClientHintCheck, getHints } from "~/lib/client/client-hints";
 import { useNonce } from "~/lib/client/nonce-provider";
 import { csrf } from "~/lib/csrf.server";
@@ -38,7 +39,6 @@ import { prisma } from "./lib/db.server";
 import { pipeHeaders } from "./lib/headers.server";
 import { makeTimings, time } from "./lib/timing.server";
 import { ThemeSwitch, useTheme } from "./routes/resources/theme-switch";
-import {PlausibleScript} from "~/lib/client/analytics"
 
 export const links: Route.LinksFunction = () =>
   [
@@ -204,8 +204,8 @@ function Document({
         <Scripts nonce={nonce} />
         <PlausibleScript
           domain={ENV.SERVER_URL}
-          src="https://plausible.devvault.cloud/js/script.file-downloads.outbound-links.js"
           nonce={nonce} // if you are using a nonce
+          src="https://plausible.devvault.cloud/js/script.file-downloads.outbound-links.js"
         />
       </body>
     </html>

@@ -1,7 +1,7 @@
 import { StarFilledIcon } from "@radix-ui/react-icons";
 import { CheckIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import SectionTitle from "../layout/SectionTitle";
+import SectionTitle from "../layout/section-title";
 
 const VALUE_PROP = [
   "Easy to use and Setup",
@@ -10,7 +10,7 @@ const VALUE_PROP = [
 ];
 
 const AvatarStack = () => (
-  <div className="-space-x-4 flex rtl:space-x-reverse">
+  <div className="flex -space-x-4 rtl:space-x-reverse">
     <img
       alt="avatar"
       className="h-10 w-10 rounded-full border-2 border-border"
@@ -56,7 +56,7 @@ const Hero = () => {
 
           <ul className="my-8 space-y-4 text-left">
             {VALUE_PROP.map((feature, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              // biome-ignore lint/suspicious/noArrayIndexKey: React requires a key and the list is static
               <li className="flex items-center space-x-3" key={i}>
                 <CheckIcon className="text-green-300" />
                 <span>{feature}</span>
@@ -77,7 +77,7 @@ const Hero = () => {
             <div className="w-1/2 flex-1">
               <div className="flex items-center gap-1">
                 {new Array(5).fill(0).map((_, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                  // biome-ignore lint/suspicious/noArrayIndexKey: React requires a key and the list is static
                   <StarFilledIcon className="h-4 w-4 text-yellow-500" key={i} />
                 ))}
               </div>
@@ -91,10 +91,10 @@ const Hero = () => {
         </div>
 
         <div className="hidden lg:block lg:w-1/2">
-          <div className="2xl:-mr-7.5 relative">
+          <div className="relative 2xl:-mr-7.5">
             <img
               alt="shape"
-              className="-left-11.5 absolute top-0"
+              className="absolute top-0 -left-11.5"
               height={246}
               src="/images/shape/shape-01.png"
               width={46}
@@ -108,7 +108,7 @@ const Hero = () => {
             />
             <img
               alt="shape"
-              className="-right-6.5 absolute bottom-0 z-1"
+              className="absolute -right-6.5 bottom-0 z-1"
               height={21.66}
               src="/images/shape/shape-03.svg"
               width={21.64}

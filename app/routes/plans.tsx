@@ -181,12 +181,12 @@ export default function Plans() {
                 key={plan.planID}
               >
                 {plan.isPopular && !isActive && (
-                  <div className="-right-3.5 -rotate-90 absolute top-5 rounded-tl-full rounded-bl-full bg-yellow-500 px-3 py-2 font-medium text-black text-xs uppercase dark:bg-yellow-300">
+                  <div className="absolute top-5 -right-3.5 -rotate-90 rounded-tl-full rounded-bl-full bg-yellow-500 px-3 py-2 font-medium text-black text-xs uppercase dark:bg-yellow-300">
                     popular
                   </div>
                 )}
                 {isActive && (
-                  <div className="-right-3.5 -rotate-90 absolute top-5 rounded-tl-full rounded-bl-full bg-green-500 px-3 py-2 font-medium text-white text-xs uppercase dark:bg-green-400">
+                  <div className="absolute top-5 -right-3.5 -rotate-90 rounded-tl-full rounded-bl-full bg-green-500 px-3 py-2 font-medium text-white text-xs uppercase dark:bg-green-400">
                     Active
                   </div>
                 )}

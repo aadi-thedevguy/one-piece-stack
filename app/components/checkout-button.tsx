@@ -2,13 +2,13 @@ import { Form, useNavigation } from "react-router";
 import type { Interval } from "~/constants/index";
 import { Button } from "./ui/button";
 
-type CheckoutButtonProps = {
+interface CheckoutButtonProps {
+  currentPlanId: string | null;
+  disabled?: boolean;
   planId: string;
   planInterval: string | Interval;
-  currentPlanId: string | null;
   planName: string;
-  disabled?: boolean;
-};
+}
 
 export function CheckoutButton({
   planId,

@@ -190,7 +190,7 @@ export function CheckboxField({
           }}
           type="button"
         />
-        {/** biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
+        {/** biome-ignore lint/a11y/noLabelWithoutControl: Label is used for a custom checkbox control */}
         <label
           htmlFor={id}
           {...labelProps}

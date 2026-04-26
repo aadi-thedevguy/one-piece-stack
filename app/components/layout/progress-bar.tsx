@@ -22,7 +22,7 @@ function EpicProgress() {
       .getAnimations()
       .map(({ finished }) => finished);
 
-    void Promise.allSettled(animationPromises).then(() => {
+    Promise.allSettled(animationPromises).then(() => {
       if (!delayedPending) setAnimationComplete(true);
     });
   }, [delayedPending]);

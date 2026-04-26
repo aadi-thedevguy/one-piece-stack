@@ -1,6 +1,6 @@
 import { StarFilledIcon } from "@radix-ui/react-icons";
 import { QuoteIcon } from "~/constants/icons";
-import SectionTitle from "../layout/SectionTitle";
+import SectionTitle from "../layout/section-title";
 
 const testimonialData = [
   {
@@ -29,13 +29,13 @@ const testimonialData = [
   },
 ];
 
-type Testimonial = {
+interface Testimonial {
+  content: string;
+  designation: string;
   id: number;
   name: string;
-  designation: string;
-  content: string;
   star: number;
-};
+}
 
 const SingleTestimonial = ({ testimonial }: { testimonial: Testimonial }) => {
   const { star, name, content, designation } = testimonial;

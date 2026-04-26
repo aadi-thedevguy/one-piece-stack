@@ -13,9 +13,13 @@ export function getUserImgSrc(objectKey?: string | null) {
 }
 
 function isUser(
-  user: any
+  user: unknown
 ): user is Awaited<ReturnType<typeof rootLoader>>["data"]["user"] {
-  return user && typeof user === "object" && typeof user.id === "string";
+  return (
+    user &&
+    typeof user === "object" &&
+    typeof (user as Record<string, unknown>).id === "string"
+  );
 }
 
 export function useOptionalUser() {
@@ -66,7 +70,7 @@ export function userHasPermission(
       (permission) =>
         permission.entity === entity &&
         permission.action === action &&
-        (!access || access.includes(permission.access))
+        (!access || access.includes(permission.access as Access))
     )
   );
 }
@@ -235,7 +239,11 @@ export function useDelayedIsPending({
 function callAll<Args extends unknown[]>(
   ...fns: Array<((...args: Args) => unknown) | undefined>
 ) {
-  return (...args: Args) => fns.forEach((fn) => fn?.(...args));
+  return (...args: Args) => {
+    for (const fn of fns) {
+      fn?.(...args);
+    }
+  };
 }
 
 /**

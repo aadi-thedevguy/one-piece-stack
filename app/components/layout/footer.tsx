@@ -56,8 +56,8 @@ function Footer({ children }: { children: React.ReactNode }) {
             <a
               className={cn(buttonVariants({ variant: "link" }), "mx-0 px-0")}
               href="https://aditykhare.com"
-              target="_blank"
               rel="noreferrer noopener"
+              target="_blank"
             >
               One Piece Stack.
             </a>{" "}

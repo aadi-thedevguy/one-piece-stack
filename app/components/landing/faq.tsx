@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import SectionTitle from "../layout/SectionTitle";
+import SectionTitle from "../layout/section-title";
 
 const FAQ_DATA = [
   {
@@ -37,7 +37,7 @@ function FAQ() {
 
       <Accordion className="w-full lg:w-1/2" collapsible type="single">
         {FAQ_DATA.map((item, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+          // biome-ignore lint/suspicious/noArrayIndexKey: React requires a key and the list is static
           <AccordionItem key={i} value={item.question}>
             <AccordionTrigger className="py-8 text-xl hover:no-underline">
               {item.question}

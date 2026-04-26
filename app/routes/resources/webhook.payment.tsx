@@ -1,7 +1,7 @@
 import type { Payment as BasePayment } from "dodopayments/resources/payments";
 import { type ActionFunctionArgs, data } from "react-router";
 import { Webhook } from "standardwebhooks";
-import { SubscriptionEmail } from "~/components/mails/SubscriptionEmail";
+import { SubscriptionEmail } from "~/components/mails/subscription-email";
 import { prisma } from "~/lib/db.server";
 import { sendEmail } from "~/lib/email.server";
 import { dodoClient } from "~/lib/payment.server";
@@ -9,10 +9,10 @@ import { DodoSubscriptionWebhookSchema } from "~/lib/validations";
 
 const dodoWebhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
 type Payment = BasePayment & { payload_type: string };
-type WebhookPayload = {
-  type: string;
+interface WebhookPayload {
   data: Payment;
-};
+  type: string;
+}
 
 async function getDodoEvent(request: Request) {
   if (!dodoWebhookSecret) {

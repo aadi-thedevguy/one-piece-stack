@@ -1,9 +1,9 @@
 {
+  "extends": ["ultracite/biome/core", "ultracite/biome/remix"],
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**",
       "!**/.next",
       "!**/dist",
       "!**/.turbo",
@@ -22,11 +22,6 @@
       "!**/.source"
     ]
   },
-  "extends": [
-    "ultracite",
-    "ultracite/biome/core",
-    "ultracite/biome/remix"
-  ],
   "linter": {
     "rules": {
       "style": {
@@ -37,7 +32,8 @@
       },
       "suspicious": {
         "useAwait": "off",
-        "noConsole": "off"
+        "noConsole": "off",
+        "noExplicitAny": "off"
       },
       "performance": {
         "noNamespaceImport": "off",

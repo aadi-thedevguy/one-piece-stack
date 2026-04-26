@@ -127,7 +127,7 @@ export default function Passkeys({ loaderData }: Route.ComponentProps) {
         throw new Error("Failed to verify registration");
       }
 
-      void revalidator.revalidate();
+      revalidator.revalidate();
     } catch (err) {
       console.error("Failed to create passkey:", err);
       setError("Failed to create passkey. Please try again.");

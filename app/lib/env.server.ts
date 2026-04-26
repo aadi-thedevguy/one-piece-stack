@@ -1,6 +1,3 @@
-/** biome-ignore-all lint/style/noNamespace: <explanation> */
-/** biome-ignore-all lint/nursery/useConsistentTypeDefinitions: <explanation> */
-
 import { z } from "zod";
 
 const schema = z.object({
@@ -30,6 +27,7 @@ const schema = z.object({
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: Merging with NodeJS.ProcessEnv
   namespace NodeJS {
     interface ProcessEnv extends z.infer<typeof schema> {}
   }

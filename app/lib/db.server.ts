@@ -36,6 +36,6 @@ export const prisma = remember("prisma", () => {
     const dur = styleText(color, `${e.duration}ms`);
     console.info(`prisma:query - ${dur} - ${e.query}`);
   });
-  void client.$connect();
+  client.$connect();
   return client;
 });

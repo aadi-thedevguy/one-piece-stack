@@ -60,7 +60,7 @@ export default function ProfileRoute() {
 
       <div className="container flex flex-col items-center rounded-3xl bg-muted p-12">
         <div className="relative w-52">
-          <div className="-top-40 absolute">
+          <div className="absolute -top-40">
             <div className="relative">
               {isAdmin && !user.image ? (
                 <img
@@ -107,6 +107,11 @@ export default function ProfileRoute() {
               </Button>
             )}
 
+            <Button asChild>
+              <Link prefetch="intent" to="/notes">
+                Notes
+              </Link>
+            </Button>
             <Button asChild>
               <Link prefetch="intent" to="/settings/profile">
                 Edit profile

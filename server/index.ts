@@ -30,7 +30,7 @@ export default createHonoServer({
     const ctx = new RouterContextProvider();
     ctx.set(serverBuildContext, {
       build,
-      nonce: _c.get("cspNonce") as string,
+      nonce: _c.get("cspNonce" as never) as string,
     });
     return ctx;
   },

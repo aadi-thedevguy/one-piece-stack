@@ -8,7 +8,7 @@ import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
 import { ErrorList, Field } from "~/components/layout/forms";
 import { StatusButton } from "~/components/layout/status-button";
-import { EmailChangeEmail } from "~/components/mails/EmailChangeEmail";
+import { EmailChangeEmail } from "~/components/mails/email-change-email";
 import { userIdContext } from "~/context";
 import { verifySessionStorage } from "~/lib/auth/verification.server";
 import { validateCSRF } from "~/lib/csrf.server.js";

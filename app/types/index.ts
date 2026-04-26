@@ -5,20 +5,20 @@ import type { z } from "zod";
 import type { VerifySchema } from "~/lib/validations";
 
 // Define a user type for cleaner typing
-export type ProviderUser = {
-  id: string;
+export interface ProviderUser {
   email: string;
-  username?: string;
-  name?: string;
+  id: string;
   imageUrl?: string;
-};
+  name?: string;
+  username?: string;
+}
 
-export type VerifyFunctionArgs = {
+export interface VerifyFunctionArgs {
+  body: FormData | URLSearchParams;
   request: Request;
   submission: Submission<
     z.input<typeof VerifySchema>,
     string[],
     z.output<typeof VerifySchema>
   >;
-  body: FormData | URLSearchParams;
-};
+}

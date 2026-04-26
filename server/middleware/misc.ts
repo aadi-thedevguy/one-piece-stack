@@ -4,4 +4,4 @@ const IS_DEV = MODE === "development";
 
 const IS_PROD = MODE === "production";
 
-export { IS_PROD, IS_DEV, ALLOW_INDEXING };
+export { ALLOW_INDEXING, IS_DEV, IS_PROD };

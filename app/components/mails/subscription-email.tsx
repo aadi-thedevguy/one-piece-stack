@@ -1,10 +1,10 @@
 import * as E from "@react-email/components";
 
-type SubscriptionEmailProps = {
-  userFirstName?: string;
+interface SubscriptionEmailProps {
   action: "created" | "cancelled" | "updated";
   planName?: string;
-};
+  userFirstName?: string;
+}
 
 const baseUrl = process.env.SERVER_URL ?? "http://localhost:3000";
 

@@ -25,15 +25,15 @@ import {
 import { handleVerification as handleOnboardingVerification } from "./onboarding/index.server";
 import { handleVerification as handleResetPasswordVerification } from "./reset-password.server";
 
-export type VerifyFunctionArgs = {
+export interface VerifyFunctionArgs {
+  body: FormData | URLSearchParams;
   request: Request;
   submission: Submission<
     z.input<typeof VerifySchema>,
     string[],
     z.output<typeof VerifySchema>
   >;
-  body: FormData | URLSearchParams;
-};
+}
 
 export function getRedirectToUrl({
   request,

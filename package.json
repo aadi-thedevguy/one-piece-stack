@@ -1,9 +1,7 @@
 {
   "name": "one-piece-app",
-  "private": true,
-  "type": "module",
   "scripts": {
-    "check": "oxlint",
+    "check": "ultracite check",
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "cross-env NODE_OPTIONS='./server/instrument.server.ts' NODE_ENV=production node .",
@@ -12,8 +10,12 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate reset",
-    "db:seed": "tsx ./prisma/seed.ts"
+    "db:seed": "tsx ./prisma/seed.ts",
+    "fix": "ultracite fix",
+    "prepare": "husky"
   },
+  "type": "module",
+  "private": true,
   "dependencies": {
     "@aws-sdk/client-s3": "^3.971.0",
     "@aws-sdk/lib-storage": "^3.971.0",
@@ -98,7 +100,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.11",
+    "@biomejs/biome": "2.4.12",
     "@epic-web/config": "^1.21.3",
     "@faker-js/faker": "^9.9.0",
     "@react-router/dev": "^7.11.0",
@@ -119,12 +121,12 @@
     "tsx": "^4.21.0",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5.9.3",
-    "ultracite": "7.0.12",
+    "ultracite": "7.6.1",
     "vite": "^6.4.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
-      "pnpm dlx ultracite fix"
+      "ultracite fix"
     ]
   },
   "packageManager": "pnpm@10.19.0"

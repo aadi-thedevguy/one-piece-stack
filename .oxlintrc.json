@@ -1,9 +1,5 @@
 {
-  "plugins": [
-    "unicorn",
-    "typescript",
-    "oxc"
-  ],
+  "plugins": ["unicorn", "typescript", "oxc"],
   "jsPlugins": null,
   "categories": {},
   "rules": {

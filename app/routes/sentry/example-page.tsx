@@ -25,8 +25,8 @@ export default function ExamplePage() {
       const result = await Sentry.diagnoseSdkConnectivity();
       setIsConnected(result !== "sentry-unreachable");
     }
-    void checkConnectivity();
-  }, [setIsConnected]);
+    checkConnectivity();
+  }, []);
 
   return (
     <div>
@@ -75,6 +75,7 @@ export default function ExamplePage() {
       </main>
 
       {/* Not for production use! We're just saving you from having to delete an extra CSS file ;) */}
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: This is a safe internal style block */}
       <style dangerouslySetInnerHTML={{ __html: styles }} />
     </div>
   );

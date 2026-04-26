@@ -1,9 +1,9 @@
 import * as E from "@react-email/components";
 
-type EmailTemplateProps = {
-  verifyUrl: string;
+interface EmailTemplateProps {
   otp: string;
-};
+  verifyUrl: string;
+}
 
 export function EmailChangeEmail({ verifyUrl, otp }: EmailTemplateProps) {
   return (

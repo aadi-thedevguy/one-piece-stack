@@ -184,9 +184,9 @@ function Connection({
                   name="intent"
                   size="sm"
                   status={
-                    deleteFetcher.state !== "idle"
-                      ? "pending"
-                      : (deleteFetcher.data?.status ?? "idle")
+                    deleteFetcher.state === "idle"
+                      ? (deleteFetcher.data?.status ?? "idle")
+                      : "pending"
                   }
                   value="delete-connection"
                   variant="destructive"

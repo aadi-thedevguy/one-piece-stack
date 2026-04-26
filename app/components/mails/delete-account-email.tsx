@@ -1,16 +1,16 @@
 import * as E from "@react-email/components";
 
-type Props = {
-  username: string;
+interface Props {
   href: string;
-};
+  username: string;
+}
 
 const baseUrl = process.env.SERVER_URL ?? "http://localhost:3000";
 
-export const ResetEmail = ({ username, href }: Props) => (
+export const DeleteAccountEmail = ({ username, href }: Props) => (
   <E.Html>
     <E.Head />
-    <E.Preview>One Piece App - reset your password</E.Preview>
+    <E.Preview>One Piece App - delete your account</E.Preview>
     <E.Body style={main}>
       <E.Container style={container}>
         <E.Img
@@ -22,21 +22,22 @@ export const ResetEmail = ({ username, href }: Props) => (
         <E.Section>
           <E.Text style={text}>Hi {username},</E.Text>
           <E.Text style={text}>
-            Someone recently requested a password change for your account. If
-            this was you, you can set a new password here:
+            We're sorry to see you go! Please confirm your account deletion by
+            clicking the button below:
+          </E.Text>
+          <E.Text style={text}>
+            <p>This link will expire in 24 hours.</p>
           </E.Text>
           <E.Button href={href} style={button}>
-            Reset password
+            Delete account
           </E.Button>
           <E.Text style={text}>
-            If you don&apos;t want to change your password or didn&apos;t
-            request this, just ignore and delete this message.
+            <p>
+              Best regards,
+              <br />
+              Your App Team
+            </p>
           </E.Text>
-          <E.Text style={text}>
-            To keep your account secure, please don&apos;t forward this email to
-            anyone.
-          </E.Text>
-          <E.Text style={text}>Have a great Day!</E.Text>
         </E.Section>
       </E.Container>
     </E.Body>
