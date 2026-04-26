@@ -28,7 +28,7 @@ COPY prisma ./prisma
 RUN pnpm run db:generate
 
 # Copy application code
-ADD . .
+COPY . .
 # COPY --link . .
 
 # Mount the secret and set it as an environment variable and run the build
