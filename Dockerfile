@@ -4,7 +4,7 @@ ARG NODE_VERSION=24.13.0
 FROM node:${NODE_VERSION}-bookworm-slim AS base
 
 # Remix app lives here 
-WORKDIR /app
+WORKDIR /one-piece-app
 
 # Set production environment variables
 # ENV NODE_ENV=production
@@ -46,7 +46,7 @@ RUN CI=true pnpm prune --prod --ignore-scripts
 FROM base
 
 # Copy built application
-COPY --from=build /app /app
+COPY --from=build /one-piece-app /one-piece-app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
