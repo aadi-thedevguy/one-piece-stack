@@ -40,7 +40,7 @@ ADD . .
 RUN pnpm run build
 
 # Remove development dependencies
-RUN CI=true pnpm prune --prod
+RUN CI=true pnpm prune --prod --ignore-scripts
 
 # Final stage for app image
 FROM base
