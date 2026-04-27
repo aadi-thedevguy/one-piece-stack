@@ -8,7 +8,8 @@ import { reactRouterDevTools } from "react-router-devtools";
 import { reactRouterHonoServer } from "react-router-hono-server/dev";
 import { defineConfig } from "vite";
 import { envOnlyMacros } from "vite-env-only";
-import tsconfigPaths from "vite-tsconfig-paths";
+
+// import tsconfigPaths from "vite-tsconfig-paths";
 
 const MODE = process.env.NODE_ENV;
 
@@ -20,11 +21,17 @@ export default defineConfig((config) => ({
   },
   server: {
     port: 3000,
+    watch: {
+      ignored: ["**/node_modules/**", "**/.git/**"],
+    },
+  },
+  resolve: {
+    tsconfigPaths: true,
   },
   plugins: [
     envOnlyMacros(),
     tailwindcss(),
-    tsconfigPaths(),
+    // tsconfigPaths(),
     reactRouterDevTools(),
     reactRouterHonoServer({ serverEntryPoint: "./server" }),
     MODE === "test" ? null : reactRouter(),

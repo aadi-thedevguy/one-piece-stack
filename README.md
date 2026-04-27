@@ -22,6 +22,7 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Error Tracking with [Sentry](https://sentry.io)
 - Analytics - [Plausible](https://plausible.io)
 - Domain, DDOS Protection and CDN with [Cloudflare](https://www.cloudflare.com/)
+- Async Processing *(Crons, Queues, AI Agent Workflows)* - [Inngest](https://inngest.com)
 
 ## Features
 

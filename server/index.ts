@@ -3,12 +3,14 @@ import { compress } from "hono/compress";
 import { createMiddleware } from "hono/factory";
 import { poweredBy } from "hono/powered-by";
 import { Hono } from "hono/quick";
+import { serve } from "inngest/hono";
 import {
   createContext,
   RouterContextProvider,
   type ServerBuild,
 } from "react-router";
 import { createHonoServer } from "react-router-hono-server/node";
+import { functions, inngest } from "../app/lib/inngest.server";
 import { cspNonceMiddleware } from "./middleware/cspnonce";
 import { epicLogger } from "./middleware/epic-logger";
 import { ALLOW_INDEXING } from "./middleware/misc";
@@ -55,6 +57,24 @@ export default createHonoServer({
 
     server.on("GET", ["/favicons/*", "/img/*"], (c) =>
       c.text("Not found", 404)
+    );
+
+    server.on(
+      ["GET", "PUT", "POST"],
+      "/api/inngest",
+      serve({
+        client: inngest,
+        functions,
+      })
+    );
+
+    server.on(
+      ["GET", "PUT", "POST"],
+      "/api/inngest",
+      serve({
+        client: inngest,
+        functions,
+      })
     );
 
     server.use(compress());

@@ -16,6 +16,7 @@ import { login } from "~/lib/auth/auth.server";
 import { ProviderConnectionForm } from "~/lib/auth/connections";
 import { validateCSRF } from "~/lib/csrf.server.js";
 import { checkHoneypot } from "~/lib/honeypot.server";
+import { inngest } from "~/lib/inngest.server.js";
 import { getErrorMessage, useIsPending } from "~/lib/utils";
 import { providerNames } from "~/lib/validations";
 import {
@@ -73,6 +74,12 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
+  await inngest.send({
+    name: "test/hello.world",
+    data: {
+      email: submission.value.username,
+    },
+  });
   const { session, remember, redirectTo } = submission.value;
 
   return handleNewSession({
