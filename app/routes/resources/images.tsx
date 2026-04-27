@@ -1,29 +1,8 @@
-import { constants, promises as fs } from "node:fs";
 import { invariantResponse } from "@epic-web/invariant";
 import { getImgResponse } from "openimg/node";
 import { getSignedGetRequestInfo } from "~/lib/upload.server";
 import { getDomainUrl } from "~/lib/utils";
 import type { Route } from "./+types/images";
-
-let cacheDir: string | null = null;
-
-async function getCacheDir() {
-  if (cacheDir) return cacheDir;
-
-  let dir = "./tests/fixtures/openimg";
-  if (process.env.NODE_ENV === "production") {
-    const isAccessible = await fs
-      .access("/data", constants.W_OK)
-      .then(() => true)
-      .catch(() => false);
-
-    if (isAccessible) {
-      dir = "/data/images";
-    }
-  }
-  cacheDir = dir;
-  return cacheDir;
-}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -46,7 +25,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       "https://api.dicebear.com",
       signedUrl ? new URL(signedUrl).origin : process.env.AWS_ENDPOINT_URL_S3,
     ].filter(Boolean),
-    cacheFolder: await getCacheDir(),
+    cacheFolder: "no_cache",
     getImgSource: async () => {
       if (signedUrl) {
         return {
