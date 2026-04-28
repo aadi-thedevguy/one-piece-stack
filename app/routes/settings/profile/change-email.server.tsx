@@ -47,7 +47,7 @@ export async function handleVerification({
     data: { email: newEmail },
   });
 
-  sendEmail({
+  await sendEmail({
     to: preUpdateUser.email,
     subject: "One Piece App - Email changed",
     react: <EmailChangeNoticeEmail userId={user.id} />,

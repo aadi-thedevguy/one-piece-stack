@@ -13,7 +13,8 @@
     "db:seed": "tsx ./prisma/seed.ts",
     "fix": "ultracite fix",
     "prepare": "husky",
-    "dev:inngest": "pnpm dlx inngest-cli@latest dev -u http://localhost:3000/api/inngest"
+    "dev:inngest": "pnpm dlx inngest-cli@latest dev -u http://localhost:3000/api/inngest",
+    "email:dev": "email dev --port 5000"
   },
   "type": "module",
   "private": true,
@@ -49,7 +50,6 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.15",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@react-email/components": "0.0.38",
     "@react-router/express": "^7.11.0",
     "@react-router/node": "^7.11.0",
     "@sentry/profiling-node": "^10.32.1",
@@ -84,6 +84,7 @@
     "qrcode": "^1.5.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-email": "^6.0.1",
     "react-router": "^7.11.0",
     "react-router-hono-server": "^2.22.0",
     "remix-auth": "^3.7.0",
@@ -104,6 +105,7 @@
     "@biomejs/biome": "2.4.12",
     "@epic-web/config": "^1.21.3",
     "@faker-js/faker": "^9.9.0",
+    "@react-email/ui": "6.0.1",
     "@react-router/dev": "^7.14.2",
     "@tailwindcss/typography": "^0.5.19",
     "@total-typescript/ts-reset": "^0.6.1",

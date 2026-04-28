@@ -1,6 +1,7 @@
-import { render } from "@react-email/components";
 import type { ReactElement } from "react";
+import { render } from "react-email";
 import { z } from "zod";
+import { inngest } from "~/lib/inngest.server";
 
 const resendErrorSchema = z.union([
   z.object({
@@ -39,22 +40,29 @@ export async function sendEmail({
     ...(react ? await renderReactEmail(react) : null),
   };
 
-  // feel free to remove this condition once you've set up resend
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY not set.");
-    console.error(
-      "To send emails, set the RESEND_API_KEY environment variable."
-    );
-    console.error(
-      "Would have sent the following email:",
-      JSON.stringify(email)
-    );
+  try {
+    await inngest.send({
+      name: "email/send",
+      data: email,
+    });
+
     return {
       status: "success",
-      data: { id: "mocked" },
+      data: { id: "queued" },
+    } as const;
+  } catch (error) {
+    return {
+      status: "error",
+      error: {
+        name: error instanceof Error ? error.name : "UnknownError",
+        message: error instanceof Error ? error.message : "Unknown Error",
+        statusCode: 500,
+      },
     } as const;
   }
+}
 
+export async function processEmail(email: Record<string, any>) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     body: JSON.stringify(email),

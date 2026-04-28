@@ -1,12 +1,19 @@
-import * as E from "@react-email/components";
+import * as E from "react-email";
+import {
+  baseUrl,
+  button,
+  container,
+  headingStyles,
+  hr,
+  main,
+  paragraphStyles,
+} from "./mail-constants";
 
 interface SubscriptionEmailProps {
   action: "created" | "cancelled" | "updated";
   planName?: string;
   userFirstName?: string;
 }
-
-const baseUrl = process.env.SERVER_URL ?? "http://localhost:3000";
 
 const getEmailContent = (
   action: SubscriptionEmailProps["action"],
@@ -36,7 +43,6 @@ const getEmailContent = (
         buttonText: "Go to Dashboard",
       };
     default:
-      // Should not happen
       return {
         preview: "Update on your subscription.",
         heading: `Hello ${userFirstName},`,
@@ -65,23 +71,23 @@ export const SubscriptionEmail = ({
       <E.Body style={main}>
         <E.Container style={container}>
           <E.Img
-            alt="One Piece Stack"
+            alt="mail-sent"
             height="50"
-            src={`${baseUrl}/mail-sent.png`}
-            style={logo}
+            src={`${baseUrl}/mail/mail-sent.png`}
+            style={{ marginBottom: "24px" }}
             width="170"
           />
           <E.Heading style={headingStyles}>{heading}</E.Heading>
           <E.Text style={paragraphStyles}>{paragraph}</E.Text>
-          <E.Section style={btnContainer}>
+          <E.Section>
             <E.Button href={actionLink} style={button}>
               {buttonText}
             </E.Button>
           </E.Section>
           <E.Text style={paragraphStyles}>
-            Best,
+            Best regards,
             <br />
-            The One Piece Stack team
+            One Piece App
           </E.Text>
           <E.Hr style={hr} />
         </E.Container>
@@ -92,53 +98,3 @@ export const SubscriptionEmail = ({
 
 export const SubscriptionEmailHtml = async (props: SubscriptionEmailProps) =>
   await E.render(<SubscriptionEmail {...props} />);
-const main = {
-  backgroundColor: "#ffffff",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
-};
-
-const container = {
-  margin: "0 auto",
-  padding: "20px 0 48px",
-};
-
-const logo = {
-  margin: "0 auto",
-};
-
-const paragraphStyles = {
-  fontSize: "16px",
-  lineHeight: "26px",
-};
-
-const btnContainer = {
-  textAlign: "center" as const,
-};
-
-const button = {
-  backgroundColor: "#333",
-  borderRadius: "3px",
-  color: "#fff",
-  fontSize: "16px",
-  textDecoration: "none",
-  textAlign: "center" as const,
-  display: "block",
-  padding: "12px",
-};
-
-const hr = {
-  borderColor: "#cccccc",
-  margin: "20px 0",
-};
-
-const headingStyles = {
-  color: "#000",
-  fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: "24px",
-  fontWeight: "normal",
-  textAlign: "center" as const,
-  margin: "30px 0",
-  padding: "0",
-};
