@@ -27,7 +27,7 @@ export const serverBuildContext = createContext<{
 export default createHonoServer({
   app: new Hono(),
   defaultLogger: false,
-
+  hostname: "0.0.0.0",
   getLoadContext: (_c, { build }) => {
     const ctx = new RouterContextProvider();
     ctx.set(serverBuildContext, {
