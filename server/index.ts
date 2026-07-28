@@ -27,7 +27,7 @@ export const serverBuildContext = createContext<{
 export default createHonoServer({
   app: new Hono(),
   defaultLogger: false,
-  hostname: "0.0.0.0",
+  // hostname: "0.0.0.0",
   getLoadContext: (_c, { build }) => {
     const ctx = new RouterContextProvider();
     ctx.set(serverBuildContext, {
@@ -40,15 +40,15 @@ export default createHonoServer({
     server.use("*", epicLogger({ logName: "One Piece Stack" }));
     server.use(removeTrailingSlash);
 
-    server.use("*", async (c, next) => {
-      const proto = c.req.header("X-Forwarded-Proto");
-      const host = c.req.header("Host");
-      if (proto === "http") {
-        const secureUrl = `https://${host}${c.req.url}`;
-        return c.redirect(secureUrl, 301);
-      }
-      await next();
-    });
+    // server.use("*", async (c, next) => {
+    //   const proto = c.req.header("X-Forwarded-Proto");
+    //   const host = c.req.header("Host");
+    //   if (proto === "http") {
+    //     const secureUrl = `https://${host}${c.req.url}`;
+    //     return c.redirect(secureUrl, 301);
+    //   }
+    //   await next();
+    // });
 
     server.use(cspNonceMiddleware);
     server.use("*", secureHeadersMiddleware);
