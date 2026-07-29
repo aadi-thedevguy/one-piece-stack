@@ -12,7 +12,7 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Lightweight, performant server framework - [Hono](https://hono.dev)
 - ORM - [Prisma v7](https://prisma.io)
 - Send Transactional emails with [AWS SES](https://aws.amazon.com/ses/)
-- Storing Assets in [Cloudflare R2](https://developers.cloudflare.com/r2/)
+- Storing Assets in a S3-Compatible Storage like [Cloudflare R2](https://developers.cloudflare.com/r2/) (can easily be swapped out to AWS S3)
 - Styling with [TailwindCSS](https://tailwindcss.com)
 - Component Library - [ShadCN UI](https://ui.shadcn.com/)
 - Deploys anywhere with [Docker](https://docker.com)
