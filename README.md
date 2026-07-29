@@ -11,7 +11,7 @@ Production Ready SAAS Starter Kit with emphasis on Security and Scale so YOU can
 - Secondary Database(optional) - [Redis](https://redis.io)
 - Lightweight, performant server framework - [Hono](https://hono.dev)
 - ORM - [Prisma v7](https://prisma.io)
-- Send Transactional emails with [Resend](https://resend.com/)
+- Send Transactional emails with [AWS SES](https://aws.amazon.com/ses/)
 - Storing Assets in [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - Styling with [TailwindCSS](https://tailwindcss.com)
 - Component Library - [ShadCN UI](https://ui.shadcn.com/)
