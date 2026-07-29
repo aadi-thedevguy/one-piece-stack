@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from "react-router";
+import { createCookieSessionStorage, redirect, redirectDocument } from "react-router";
 import { toastKey } from "~/constants/keys";
 import { type ToastInput, ToastSchema } from "~/lib/validations";
 import { combineHeaders } from "./utils";
@@ -20,6 +20,17 @@ export async function redirectWithToast(
   init?: ResponseInit
 ) {
   return redirect(url, {
+    ...init,
+    headers: combineHeaders(init?.headers, await createToastHeaders(toast)),
+  });
+}
+
+export async function redirectDocumentWithToast(
+  url: string,
+  toast: ToastInput,
+  init?: ResponseInit
+) {
+  return redirectDocument(url, {
     ...init,
     headers: combineHeaders(init?.headers, await createToastHeaders(toast)),
   });

@@ -16,7 +16,7 @@ import { requireUserWithPermission } from "~/lib/auth/auth.server";
 import { cache, cachified } from "~/lib/cache.server";
 import { prisma } from "~/lib/db.server";
 import { makeTimings } from "~/lib/timing.server";
-import { redirectWithToast } from "~/lib/toast.server";
+import { redirectDocumentWithToast } from "~/lib/toast.server";
 import { useIsPending, useOptionalUser, userHasPermission } from "~/lib/utils";
 import type { Route } from "./+types/$noteId.ts";
 
@@ -43,8 +43,8 @@ export async function loader({ context, params }: Route.LoaderArgs) {
         },
       });
     },
-    ttl: 1000 * 60 * 60 * 24 * 30, // 30 days
-    staleWhileRevalidate: 1000 * 60 * 60 * 24 * 30, // 30 days
+    ttl: 1000 * 60 * 5, // 5 minutes
+    staleWhileRevalidate: 1000 * 60 * 5, // 5 minutes stale
   });
 
   invariantResponse(note, "Not found", { status: 404 });
@@ -96,7 +96,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   await cache.delete(`note:${note.id}`);
   await cache.delete(`user-notes:${userId}`);
 
-  return redirectWithToast("/notes", {
+  return redirectDocumentWithToast("/notes", {
     type: "success",
     title: "Success",
     description: "Your note has been deleted.",
