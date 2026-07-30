@@ -37,14 +37,6 @@ const sesSuccessSchema = z.object({
   MessageId: z.string(),
 });
 
-interface Email {
-  from: string;
-  html: string;
-  subject: string;
-  text: string;
-  to: string;
-}
-
 export async function sendEmail({
   react,
   ...options
@@ -85,7 +77,7 @@ export async function sendEmail({
   }
 }
 
-export async function processEmail(email: Email) {
+export async function processEmail(email: Record<string, any>) {
   switch (process.env.EMAIL_PROVIDER) {
     case "resend":
       return processEmailWithResend(email);
@@ -94,11 +86,11 @@ export async function processEmail(email: Email) {
       return processEmailWithSes(email);
 
     default:
-      return null;
+      return processEmailWithResend(email);
   }
 }
 
-async function processEmailWithResend(email: Email) {
+async function processEmailWithResend(email: Record<string, any>) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     body: JSON.stringify(email),
@@ -138,7 +130,7 @@ async function processEmailWithResend(email: Email) {
   } as const;
 }
 
-async function processEmailWithSes(email: Email) {
+async function processEmailWithSes(email: Record<string, any>) {
   const { to, from, subject, html, text } = email;
 
   const command = new SendEmailCommand({

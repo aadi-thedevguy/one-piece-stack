@@ -2,7 +2,9 @@ import { z } from "zod";
 
 const schema = z
   .object({
-    NODE_ENV: z.enum(["production", "development"] as const),
+    NODE_ENV: z
+      .enum(["production", "development"] as const)
+      .default("development"),
     DATABASE_URL: z.string(),
     SERVER_URL: z.string(),
     CORS_ORIGIN: z.string(),
