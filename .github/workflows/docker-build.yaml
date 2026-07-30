@@ -1,0 +1,38 @@
+
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      # 2. Login to GHCR
+      - name: Log in to GHCR
+        uses: docker/login-action@master
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Build & Push with retry
+      - name: Build and Push Docker Image (Retry up to 3 times)
+        uses: nick-fields/retry@master
+        with:
+          max_attempts: 3
+          timeout_minutes: 20
+          command: |
+            docker build -t ghcr.io/${{ github.repository }}:latest .
+            docker push ghcr.io/${{ github.repository }}:latest

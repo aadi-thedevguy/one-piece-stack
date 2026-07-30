@@ -95,6 +95,8 @@ New AWS SES accounts start in the **SES sandbox**. While your account is in the 
 
 Once your SES account and sending identity are configured, no application code needs to be changed.
 
+**NOTE:** If you only intent to use Resend for Emails, you can safely uninstall the `@aws-sdk/client-ses` package.
+
 ### Payments — Dodo Payments
 
 [Dodo Payments](https://dodopayments.com/) is used for payments and subscription management.
