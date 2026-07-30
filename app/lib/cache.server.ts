@@ -34,11 +34,12 @@ export const lruCache = {
   delete: (key) => lru.delete(key),
 } satisfies Cache;
 
-const redis = remember("redis", () => {
+export const redis = remember<Redis | null>("redis", () => {
   const url = process.env.REDIS_URL;
 
   if (!url) {
-    throw new Error("REDIS_URL is not defined");
+    console.warn("REDIS_URL is not defined — falling back to in-memory cache");
+    return null;
   }
 
   return new Redis(url);
@@ -69,40 +70,44 @@ function bufferReviver(_key: string, value: unknown) {
   return value;
 }
 
-export const cache: CachifiedCache = {
-  name: "Redis cache",
-  async get(key) {
-    const result = await redis.get(key);
-    if (!result) return null;
-    try {
-      const parsed = JSON.parse(result, bufferReviver);
-      const entry = cacheEntrySchema.safeParse(parsed);
-      if (!entry.success) return null;
-      return entry.data;
-    } catch {
-      return null;
+export const cache: CachifiedCache = redis
+  ? {
+      name: "Redis cache",
+      async get(key) {
+        const result = await redis.get(key);
+        if (!result) return null;
+        try {
+          const parsed = JSON.parse(result, bufferReviver);
+          const entry = cacheEntrySchema.safeParse(parsed);
+          if (!entry.success) return null;
+          return entry.data as CacheEntry<unknown>;
+        } catch {
+          return null;
+        }
+      },
+      async set(key, entry) {
+        const ttl = totalTtl(entry?.metadata);
+        const value = JSON.stringify(entry, bufferReplacer);
+        if (ttl > 0 && ttl < Number.POSITIVE_INFINITY) {
+          await redis.set(key, value, "PX", ttl);
+        } else {
+          await redis.set(key, value);
+        }
+      },
+      async delete(key) {
+        await redis.del(key);
+      },
     }
-  },
-  async set(key, entry) {
-    const ttl = totalTtl(entry?.metadata);
-    const value = JSON.stringify(entry, bufferReplacer);
-    if (ttl > 0 && ttl < Number.POSITIVE_INFINITY) {
-      await redis.set(key, value, "PX", ttl);
-    } else {
-      await redis.set(key, value);
-    }
-  },
-  async delete(key) {
-    await redis.del(key);
-  },
-};
+  : lruCache;
 
 export async function getAllCacheKeys(limit: number) {
-  const stream = redis.scanStream({ count: limit, match: "*" });
   const keys: string[] = [];
-  for await (const resultKeys of stream) {
-    keys.push(...resultKeys);
-    if (keys.length >= limit) break;
+  if (redis) {
+    const stream = redis.scanStream({ count: limit, match: "*" });
+    for await (const resultKeys of stream) {
+      keys.push(...resultKeys);
+      if (keys.length >= limit) break;
+    }
   }
   return {
     redis: keys.slice(0, limit),
@@ -111,11 +116,13 @@ export async function getAllCacheKeys(limit: number) {
 }
 
 export async function searchCacheKeys(search: string, limit: number) {
-  const stream = redis.scanStream({ count: limit, match: `*${search}*` });
   const keys: string[] = [];
-  for await (const resultKeys of stream) {
-    keys.push(...resultKeys);
-    if (keys.length >= limit) break;
+  if (redis) {
+    const stream = redis.scanStream({ count: limit, match: `*${search}*` });
+    for await (const resultKeys of stream) {
+      keys.push(...resultKeys);
+      if (keys.length >= limit) break;
+    }
   }
   return {
     redis: keys.slice(0, limit),
