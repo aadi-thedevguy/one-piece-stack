@@ -1,8 +1,28 @@
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import type { ReactElement } from "react";
 import { render } from "react-email";
 import { z } from "zod";
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { inngest } from "~/lib/inngest.server";
+
+const resendErrorSchema = z.union([
+  z.object({
+    name: z.string(),
+    message: z.string(),
+    statusCode: z.number(),
+  }),
+  z.object({
+    name: z.literal("UnknownError"),
+    message: z.literal("Unknown Error"),
+    statusCode: z.literal(500),
+    cause: z.any(),
+  }),
+]);
+
+type ResendError = z.infer<typeof resendErrorSchema>;
+
+const resendSuccessSchema = z.object({
+  id: z.string(),
+});
 
 const sesErrorSchema = z.object({
   name: z.string(),
@@ -10,11 +30,20 @@ const sesErrorSchema = z.object({
   statusCode: z.number(),
   cause: z.any().optional(),
 });
+
 type SesError = z.infer<typeof sesErrorSchema>;
 
 const sesSuccessSchema = z.object({
   MessageId: z.string(),
 });
+
+interface Email {
+  from: string;
+  html: string;
+  subject: string;
+  text: string;
+  to: string;
+}
 
 export async function sendEmail({
   react,
@@ -56,17 +85,60 @@ export async function sendEmail({
   }
 }
 
-function getSesClient() {
-  return new SESClient({
-    region: process.env.AWS_REGION,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
-    },
-  });
+export async function processEmail(email: Email) {
+  switch (process.env.EMAIL_PROVIDER) {
+    case "resend":
+      return processEmailWithResend(email);
+
+    case "ses":
+      return processEmailWithSes(email);
+
+    default:
+      return null;
+  }
 }
 
-export async function processEmail(email: Record<string, any>) {
+async function processEmailWithResend(email: Email) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    body: JSON.stringify(email),
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+  const parsedData = resendSuccessSchema.safeParse(data);
+
+  if (response.ok && parsedData.success) {
+    return {
+      status: "success",
+      data: parsedData,
+    } as const;
+  }
+
+  const parseResult = resendErrorSchema.safeParse(data);
+
+  if (parseResult.success) {
+    return {
+      status: "error",
+      error: parseResult.data,
+    } as const;
+  }
+
+  return {
+    status: "error",
+    error: {
+      name: "UnknownError",
+      message: "Unknown Error",
+      statusCode: 500,
+      cause: data,
+    } satisfies ResendError,
+  } as const;
+}
+
+async function processEmailWithSes(email: Email) {
   const { to, from, subject, html, text } = email;
 
   const command = new SendEmailCommand({
@@ -80,32 +152,26 @@ export async function processEmail(email: Record<string, any>) {
         Charset: "UTF-8",
       },
       Body: {
-        Html: html
-          ? {
-              Data: html,
-              Charset: "UTF-8",
-            }
-          : undefined,
-        Text: text
-          ? {
-              Data: text,
-              Charset: "UTF-8",
-            }
-          : undefined,
+        Html: {
+          Data: html,
+          Charset: "UTF-8",
+        },
+        Text: {
+          Data: text,
+          Charset: "UTF-8",
+        },
       },
     },
   });
 
-  const client = getSesClient();
-
   try {
-    const response = await client.send(command);
+    const response = await getSesClient().send(command);
     const parsedData = sesSuccessSchema.safeParse(response);
 
     if (parsedData.success) {
       return {
         status: "success",
-        data: parsedData,
+        data: parsedData.data,
       } as const;
     }
 
@@ -131,10 +197,21 @@ export async function processEmail(email: Record<string, any>) {
   }
 }
 
+function getSesClient() {
+  return new SESClient({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+}
+
 async function renderReactEmail(react: ReactElement) {
   const [html, text] = await Promise.all([
     render(react, { pretty: true }),
     render(react, { plainText: true, pretty: true }),
   ]);
+
   return { html, text };
 }

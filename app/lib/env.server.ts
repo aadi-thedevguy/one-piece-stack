@@ -1,30 +1,42 @@
 import { z } from "zod";
 
-const schema = z.object({
-  NODE_ENV: z.enum(["production", "development", "test"] as const),
-  DATABASE_URL: z.string(),
-  SERVER_URL: z.string(),
-  CORS_ORIGIN: z.string(),
-  SESSION_SECRET: z.string(),
-  HONEYPOT_SECRET: z.string(),
-  REDIS_URL: z.string().optional(),
-  SENTRY_DSN: z.string(),
-  RESEND_API_KEY: z.string(),
-  EMAIL_FROM: z.string(),
+const schema = z
+  .object({
+    NODE_ENV: z.enum(["production", "development"] as const),
+    DATABASE_URL: z.string(),
+    SERVER_URL: z.string(),
+    CORS_ORIGIN: z.string(),
+    SESSION_SECRET: z.string(),
+    HONEYPOT_SECRET: z.string(),
+    REDIS_URL: z.string().optional(),
+    SENTRY_DSN: z.string(),
 
-  GOOGLE_CLIENT_ID: z.string().default("GOOGLE_CLIENT_ID"),
-  GOOGLE_CLIENT_SECRET: z.string().default("GOOGLE_CLIENT_SECRET"),
-  DODO_PAYMENTS_API_KEY: z.string(),
-  DODO_PAYMENTS_WEBHOOK_SECRET: z.string(),
-  ALLOW_INDEXING: z.enum(["true", "false"]).optional(),
+    EMAIL_PROVIDER: z.enum(["resend", "ses"] as const).default("resend"),
+    EMAIL_FROM: z.string(),
+    RESEND_API_KEY: z.string().optional(),
 
-  // Object Storage Configuration
-  AWS_ACCESS_KEY_ID: z.string(),
-  AWS_SECRET_ACCESS_KEY: z.string(),
-  AWS_REGION: z.string(),
-  AWS_ENDPOINT_URL_S3: z.string().url(),
-  BUCKET_NAME: z.string(),
-});
+    GOOGLE_CLIENT_ID: z.string().default("GOOGLE_CLIENT_ID"),
+    GOOGLE_CLIENT_SECRET: z.string().default("GOOGLE_CLIENT_SECRET"),
+    DODO_PAYMENTS_API_KEY: z.string(),
+    DODO_PAYMENTS_WEBHOOK_SECRET: z.string(),
+    ALLOW_INDEXING: z.enum(["true", "false"]).optional(),
+
+    // Object Storage Configuration
+    AWS_ACCESS_KEY_ID: z.string(),
+    AWS_SECRET_ACCESS_KEY: z.string(),
+    AWS_REGION: z.string(),
+    AWS_ENDPOINT_URL_S3: z.string().url(),
+    BUCKET_NAME: z.string(),
+  })
+  .superRefine((env, ctx) => {
+    if (env.EMAIL_PROVIDER === "resend" && !env.RESEND_API_KEY) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["RESEND_API_KEY"],
+        message: "RESEND_API_KEY is required when EMAIL_PROVIDER is resend",
+      });
+    }
+  });
 
 declare global {
   // biome-ignore lint/style/noNamespace: Merging with NodeJS.ProcessEnv
