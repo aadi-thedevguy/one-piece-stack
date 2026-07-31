@@ -40,8 +40,8 @@ export async function loader({ context }: Route.LoaderArgs) {
         where: { id: userId },
       });
     },
-    ttl: 1000 * 60 * 60 * 24 * 30, // 30 days
-    staleWhileRevalidate: 1000 * 60 * 60 * 24 * 30, // 30 days
+    ttl: 1000 * 60 * 5, // 5 minutes
+    staleWhileRevalidate: 1000 * 60 * 5, // 5 minutes stale
   });
 
   invariantResponse(owner, "Owner not found", { status: 404 });

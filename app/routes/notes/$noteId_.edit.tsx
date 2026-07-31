@@ -6,7 +6,7 @@ import { z } from "zod";
 import { userIdContext } from "~/context";
 import { cache } from "~/lib/cache.server";
 import { prisma } from "~/lib/db.server";
-import { redirectWithToast } from "~/lib/toast.server";
+import { redirectDocumentWithToast } from "~/lib/toast.server";
 import type { Route } from "./+types/$noteId_.edit";
 import {
   NoteEditor,
@@ -88,7 +88,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   await cache.delete(`note:${noteId}`);
   await cache.delete(`user-notes:${userId}`);
 
-  return redirectWithToast(`/notes/${updatedNote.id}`, {
+  return redirectDocumentWithToast(`/notes/${updatedNote.id}`, {
     type: "success",
     title: "Success",
     description: "Your note has been updated.",
