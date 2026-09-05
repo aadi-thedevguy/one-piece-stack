@@ -52,7 +52,7 @@ Create an R2 bucket and generate API credentials:
 
 Because the storage implementation uses the S3 API, Cloudflare R2 can be replaced with AWS S3 or another S3-compatible storage provider with minimal changes.
 
-### Email — Resned
+### Email — Resend
 
 We use Resend to send all kinds of emails by default. You can choose your email provider using the `EMAIL_PROVIDER` environment variable:
 
