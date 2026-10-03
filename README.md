@@ -200,13 +200,13 @@ Setup guides:
 Create a new project
 
 ```sh
-npx create-one-piece-app
+npx one-piece-app
 ```
 
 or
 
 ```sh
-pnpm create one-piece-app
+pnpm dlx one-piece-app
 ```
 
 Replace .env.example with .env and fill in the values.
