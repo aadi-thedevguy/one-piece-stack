@@ -1,60 +1,41 @@
-# Create One Piece App
+# One Piece App CLI
 
-A command-line tool to quickly initialize the One Piece Stack starter template, a full-stack framework built on top of React Router v7. This CLI sets up a modern, opinionated web development stack for building scalable and efficient applications with ease.
+A command-line tool to create a new app from the [One Piece Stack](https://github.com/aadi-thedevguy/one-piece-stack) starter template.
 
+## Usage
 
-### Usage
+Run the CLI with npm, Yarn, pnpm, or Bun:
 
-
-To initialize a new One Piece Stack project, run:
-
+```sh
+npx one-piece-app [project-name]
+yarn dlx one-piece-app [project-name]
+pnpm dlx one-piece-app [project-name]
+bunx one-piece-app [project-name]
 ```
 
-npx create-one-piece-app <project-name>
+If no name is provided, the CLI creates `one-piece-app` in the current directory. To choose a package manager explicitly, use `--package-manager` (or `--pm`):
 
+```sh
+npx one-piece-app my-app --package-manager bun
 ```
 
-If you are using pnpm, run:
+The CLI detects the package manager used to run it and installs dependencies with that manager. For npm, it uses `--legacy-peer-deps` to accommodate a peer dependency conflict in the current starter template. If you pass `--skip-install`, use `npm install --legacy-peer-deps` for npm, or your chosen manager's normal `install` command.
 
+## Example
+
+```sh
+npx one-piece-app my-app
+cd my-app
+npm run dev
 ```
 
-pnpm create one-piece-app
+Use the equivalent `dev` command for your package manager (`yarn dev`, `pnpm dev`, or `bun run dev`). See the [One Piece Stack README](https://github.com/aadi-thedevguy/one-piece-stack#readme) for configuration and setup instructions.
 
-```
+## Requirements
 
-### Example
+- Node.js 18 or newer
+- GitHub access to download the starter template
 
-```
+## License
 
-npx create-one-piece-app my-awesome-app
-cd my-awesome-app
-npm dev
-
-```
-
-**This will:**
-- Scaffold a new project directory named my-awesome-app.
-- Set up the One Piece Stack template with React Router v7.
-- Provide instructions to get started.
-
-### Commands
-
-**create-one-piece-app <project-name>:** Creates a new project with the One Piece Stack template.
-
-### Prerequisites
-
-- Node.js (v22 or higher recommended)
-- npm (v8 or higher)
-
-
-### Contributing
-
-Feel free to open issues or submit pull requests on our [GitHub repository](https://github.com/aadi-thedevguy/one-piece-stack). Contributions are welcome!
-
-### License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-### Acknowledgments
-
-Built with ❤️ by <a href="https://thedevguy.in/" target="_blank">TheDevGuy</a>.
+ISC
